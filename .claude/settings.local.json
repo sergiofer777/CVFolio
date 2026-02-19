@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(open:*)",
+      "Bash(lsof:*)",
+      "Bash(npm install)",
+      "Bash(npm install:*)",
+      "Bash(node -e:*)",
+      "Bash(curl:*)",
+      "Bash(python3:*)",
+      "Bash(xargs kill:*)",
+      "Bash(npx next dev:*)"
+    ]
+  }
+}
