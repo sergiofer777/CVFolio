@@ -9,7 +9,9 @@
       "Bash(curl:*)",
       "Bash(python3:*)",
       "Bash(xargs kill:*)",
-      "Bash(npx next dev:*)"
+      "Bash(npx next dev:*)",
+      "Bash(npx next build:*)",
+      "Bash(npx tsc:*)"
     ]
   }
 }

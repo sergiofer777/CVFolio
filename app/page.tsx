@@ -28,16 +28,6 @@ function CheckIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-function FileIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
-      <path d="M14.5 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7.5L14.5 2z" />
-      <polyline points="14 2 14 8 20 8" />
-      <line x1="12" y1="18" x2="12" y2="12" />
-      <line x1="9" y1="15" x2="15" y2="15" />
-    </svg>
-  );
-}
 function PieIcon({ className }: { className?: string }) {
   return (
     <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
@@ -56,16 +46,6 @@ function LayoutIcon({ className }: { className?: string }) {
     </svg>
   );
 }
-function ExternalLinkIcon({ className }: { className?: string }) {
-  return (
-    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" />
-      <polyline points="15 3 21 3 21 9" />
-      <line x1="10" y1="14" x2="21" y2="3" />
-    </svg>
-  );
-}
-
 /* ── Counter hook ── */
 function useCounter(target: number, suffix: string = "", duration: number = 1800) {
   const [value, setValue] = useState("0" + suffix);
@@ -98,248 +78,6 @@ function useCounter(target: number, suffix: string = "", duration: number = 1800
   }, [target, suffix, duration]);
 
   return { ref, value };
-}
-
-/* ── Upload Card Demo ── */
-interface StepState {
-  active: boolean;
-  done: boolean;
-}
-
-function UploadCardDemo() {
-  const [step, setStep] = useState<"dropzone" | "progress" | "result">("dropzone");
-  const [dragOver, setDragOver] = useState(false);
-  const [barWidth, setBarWidth] = useState(0);
-  const [steps, setSteps] = useState<StepState[]>([
-    { active: false, done: false },
-    { active: false, done: false },
-    { active: false, done: false },
-    { active: false, done: false },
-  ]);
-
-  const stepLabels = [
-    "Subiendo archivo a la nube",
-    "Extrayendo texto con IA (Gemini 2.5 Pro)",
-    "Estructurando información",
-    "Generando portafolio",
-  ];
-
-  const runDemo = () => {
-    setStep("progress");
-    setBarWidth(0);
-    setSteps([
-      { active: false, done: false },
-      { active: false, done: false },
-      { active: false, done: false },
-      { active: false, done: false },
-    ]);
-
-    const delays = [300, 1200, 2400, 3600];
-    const doneTimes = [900, 2200, 3400, 4800];
-    const barTargets = [25, 55, 80, 100];
-
-    delays.forEach((delay, i) => {
-      setTimeout(() => {
-        setSteps((prev) =>
-          prev.map((s, j) =>
-            j === i
-              ? { active: true, done: false }
-              : j < i
-              ? { active: false, done: true }
-              : s
-          )
-        );
-        setBarWidth(barTargets[i]);
-      }, delay);
-
-      setTimeout(() => {
-        setSteps((prev) =>
-          prev.map((s, j) => (j === i ? { active: false, done: true } : s))
-        );
-      }, doneTimes[i]);
-    });
-
-    setTimeout(() => setStep("result"), 5200);
-  };
-
-  const resetDemo = () => {
-    setStep("dropzone");
-    setBarWidth(0);
-    setSteps([
-      { active: false, done: false },
-      { active: false, done: false },
-      { active: false, done: false },
-      { active: false, done: false },
-    ]);
-  };
-
-  return (
-    <div className="w-full max-w-[460px] bg-white rounded-2xl p-10 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_24px_64px_rgba(0,0,0,0.08),0_4px_12px_rgba(0,0,0,0.04)]">
-      <div className="flex items-center gap-2 text-[0.7rem] tracking-[0.1em] uppercase text-[var(--muted-color)] mb-5">
-        <span>Área de carga</span>
-        <span className="flex-1 h-px bg-[var(--cream)]" />
-      </div>
-
-      {/* Drop Zone */}
-      {step === "dropzone" && (
-        <div
-          className={`border-2 border-dashed rounded-xl p-12 flex flex-col items-center gap-4 text-center transition-all cursor-pointer ${
-            dragOver
-              ? "border-[var(--rust)] bg-[rgba(192,68,10,0.03)]"
-              : "border-[var(--sand)] bg-[var(--paper)]"
-          }`}
-          onClick={runDemo}
-          onDragOver={(e) => {
-            e.preventDefault();
-            setDragOver(true);
-          }}
-          onDragLeave={() => setDragOver(false)}
-          onDrop={(e) => {
-            e.preventDefault();
-            setDragOver(false);
-            runDemo();
-          }}
-        >
-          <div
-            className={`w-14 h-14 bg-[var(--cream)] rounded-full flex items-center justify-center transition-transform duration-300 ${
-              dragOver ? "scale-110 -translate-y-1" : ""
-            }`}
-          >
-            <FileIcon className="w-6 h-6 text-[var(--rust)]" />
-          </div>
-          <div className="font-display text-lg tracking-tight text-[var(--ink)]">
-            Arrastra tu CV aquí
-          </div>
-          <div className="text-[0.82rem] text-[var(--muted-color)]">
-            o haz clic para seleccionar el archivo
-          </div>
-          <div className="flex gap-2 mt-1">
-            {["PDF", "JPG", "PNG"].map((fmt) => (
-              <span
-                key={fmt}
-                className="bg-[var(--cream)] text-[var(--muted-color)] text-[0.7rem] tracking-[0.05em] uppercase px-2.5 py-1 rounded-full font-medium"
-              >
-                {fmt}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Progress */}
-      {step === "progress" && (
-        <div className="flex flex-col gap-4">
-          <div className="flex items-center gap-3 p-3.5 bg-[var(--paper)] rounded-lg border border-[var(--sand)]">
-            <div className="w-9 h-9 bg-[rgba(192,68,10,0.1)] rounded-md flex items-center justify-center flex-shrink-0">
-              <FileIcon className="w-[18px] h-[18px] text-[var(--rust)]" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="text-[0.85rem] font-medium text-[var(--ink)] truncate">
-                mi-curriculum-vitae.pdf
-              </div>
-              <div className="text-[0.75rem] text-[var(--muted-color)]">248 KB</div>
-            </div>
-          </div>
-
-          <div className="h-[3px] bg-[var(--cream)] rounded overflow-hidden">
-            <div
-              className="h-full bg-[var(--rust)] rounded transition-all ease-out"
-              style={{ width: `${barWidth}%`, transitionDuration: "600ms" }}
-            />
-          </div>
-
-          <div className="flex flex-col gap-3">
-            {stepLabels.map((label, i) => (
-              <div
-                key={i}
-                className={`flex items-center gap-3 text-[0.85rem] transition-colors ${
-                  steps[i].done
-                    ? "text-[var(--rust)]"
-                    : steps[i].active
-                    ? "text-[var(--ink)]"
-                    : "text-[var(--muted-color)]"
-                }`}
-              >
-                <div
-                  className={`w-6 h-6 rounded-full border-[1.5px] flex items-center justify-center flex-shrink-0 transition-all text-[0.65rem] font-semibold ${
-                    steps[i].done
-                      ? "border-[var(--rust)] bg-[var(--rust)] text-white"
-                      : steps[i].active
-                      ? "border-[var(--rust)] bg-[rgba(192,68,10,0.08)]"
-                      : "border-[var(--sand)]"
-                  }`}
-                >
-                  {steps[i].done ? (
-                    "✓"
-                  ) : steps[i].active ? (
-                    <span className="w-2.5 h-2.5 border-2 border-[var(--rust)] border-t-transparent rounded-full animate-spin" />
-                  ) : null}
-                </div>
-                {label}
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Result */}
-      {step === "result" && (
-        <div className="flex flex-col gap-4 animate-fade-up">
-          <div className="rounded-[10px] overflow-hidden border border-[var(--sand)]">
-            <div className="bg-[var(--ink)] px-4 py-3 flex items-center gap-2">
-              <div className="w-2.5 h-2.5 rounded-full bg-[#ff5f57]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#febc2e]" />
-              <div className="w-2.5 h-2.5 rounded-full bg-[#28c840]" />
-              <span className="flex-1 text-center text-[0.7rem] text-[#666] font-mono">
-                cvfolio.com/ana-garcia
-              </span>
-            </div>
-            <div className="bg-white p-5">
-              <div className="font-display text-[1.3rem] font-semibold text-[var(--ink)] tracking-tight">
-                Ana García López
-              </div>
-              <div className="text-[0.8rem] text-[var(--rust)] uppercase tracking-[0.08em] mt-0.5 mb-3">
-                Senior Frontend Engineer
-              </div>
-              <div className="flex flex-wrap gap-1.5">
-                {["React", "TypeScript", "Node.js", "AWS", "+6 más"].map((t) => (
-                  <span
-                    key={t}
-                    className="bg-[var(--cream)] text-[var(--muted-color)] text-[0.7rem] px-2.5 py-0.5 rounded-full"
-                  >
-                    {t}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2.5 bg-[var(--paper)] border border-[var(--sand)] rounded-lg px-3.5 py-3">
-            <span className="flex-1 text-[0.82rem] text-[var(--muted-color)] font-mono">
-              cvfolio.com/
-              <span className="text-[var(--rust)] font-semibold">ana-garcia</span>
-            </span>
-            <button
-              className="bg-[var(--ink)] text-[var(--paper)] border-none rounded-md px-3.5 py-[7px] text-[0.78rem] font-medium hover:bg-[var(--rust)] transition-colors"
-              onClick={() =>
-                navigator.clipboard?.writeText("https://cvfolio.com/ana-garcia")
-              }
-            >
-              Copiar URL
-            </button>
-          </div>
-
-          <button
-            onClick={resetDemo}
-            className="w-full flex items-center justify-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] py-4 rounded hover:bg-[var(--rust)] transition-all hover:-translate-y-0.5 font-medium text-[0.95rem]"
-          >
-            <ExternalLinkIcon className="w-4 h-4" />
-            Ver portafolio completo
-          </button>
-        </div>
-      )}
-    </div>
-  );
 }
 
 /* ── Showcase data ── */
@@ -455,33 +193,33 @@ export default function LandingPage() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="min-h-screen grid grid-cols-1 lg:grid-cols-2 items-center px-6 md:px-12 pt-28 pb-20 gap-12 lg:gap-20 relative overflow-hidden">
+      <section className="min-h-screen flex flex-col items-center justify-center px-6 md:px-12 pt-28 pb-20 relative overflow-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
-          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_70%_40%,rgba(192,68,10,0.07)_0%,transparent_70%)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(192,68,10,0.07)_0%,transparent_70%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_60%_at_10%_80%,rgba(192,68,10,0.04)_0%,transparent_60%)]" />
         </div>
 
-        {/* Left */}
-        <div className="relative z-10">
-          <div className="flex items-center gap-2 text-xs tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-7 animate-fade-up">
+        <div className="relative z-10 max-w-[700px]">
+          <div className="flex items-center justify-center gap-2 text-xs tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-7 animate-fade-up">
             <span className="w-8 h-[1.5px] bg-[var(--rust)]" />
             Tu CV, reinventado
+            <span className="w-8 h-[1.5px] bg-[var(--rust)]" />
           </div>
 
           <h1 className="font-display text-[clamp(3rem,5.5vw,5.5rem)] font-light leading-[1.05] tracking-tight text-[var(--ink)] mb-7 animate-fade-up delay-1">
             De currículum
-            <span className="block pl-4 md:pl-16">
+            <span className="block">
               a <em className="italic text-[var(--rust)]">portafolio</em>
             </span>
-            <span className="block pl-4 md:pl-16">en segundos.</span>
+            <span className="block">en segundos.</span>
           </h1>
 
-          <p className="text-[1.05rem] leading-[1.7] text-[var(--muted-color)] max-w-[420px] mb-11 font-light animate-fade-up delay-2">
+          <p className="text-[1.05rem] leading-[1.7] text-[var(--muted-color)] max-w-[480px] mx-auto mb-11 font-light animate-fade-up delay-2">
             Arrastra tu PDF. La IA extrae, estructura y diseña tu página personal
             profesional — lista para compartir en segundos.
           </p>
 
-          <div className="flex items-center gap-5 flex-wrap animate-fade-up delay-3">
+          <div className="flex items-center justify-center gap-5 flex-wrap animate-fade-up delay-3">
             <Link
               href="/upload"
               className="inline-flex items-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] px-8 py-4 rounded text-[0.95rem] font-medium hover:bg-[var(--rust)] hover:-translate-y-0.5 transition-all no-underline tracking-wide"
@@ -499,7 +237,7 @@ export default function LandingPage() {
           </div>
 
           {/* Stats */}
-          <div className="flex gap-10 mt-16 pt-10 border-t border-[var(--sand)] animate-fade-up delay-4">
+          <div className="flex justify-center gap-10 mt-16 pt-10 border-t border-[var(--sand)] animate-fade-up delay-4">
             <div>
               <div
                 ref={counter1.ref}
@@ -534,11 +272,6 @@ export default function LandingPage() {
               </div>
             </div>
           </div>
-        </div>
-
-        {/* Right - Upload Card */}
-        <div className="flex justify-center items-center relative z-10 animate-fade-up delay-2">
-          <UploadCardDemo />
         </div>
       </section>
 

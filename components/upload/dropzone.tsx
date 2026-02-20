@@ -1,9 +1,10 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
-import { Upload, FileText, ImageIcon, X, CheckCircle2, Loader2 } from "lucide-react";
+import { Upload, FileText, ImageIcon, X, CheckCircle2, ExternalLink } from "lucide-react";
 import { cn, formatFileSize } from "@/lib/utils";
+import { MinigameCanvas } from "./minigame-canvas";
 
 interface DropzoneProps {
   onUploadComplete: (portfolioId: string) => void;
@@ -11,6 +12,7 @@ interface DropzoneProps {
 }
 
 type UploadStatus = "idle" | "uploading" | "processing" | "done" | "error";
+type ViewMode = "upload" | "minigame";
 
 interface FilePreview {
   file: File;
@@ -24,24 +26,82 @@ const STEP_LABELS = [
   "Generando portafolio",
 ];
 
+const TOTAL_DURATION = 20_000; // 20 seconds
+
 export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [filePreview, setFilePreview] = useState<FilePreview | null>(null);
   const [progress, setProgress] = useState(0);
   const [activeStep, setActiveStep] = useState(0);
+  const [showMinigame, setShowMinigame] = useState(false);
+  const [viewMode, setViewMode] = useState<ViewMode>("upload");
+  const [portfolioId, setPortfolioId] = useState<string | null>(null);
+
+  // Refs for timers so we can clean them up
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const startTimeRef = useRef<number>(0);
+  const apiDoneRef = useRef(false);
+
+  // Cleanup timers on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current);
+    };
+  }, []);
+
+  const finishUpload = useCallback(() => {
+    if (timerRef.current) clearInterval(timerRef.current);
+    setProgress(100);
+    setActiveStep(4);
+    setShowMinigame(false);
+    setStatus("done");
+  }, []);
+
+  const startProgressTimer = useCallback(() => {
+    startTimeRef.current = Date.now();
+    apiDoneRef.current = false;
+
+    timerRef.current = setInterval(() => {
+      const elapsed = Date.now() - startTimeRef.current;
+      const fraction = Math.min(elapsed / TOTAL_DURATION, 1);
+
+      // Progress advances to ~95% over 20 seconds, holds until API is done
+      const pct = Math.min(fraction * 95, 95);
+      setProgress(Math.round(pct));
+
+      // Step progression
+      if (fraction < 0.2) setActiveStep(0);
+      else if (fraction < 0.5) setActiveStep(1);
+      else if (fraction < 0.8) setActiveStep(2);
+      else setActiveStep(3);
+
+      // At 20 seconds, finish
+      if (fraction >= 1) {
+        // If API is done, show result. Otherwise wait for it.
+        if (apiDoneRef.current) {
+          finishUpload();
+        } else {
+          // Just keep at 95% until API completes
+          setProgress(95);
+          // Check again shortly
+        }
+      }
+    }, 100);
+  }, [finishUpload]);
 
   const processFile = useCallback(
     async (file: File) => {
       setStatus("uploading");
-      setProgress(10);
+      setProgress(5);
       setActiveStep(0);
+      setShowMinigame(true);
+
+      startProgressTimer();
 
       try {
         const formData = new FormData();
         formData.append("file", file);
 
-        setProgress(30);
-        setActiveStep(1);
         setStatus("processing");
 
         const response = await fetch("/api/parse-cv", {
@@ -49,25 +109,30 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
           body: formData,
         });
 
-        setProgress(70);
-        setActiveStep(2);
-
         const result = await response.json();
 
         if (!response.ok || !result.success) {
           throw new Error(result.error ?? "Error desconocido");
         }
 
-        setProgress(100);
-        setActiveStep(3);
-        setStatus("done");
-        onUploadComplete(result.portfolioId);
+        // Mark API as done
+        apiDoneRef.current = true;
+        setPortfolioId(result.portfolioId);
+
+        // If timer already hit 20s, finish now
+        const elapsed = Date.now() - startTimeRef.current;
+        if (elapsed >= TOTAL_DURATION) {
+          finishUpload();
+        }
+        // otherwise the interval will catch it
       } catch (err) {
+        if (timerRef.current) clearInterval(timerRef.current);
+        setShowMinigame(false);
         setStatus("error");
         onError(err instanceof Error ? err.message : "Error al procesar el archivo");
       }
     },
-    [onUploadComplete, onError]
+    [onError, startProgressTimer, finishUpload]
   );
 
   const onDrop = useCallback(
@@ -100,13 +165,43 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
 
   const reset = () => {
     if (filePreview?.preview) URL.revokeObjectURL(filePreview.preview);
+    if (timerRef.current) clearInterval(timerRef.current);
     setFilePreview(null);
     setStatus("idle");
     setProgress(0);
     setActiveStep(0);
+    setShowMinigame(false);
+    setPortfolioId(null);
+    setViewMode("upload");
   };
 
-  // Processing / done / error states
+  // Handle "Ver portafolio"
+  const handleViewPortfolio = () => {
+    if (portfolioId) onUploadComplete(portfolioId);
+  };
+
+  // Handle "Seguir jugando"
+  const handleKeepPlaying = () => {
+    setViewMode("minigame");
+  };
+
+  // Handle "Back to CV" from standalone minigame
+  const handleBackToCV = () => {
+    setViewMode("upload");
+  };
+
+  // ── Standalone minigame mode (after result, user chose "Seguir jugando") ──
+  if (viewMode === "minigame" && status === "done") {
+    return (
+      <div className="w-full max-w-md mx-auto">
+        <div className="bg-white rounded-2xl p-6 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.06)]">
+          <MinigameCanvas standalone onBackToCV={handleBackToCV} />
+        </div>
+      </div>
+    );
+  }
+
+  // ── Processing / done / error states ──
   if (filePreview && status !== "idle") {
     return (
       <div className="w-full max-w-md mx-auto">
@@ -138,17 +233,17 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
             )}
           </div>
 
-          {/* Progress */}
+          {/* Progress bar (always visible during upload/processing) */}
           {(status === "uploading" || status === "processing") && (
             <div className="space-y-4">
               <div className="h-[3px] bg-[var(--cream)] rounded overflow-hidden">
                 <div
-                  className="h-full bg-[var(--rust)] rounded transition-all duration-500 ease-out"
+                  className="h-full bg-[var(--rust)] rounded transition-all duration-300 ease-out"
                   style={{ width: `${progress}%` }}
                 />
               </div>
 
-              <div className="flex flex-col gap-3">
+              <div className="flex flex-col gap-3 mb-4">
                 {STEP_LABELS.map((label, i) => {
                   const isDone = i < activeStep;
                   const isActive = i === activeStep;
@@ -173,7 +268,7 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
                         }`}
                       >
                         {isDone ? (
-                          "✓"
+                          "\u2713"
                         ) : isActive ? (
                           <span className="w-2.5 h-2.5 border-2 border-[var(--rust)] border-t-transparent rounded-full animate-spin" />
                         ) : null}
@@ -183,16 +278,43 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
                   );
                 })}
               </div>
+
+              {/* Minigame area */}
+              {showMinigame && (
+                <div className="pt-4 border-t border-[var(--sand)]">
+                  <p className="text-[0.72rem] tracking-[0.08em] uppercase text-[var(--muted-color)] font-medium mb-3 text-center">
+                    Mientras esperas...
+                  </p>
+                  <MinigameCanvas />
+                </div>
+              )}
             </div>
           )}
 
           {/* Done */}
           {status === "done" && (
-            <div className="flex items-center gap-2 text-sm text-[var(--rust)]">
-              <CheckCircle2 className="w-4 h-4" />
-              <span className="font-medium">
-                ¡Portafolio generado con éxito!
-              </span>
+            <div className="space-y-4 animate-fade-up">
+              <div className="flex items-center gap-2 text-sm text-[var(--rust)]">
+                <CheckCircle2 className="w-4 h-4" />
+                <span className="font-medium">
+                  ¡Portafolio generado con éxito!
+                </span>
+              </div>
+
+              <button
+                onClick={handleViewPortfolio}
+                className="w-full flex items-center justify-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] py-3.5 rounded-lg hover:bg-[var(--rust)] transition-all hover:-translate-y-0.5 font-medium text-[0.9rem]"
+              >
+                <ExternalLink className="w-4 h-4" />
+                Ver portafolio
+              </button>
+
+              <button
+                onClick={handleKeepPlaying}
+                className="w-full flex items-center justify-center gap-2 bg-transparent text-[var(--muted-color)] py-3 rounded-lg border border-[var(--sand)] hover:border-[var(--ink)] hover:text-[var(--ink)] hover:bg-[var(--cream)] transition-all text-[0.85rem] font-medium"
+              >
+                Seguir jugando 🎮
+              </button>
             </div>
           )}
 
@@ -215,7 +337,7 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
     );
   }
 
-  // Drop zone idle
+  // ── Drop zone idle ──
   return (
     <div
       {...getRootProps()}
