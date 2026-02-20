@@ -11,7 +11,8 @@
       "Bash(xargs kill:*)",
       "Bash(npx next dev:*)",
       "Bash(npx next build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(pkill:*)"
     ]
   }
 }
