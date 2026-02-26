@@ -6,6 +6,7 @@ import { CustomDomainRequest } from "@/components/billing/custom-domain-request"
 import { CheckoutButton } from "@/components/billing/checkout-button";
 import { PortfolioIterationChat } from "@/components/dashboard/portfolio-iteration-chat";
 import { PublicPortfolioButton } from "@/components/dashboard/public-portfolio-button";
+import { LogoutButton } from "@/components/auth/logout-button";
 import {
   Upload,
   Eye,
@@ -158,6 +159,8 @@ export default async function DashboardPage({
               <Upload className="w-3.5 h-3.5" />
               Crear nuevo portfolio
             </Link>
+
+            <LogoutButton label="Salir" />
 
             {selectedPortfolio && canAccessInteractive && (
               <Link

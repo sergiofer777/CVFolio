@@ -89,7 +89,7 @@ export async function POST(request: NextRequest) {
       const alreadyActiveUrl = buildPublicPortfolioUrl(username);
       return NextResponse.json({
         checkoutUrl: alreadyActiveUrl,
-        fallbackUrl: `${appUrl}/p/${username}`,
+        fallbackUrl: `/p/${username}`,
         mode: "already-active",
         alreadyActive: true,
       });
@@ -148,9 +148,9 @@ export async function POST(request: NextRequest) {
           : successDashboardUrl;
       const fallbackUrl = activation.publishedPortfolioId
         ? username
-          ? `${appUrl}/p/${username}`
-          : successDashboardUrl
-        : successDashboardUrl;
+          ? `/p/${username}`
+          : "/dashboard"
+        : `/dashboard?billing=success&plan=${plan}`;
 
       return NextResponse.json({
         checkoutUrl,

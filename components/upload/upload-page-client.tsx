@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Dropzone } from "@/components/upload/dropzone";
+import { LogoutButton } from "@/components/auth/logout-button";
 import {
   DEFAULT_PORTFOLIO_THEME,
   PORTFOLIO_THEME_OPTIONS,
@@ -32,12 +33,15 @@ export function UploadPageClient() {
   return (
     <main className="min-h-screen bg-[var(--paper)]">
       <header className="border-b border-[var(--sand)] px-6 md:px-12 py-5">
-        <Link
-          href="/"
-          className="font-display text-xl font-semibold text-[var(--ink)] tracking-tight no-underline"
-        >
-          web<span className="text-[var(--rust)]">iculum</span>
-        </Link>
+        <div className="max-w-[1440px] mx-auto flex items-center justify-between gap-3">
+          <Link
+            href="/"
+            className="font-display text-xl font-semibold text-[var(--ink)] tracking-tight no-underline"
+          >
+            web<span className="text-[var(--rust)]">iculum</span>
+          </Link>
+          <LogoutButton label="Salir" />
+        </div>
       </header>
 
       <div className="w-full max-w-[1440px] mx-auto px-4 md:px-8 lg:px-10 py-10 md:py-14 lg:py-16">
