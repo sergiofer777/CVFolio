@@ -7,6 +7,7 @@ import { CheckoutButton } from "@/components/billing/checkout-button";
 import { PortfolioIterationChat } from "@/components/dashboard/portfolio-iteration-chat";
 import { PublicPortfolioButton } from "@/components/dashboard/public-portfolio-button";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { FreePreviewCountdown } from "@/components/dashboard/free-preview-countdown";
 import {
   Upload,
   Eye,
@@ -94,7 +95,6 @@ export default async function DashboardPage({
   const profileUsername = profile?.username ?? null;
   const profilePlan = resolvePlan(profile?.plan);
   const planLimits = getPlanLimits(profilePlan);
-  const publicRootDomain = (process.env.ROOT_DOMAIN ?? "webiculum.com").toLowerCase();
 
   const { data: portfoliosRaw } = await supabase
     .from("portfolios")
@@ -130,8 +130,11 @@ export default async function DashboardPage({
     : "/dashboard/billing";
   const publicPortfolioHref =
     profileUsername && canAccessPublic
-      ? `https://${profileUsername}.${publicRootDomain}`
+      ? `/p/${profileUsername}`
       : billingHref;
+  const freeExpiresAtIso = selectedAccess.expiresAt
+    ? selectedAccess.expiresAt.toISOString()
+    : null;
 
   const selectedIterationsUsed = Math.max(
     0,
@@ -145,7 +148,7 @@ export default async function DashboardPage({
       <header className="border-b border-[var(--sand)] bg-white/80 backdrop-blur-xl sticky top-0 z-20">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <Link
-            href="/dashboard"
+            href="/"
             className="font-display text-xl font-semibold text-[var(--ink)] tracking-tight no-underline"
           >
             web<span className="text-[var(--rust)]">iculum</span>
@@ -280,7 +283,7 @@ export default async function DashboardPage({
                   <>
                     {" "}Si activas pago, se publicará en{" "}
                     <span className="font-mono">
-                      {profileUsername}.{publicRootDomain}
+                      /p/{profileUsername}
                     </span>
                     .
                   </>
@@ -372,10 +375,13 @@ export default async function DashboardPage({
                 ) : (
                   <>
                     <strong>Preview gratis activa.</strong> Caduca el{" "}
-                    <strong>{freeExpiresAtLabel}</strong>
-                    {selectedAccess.hoursLeft
-                      ? ` (${selectedAccess.hoursLeft}h restantes)`
-                      : ""}{" "}
+                    <strong>{freeExpiresAtLabel}</strong>{" "}
+                    {freeExpiresAtIso && (
+                      <>
+                        <span className="mx-1">·</span>
+                        <FreePreviewCountdown expiresAtIso={freeExpiresAtIso} />
+                      </>
+                    )}{" "}
                     si no se activa plan.
                   </>
                 )}

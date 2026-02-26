@@ -3,10 +3,7 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isPaidPlan, type ProfilePlan } from "@/lib/billing/access";
-import {
-  activatePlanForUser,
-  buildPublicPortfolioUrl,
-} from "@/lib/billing/activation";
+import { activatePlanForUser } from "@/lib/billing/activation";
 import { isBillingMockPaymentsEnabled } from "@/lib/billing/config";
 
 export const runtime = "nodejs";
@@ -86,9 +83,8 @@ export async function POST(request: NextRequest) {
       (plan === "publish" && isPaidPlan(currentPlan)) ||
       (plan === "studio" && currentPlan === "studio");
     if (alreadyPaidOnRequestedPlan) {
-      const alreadyActiveUrl = buildPublicPortfolioUrl(username);
       return NextResponse.json({
-        checkoutUrl: alreadyActiveUrl,
+        checkoutUrl: `/p/${username}`,
         fallbackUrl: `/p/${username}`,
         mode: "already-active",
         alreadyActive: true,
@@ -141,10 +137,10 @@ export async function POST(request: NextRequest) {
         portfolioId: selectedPortfolioId,
       });
 
-      const successDashboardUrl = `${appUrl}/dashboard?billing=success&plan=${plan}`;
+      const successDashboardUrl = `/dashboard?billing=success&plan=${plan}`;
       const checkoutUrl =
-        username && activation.publishedPortfolioId
-          ? buildPublicPortfolioUrl(username)
+        activation.publishedPortfolioId && username
+          ? `/p/${username}`
           : successDashboardUrl;
       const fallbackUrl = activation.publishedPortfolioId
         ? username

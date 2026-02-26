@@ -1,7 +1,7 @@
 "use client";
 
-import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ExternalLink, Loader2 } from "lucide-react";
 
 interface PublicPortfolioButtonProps {
@@ -19,21 +19,34 @@ export function PublicPortfolioButton({
   publicUrl,
   className,
 }: PublicPortfolioButtonProps) {
+  const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [freeMessage, setFreeMessage] = useState<string | null>(null);
 
   if (!canAccessPublic) {
+    const handleFreeClick = () => {
+      setFreeMessage("Debes activar un plan de pago para publicar tu portfolio.");
+      window.setTimeout(() => {
+        router.push(billingHref);
+      }, 900);
+    };
+
     return (
-      <Link
-        href={billingHref}
-        className={
-          className ??
-          "inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-medium bg-white border border-[var(--sand)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors no-underline"
-        }
-      >
-        <ExternalLink className="w-3.5 h-3.5" />
-        Activar portfolio público
-      </Link>
+      <div className="flex flex-col items-end gap-1.5">
+        <button
+          type="button"
+          onClick={handleFreeClick}
+          className={
+            className ??
+            "inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-medium bg-white border border-[var(--sand)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors"
+          }
+        >
+          <ExternalLink className="w-3.5 h-3.5" />
+          Ver portfolio público
+        </button>
+        {freeMessage && <p className="text-xs text-[var(--rust)]">{freeMessage}</p>}
+      </div>
     );
   }
 

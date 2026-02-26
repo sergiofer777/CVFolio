@@ -54,9 +54,8 @@ export default async function DashboardBillingPage({
     portfolios.find((item) => item.id === requestedPortfolioId) ?? portfolios[0];
   if (!selectedPortfolio) redirect("/upload");
 
-  const rootDomain = (process.env.ROOT_DOMAIN ?? "webiculum.com").toLowerCase();
   const username = profile?.username?.trim().toLowerCase();
-  const publicUrl = username ? `https://${username}.${rootDomain}` : null;
+  const publicUrl = username ? `/p/${username}` : null;
   const isPaid = isPaidPlan(plan);
 
   return (
@@ -103,7 +102,7 @@ export default async function DashboardBillingPage({
               rel="noopener noreferrer"
               className="font-medium text-[rgb(10,125,70)] underline underline-offset-2"
             >
-              {username}.{rootDomain}
+              {publicUrl}
             </a>
             .
           </section>
@@ -123,7 +122,7 @@ export default async function DashboardBillingPage({
             <ul className="mt-3 space-y-2 text-sm text-[var(--muted-color)]">
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />
-                Subdominio {username ? `${username}.${rootDomain}` : "usuario.webiculum.com"}
+                URL pública {username ? `/p/${username}` : "/p/usuario"}
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />

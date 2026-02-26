@@ -2,10 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isPaidPlan, type ProfilePlan } from "@/lib/billing/access";
-import {
-  buildPublicPortfolioUrl,
-  publishSelectedPortfolio,
-} from "@/lib/billing/activation";
+import { buildPublicPortfolioUrl, publishSelectedPortfolio } from "@/lib/billing/activation";
 import { upsertCloudflareSubdomainRecord } from "@/lib/cloudflare/dns";
 
 const schema = z.object({
@@ -75,13 +72,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const publicUrl = username
-      ? buildPublicPortfolioUrl(username)
-      : `/p/${publishedPortfolioId}`;
+    const publicUrl = username ? `/p/${username}` : `/p/${publishedPortfolioId}`;
+    const subdomainUrl = username ? buildPublicPortfolioUrl(username) : null;
 
     return NextResponse.json({
       ok: true,
       publicUrl,
+      subdomainUrl,
       publishedPortfolioId,
       fallbackUrl: username ? `/p/${username}` : `/dashboard`,
     });
