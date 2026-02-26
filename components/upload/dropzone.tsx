@@ -5,10 +5,12 @@ import { useDropzone } from "react-dropzone";
 import { Upload, FileText, ImageIcon, X, CheckCircle2, ExternalLink } from "lucide-react";
 import { cn, formatFileSize } from "@/lib/utils";
 import { MinigameCanvas } from "./minigame-canvas";
+import type { PortfolioTheme } from "@/types/cv-data";
 
 interface DropzoneProps {
   onUploadComplete: (portfolioId: string) => void;
   onError: (error: string) => void;
+  selectedTemplate: PortfolioTheme;
 }
 
 type UploadStatus = "idle" | "uploading" | "processing" | "done" | "error";
@@ -28,7 +30,11 @@ const STEP_LABELS = [
 
 const TOTAL_DURATION = 20_000; // 20 seconds
 
-export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
+export function Dropzone({
+  onUploadComplete,
+  onError,
+  selectedTemplate,
+}: DropzoneProps) {
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [filePreview, setFilePreview] = useState<FilePreview | null>(null);
   const [progress, setProgress] = useState(0);
@@ -101,6 +107,7 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
       try {
         const formData = new FormData();
         formData.append("file", file);
+        formData.append("templateId", selectedTemplate);
 
         setStatus("processing");
 
@@ -132,7 +139,7 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
         onError(err instanceof Error ? err.message : "Error al procesar el archivo");
       }
     },
-    [onError, startProgressTimer, finishUpload]
+    [onError, startProgressTimer, finishUpload, selectedTemplate]
   );
 
   const onDrop = useCallback(
@@ -193,8 +200,8 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
   // ── Standalone minigame mode (after result, user chose "Seguir jugando") ──
   if (viewMode === "minigame" && status === "done") {
     return (
-      <div className="w-full max-w-md mx-auto">
-        <div className="bg-white rounded-2xl p-6 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.06)]">
+      <div className="w-full max-w-5xl mx-auto">
+        <div className="bg-white rounded-2xl p-6 md:p-8 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.06)]">
           <MinigameCanvas standalone onBackToCV={handleBackToCV} />
         </div>
       </div>
@@ -204,8 +211,8 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
   // ── Processing / done / error states ──
   if (filePreview && status !== "idle") {
     return (
-      <div className="w-full max-w-md mx-auto">
-        <div className="bg-white rounded-2xl p-8 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.06)]">
+      <div className="w-full max-w-5xl mx-auto">
+        <div className="bg-white rounded-2xl p-6 md:p-8 lg:p-10 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.06)]">
           {/* File header */}
           <div className="flex items-center gap-3 p-3.5 bg-[var(--paper)] rounded-lg border border-[var(--sand)] mb-5">
             <div className="w-9 h-9 bg-[rgba(192,68,10,0.1)] rounded-md flex items-center justify-center flex-shrink-0">
@@ -285,7 +292,9 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
                   <p className="text-[0.72rem] tracking-[0.08em] uppercase text-[var(--muted-color)] font-medium mb-3 text-center">
                     Mientras esperas...
                   </p>
-                  <MinigameCanvas />
+                  <div className="max-w-4xl mx-auto">
+                    <MinigameCanvas />
+                  </div>
                 </div>
               )}
             </div>
@@ -342,14 +351,14 @@ export function Dropzone({ onUploadComplete, onError }: DropzoneProps) {
     <div
       {...getRootProps()}
       className={cn(
-        "relative w-full max-w-md mx-auto bg-white rounded-2xl p-10 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-200"
+        "relative w-full max-w-5xl mx-auto bg-white rounded-2xl p-6 md:p-10 lg:p-12 shadow-[0_0_0_1px_rgba(0,0,0,0.06),0_12px_40px_rgba(0,0,0,0.06)] cursor-pointer transition-all duration-200"
       )}
     >
       <input {...getInputProps()} />
 
       <div
         className={cn(
-          "border-2 border-dashed rounded-xl p-12 flex flex-col items-center gap-4 text-center transition-all",
+          "border-2 border-dashed rounded-xl p-8 md:p-12 lg:p-16 flex flex-col items-center gap-4 text-center transition-all",
           isDragActive && !isDragReject &&
             "border-[var(--rust)] bg-[rgba(192,68,10,0.03)]",
           isDragReject && "border-red-500 bg-red-50",

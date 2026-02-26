@@ -1,0 +1,139 @@
+"use client";
+
+import { type FormEvent, useState } from "react";
+import { useRouter } from "next/navigation";
+import { Loader2, Send } from "lucide-react";
+
+interface PortfolioIterationChatProps {
+  portfolioId: string;
+  iterationsUsed: number;
+  iterationsLimit: number | null;
+  billingEnforced: boolean;
+}
+
+interface ApiResponse {
+  ok?: boolean;
+  message?: string;
+  error?: string;
+  iterationsUsed?: number;
+  iterationsLimit?: number | null;
+}
+
+export function PortfolioIterationChat({
+  portfolioId,
+  iterationsUsed,
+  iterationsLimit,
+  billingEnforced,
+}: PortfolioIterationChatProps) {
+  const router = useRouter();
+  const [prompt, setPrompt] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [localUsed, setLocalUsed] = useState(iterationsUsed);
+  const [message, setMessage] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    const trimmed = prompt.trim();
+    if (!trimmed) return;
+
+    setIsLoading(true);
+    setMessage(null);
+    setError(null);
+    try {
+      const response = await fetch("/api/portfolio/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          portfolioId,
+          message: trimmed,
+        }),
+      });
+
+      const data = (await response.json()) as ApiResponse;
+      if (!response.ok || !data.ok) {
+        throw new Error(data.error ?? "No se pudo iterar el portfolio.");
+      }
+
+      setPrompt("");
+      if (typeof data.iterationsUsed === "number") {
+        setLocalUsed(data.iterationsUsed);
+      } else {
+        setLocalUsed((current) => current + 1);
+      }
+      setMessage(data.message ?? "Iteración aplicada correctamente.");
+      router.refresh();
+    } catch (submitError) {
+      setError(
+        submitError instanceof Error
+          ? submitError.message
+          : "No se pudo iterar el portfolio."
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const limitLabel =
+    iterationsLimit === null ? "Sin límite" : `${localUsed}/${iterationsLimit}`;
+  const isLimitReached =
+    iterationsLimit !== null && localUsed >= iterationsLimit;
+
+  return (
+    <section className="border border-[var(--sand)] rounded-xl bg-white p-4 md:p-5">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
+        <div>
+          <p className="text-xs uppercase tracking-[0.1em] text-[var(--rust)] font-medium">
+            Chat de iteración
+          </p>
+          <h3 className="font-display text-[1.1rem] text-[var(--ink)] tracking-tight mt-1">
+            Ajusta esta web conversando con la IA
+          </h3>
+        </div>
+        <div className="text-xs text-[var(--muted-color)]">
+          Iteraciones usadas: <strong className="text-[var(--ink)]">{limitLabel}</strong>
+        </div>
+      </div>
+
+      {!billingEnforced && (
+        <p className="text-xs text-[var(--rust)] bg-[rgba(192,68,10,0.08)] border border-[rgba(192,68,10,0.18)] rounded px-3 py-2 mb-4">
+          Modo beta: el chat está abierto para todas las cuentas, aunque el plan
+          Studio fija 3 iteraciones por portfolio.
+        </p>
+      )}
+
+      {isLimitReached && (
+        <p className="text-xs text-[var(--rust)] bg-[rgba(192,68,10,0.08)] border border-[rgba(192,68,10,0.18)] rounded px-3 py-2 mb-4">
+          Has alcanzado el límite de iteraciones para este portfolio.
+        </p>
+      )}
+
+      <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+        <textarea
+          value={prompt}
+          onChange={(event) => setPrompt(event.target.value)}
+          placeholder="Ejemplo: cambia el hero para destacar SAP BW y reduce el bloque de certificaciones."
+          rows={4}
+          disabled={isLoading || isLimitReached}
+          className="w-full rounded border border-[var(--sand)] bg-white px-3 py-2.5 text-sm text-[var(--ink)] outline-none focus:border-[var(--ink)] resize-y min-h-[120px]"
+        />
+        <div className="flex items-center justify-between gap-3">
+          <p className="text-xs text-[var(--muted-color)]">
+            Describe cambios concretos de contenido, orden o foco visual.
+          </p>
+          <button
+            type="submit"
+            disabled={isLoading || isLimitReached || prompt.trim().length < 6}
+            className="inline-flex items-center gap-2 rounded bg-[var(--ink)] text-[var(--paper)] px-4 py-2 text-sm font-medium hover:bg-[var(--rust)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+          >
+            {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+            Aplicar cambios
+          </button>
+        </div>
+      </form>
+
+      {message && <p className="mt-3 text-xs text-[rgb(10,125,70)]">{message}</p>}
+      {error && <p className="mt-3 text-xs text-[var(--rust)]">{error}</p>}
+    </section>
+  );
+}

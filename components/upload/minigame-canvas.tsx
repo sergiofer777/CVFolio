@@ -74,7 +74,7 @@ const SNAKE_INIT_RATE = 10; // higher = slower start (easier)
 const SNAKE_MIN_RATE = 5;   // minimum tick rate (lower = harder cap)
 const SNAKE_RATE_STEP = 0.2; // how much faster per apple (smaller = easier)
 
-const GAP_SIZE = 90; // flappy pipe gap (bigger = easier)
+const GAP_SIZE = 150; // flappy pipe gap (bigger = easier)
 
 function createInitState(type: GameType, cw: number, ch: number): GameState {
   const base: GameState = { type, started: false, over: false, score: 0, frameId: 0 };
@@ -117,7 +117,7 @@ function createInitState(type: GameType, cw: number, ch: number): GameState {
     base.birdVel = 0;
     base.pipes = [];
     base.flappyTimer = 0;
-    base.flappySpeed = 2.2;
+    base.flappySpeed = 1.9;
   }
 
   return base;
@@ -147,8 +147,8 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
   const [gameOver, setGameOver] = useState(false);
   const mountedRef = useRef(true);
 
-  const CW = 400;
-  const CH = 300;
+  const CW = 560;
+  const CH = 360;
 
   useEffect(() => {
     mountedRef.current = true;
@@ -376,11 +376,11 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
      FLAPPY BIRD
   ══════════════════════════════════ */
   const tickFlappy = useCallback((s: GameState) => {
-    const GRAVITY = 0.32;
+    const GRAVITY = 0.24;
     const BIRD_X = 60;
-    const BIRD_R = 12;
+    const BIRD_R = 13;
 
-    s.birdVel = (s.birdVel ?? 0) + GRAVITY;
+    s.birdVel = Math.min((s.birdVel ?? 0) + GRAVITY, 4.4);
     s.birdY = (s.birdY ?? CH / 2) + s.birdVel!;
 
     // Hit ceiling or floor
@@ -389,9 +389,9 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     }
 
     s.flappyTimer = (s.flappyTimer ?? 0) + 1;
-    // Spawn pipe every ~90 frames
-    if (s.flappyTimer! % 90 === 0) {
-      const margin = 50;
+    // Spawn pipe every ~120 frames
+    if (s.flappyTimer! % 120 === 0) {
+      const margin = 64;
       const gapY = margin + Math.random() * (CH - margin * 2 - GAP_SIZE);
       s.pipes!.push({ x: CW + 10, gapY: gapY + GAP_SIZE / 2, scored: false });
     }
@@ -410,11 +410,11 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
       if (!p.scored && p.x + pw / 2 < BIRD_X) {
         p.scored = true;
         s.score += 1;
-        if (s.flappySpeed! < 4) s.flappySpeed = s.flappySpeed! + 0.1;
+        if (s.flappySpeed! < 2.6) s.flappySpeed = s.flappySpeed! + 0.03;
       }
 
-      // Collision (forgiving: shrink hitbox by 4px)
-      const bx = BIRD_X, by = s.birdY!, br = BIRD_R - 4;
+      // Collision (extra forgiving: shrink hitbox by 7px)
+      const bx = BIRD_X, by = s.birdY!, br = BIRD_R - 7;
       if (bx + br > p.x && bx - br < p.x + pw) {
         if (by - br < topH || by + br > botY) { s.over = true; return; }
       }
@@ -446,7 +446,7 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     }
 
     // Bird (little character)
-    const bx = 60, by = s.birdY!, br = 12;
+    const bx = 60, by = s.birdY!, br = 13;
     // Body
     ctx.fillStyle = "#c0440a";
     ctx.beginPath(); ctx.arc(bx, by, br, 0, Math.PI * 2); ctx.fill();
@@ -577,7 +577,7 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     if (!s) return;
     if (!s.started) { startGame(); return; }
     if (s.over) { restart(); return; }
-    if (s.type === "flappy") { s.birdVel = -6.5; }
+    if (s.type === "flappy") { s.birdVel = -4.9; }
     if (s.type === "runner" && s.runnerOnGround) { s.runnerVel = -10; s.runnerOnGround = false; }
   }, [startGame, restart]);
 
@@ -589,7 +589,7 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
       if (!s.started) { startGame(); return; }
       if (s.over) { restart(); return; }
 
-      if (s.type === "flappy") { s.birdVel = -6.5; return; }
+      if (s.type === "flappy") { s.birdVel = -4.9; return; }
       if (s.type === "runner" && s.runnerOnGround) { s.runnerVel = -10; s.runnerOnGround = false; return; }
 
       if (s.type === "skills") {

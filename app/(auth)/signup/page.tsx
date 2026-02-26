@@ -23,11 +23,18 @@ export default function SignupPage() {
   const handleGoogle = async () => {
     setLoading(true);
     setError(null);
+
+    const params = new URLSearchParams(window.location.search);
+    const redirectToRaw = params.get("redirectTo") ?? "/upload";
+    const redirectTo = redirectToRaw.startsWith("/") ? redirectToRaw : "/upload";
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    callbackUrl.searchParams.set("next", redirectTo);
+
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/upload`,
+        redirectTo: callbackUrl.toString(),
       },
     });
     if (authError) {
@@ -45,13 +52,13 @@ export default function SignupPage() {
             href="/"
             className="inline-block font-display text-2xl font-semibold text-[var(--ink)] tracking-tight no-underline mb-8"
           >
-            CV<span className="text-[var(--rust)]">folio</span>
+            web<span className="text-[var(--rust)]">iculum</span>
           </Link>
           <h1 className="font-display text-[2rem] font-light tracking-tight text-[var(--ink)]">
             Crea tu cuenta
           </h1>
           <p className="text-[var(--muted-color)] text-sm mt-2 font-light">
-            Gratis para siempre. Sin tarjeta de crédito.
+            Empieza gratis con preview de 24h. Sin tarjeta de crédito.
           </p>
         </div>
 

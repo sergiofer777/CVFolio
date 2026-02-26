@@ -1,0 +1,1081 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Iván Sevilla | Growth Manager & Web3 Strategy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Instrument+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --bg2: #111111;
+    --bg3: #161616;
+    --border: rgba(255,255,255,0.07);
+    --text: #e8e4df;
+    --muted: #6b6560;
+    --accent: #c8f55a;
+    --accent2: #f5a623;
+    --white: #ffffff;
+    --font-display: 'Syne', sans-serif;
+    --font-body: 'Instrument Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+
+  ::selection { background: var(--accent); color: #000; }
+
+  /* SCROLLBAR */
+  ::-webkit-scrollbar { width: 4px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--muted); border-radius: 2px; }
+
+  /* NAV */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 3rem;
+    backdrop-filter: blur(20px);
+    background: rgba(10,10,10,0.85);
+    border-bottom: 1px solid var(--border);
+    transition: all 0.3s ease;
+  }
+
+  .nav-logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: var(--accent);
+    text-decoration: none;
+    letter-spacing: -0.02em;
+  }
+
+  .nav-links {
+    display: flex; gap: 2.5rem; list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: color 0.2s;
+  }
+
+  .nav-links a:hover { color: var(--text); }
+
+  .nav-lang {
+    font-size: 0.75rem;
+    color: var(--muted);
+    font-weight: 500;
+    letter-spacing: 0.05em;
+  }
+
+  .nav-lang span { color: var(--text); }
+
+  /* HERO */
+  #hero {
+    min-height: 100vh;
+    display: flex; align-items: center;
+    padding: 0 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-grid-bg {
+    position: absolute; inset: 0; pointer-events: none;
+    background-image:
+      linear-gradient(rgba(255,255,255,0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255,255,255,0.025) 1px, transparent 1px);
+    background-size: 60px 60px;
+    mask-image: radial-gradient(ellipse 80% 60% at 50% 50%, black, transparent);
+  }
+
+  .hero-glow {
+    position: absolute; top: -20%; right: 5%;
+    width: 600px; height: 600px;
+    background: radial-gradient(ellipse, rgba(200,245,90,0.06) 0%, transparent 70%);
+    pointer-events: none;
+  }
+
+  .hero-content {
+    max-width: 1200px; margin: 0 auto; width: 100%;
+    display: grid; grid-template-columns: 1fr auto;
+    align-items: center; gap: 6rem;
+    padding-top: 6rem;
+  }
+
+  .hero-eyebrow {
+    font-size: 0.75rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1.5rem;
+    display: flex; align-items: center; gap: 0.75rem;
+  }
+
+  .hero-eyebrow::before {
+    content: ''; display: block; width: 40px; height: 1px; background: var(--accent);
+  }
+
+  .hero-title {
+    font-family: var(--font-display);
+    font-size: clamp(2.8rem, 6vw, 5rem);
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+  }
+
+  .hero-title .dot { color: var(--accent); }
+
+  .hero-subtitle {
+    font-family: var(--font-display);
+    font-size: clamp(1rem, 2vw, 1.5rem);
+    font-weight: 400;
+    color: var(--muted);
+    margin-bottom: 1.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .hero-divider {
+    width: 2px; height: 60px;
+    background: linear-gradient(to bottom, var(--accent), transparent);
+    margin-bottom: 1.5rem;
+  }
+
+  .hero-desc {
+    max-width: 520px;
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.7;
+    margin-bottom: 2.5rem;
+  }
+
+  .hero-desc strong { color: var(--text); font-weight: 500; }
+
+  .hero-ctas { display: flex; gap: 1rem; flex-wrap: wrap; }
+
+  .btn-primary {
+    background: var(--accent);
+    color: #000;
+    padding: 0.75rem 1.75rem;
+    border-radius: 3px;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+  }
+
+  .btn-primary:hover { background: #b8e54a; transform: translateY(-1px); }
+
+  .btn-secondary {
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 0.75rem 1.75rem;
+    border-radius: 3px;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 0.85rem;
+    letter-spacing: 0.03em;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover { border-color: rgba(255,255,255,0.2); background: rgba(255,255,255,0.03); }
+
+  .hero-avatar {
+    width: 240px; height: 280px;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+    flex-shrink: 0;
+  }
+
+  .hero-avatar::before {
+    content: ''; position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(135deg, rgba(200,245,90,0.15) 0%, transparent 50%);
+  }
+
+  .hero-avatar img {
+    width: 100%; height: 100%; object-fit: cover;
+    filter: grayscale(20%);
+  }
+
+  .avatar-placeholder {
+    width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1e2a1a 0%, #1a1a1a 100%);
+    display: flex; align-items: center; justify-content: center;
+    font-family: var(--font-display);
+    font-size: 4rem; font-weight: 800;
+    color: var(--accent);
+    letter-spacing: -0.05em;
+  }
+
+  .hero-scroll {
+    position: absolute; bottom: 2rem; left: 3rem;
+    display: flex; align-items: center; gap: 0.75rem;
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .scroll-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(to bottom, transparent, var(--muted));
+  }
+
+  /* SECTIONS */
+  section { padding: 8rem 3rem; }
+
+  .container { max-width: 1200px; margin: 0 auto; }
+
+  .section-eyebrow {
+    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: var(--accent); font-weight: 600; margin-bottom: 1rem;
+    display: flex; align-items: center; gap: 1rem;
+  }
+
+  .section-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    letter-spacing: -0.03em;
+    color: var(--white);
+    margin-bottom: 4rem;
+    line-height: 1.1;
+  }
+
+  /* ABOUT */
+  #about { background: var(--bg); }
+
+  .about-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: start;
+  }
+
+  .about-text p {
+    color: var(--muted); line-height: 1.8; margin-bottom: 1.5rem; font-size: 1.05rem;
+  }
+
+  .about-text strong { color: var(--text); font-weight: 500; }
+  .about-text a { color: var(--accent); text-decoration: none; }
+
+  .about-tech {
+    margin-top: 2rem;
+  }
+
+  .about-tech-label {
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1rem; font-weight: 600;
+  }
+
+  .tags-wrap { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+  .tag {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.3rem 0.75rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.02em;
+    transition: all 0.2s;
+  }
+
+  .tag:hover { border-color: rgba(200,245,90,0.3); color: var(--accent); }
+
+  .about-expertise { }
+
+  .expertise-label {
+    font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase;
+    color: var(--muted); margin-bottom: 1.5rem; font-weight: 600;
+  }
+
+  .expertise-grid { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .expertise-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.5rem;
+    transition: border-color 0.2s;
+  }
+
+  .expertise-card:hover { border-color: rgba(200,245,90,0.2); }
+
+  .expertise-card h4 {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    color: var(--white);
+    margin-bottom: 0.5rem;
+    letter-spacing: -0.01em;
+  }
+
+  .expertise-card p { color: var(--muted); font-size: 0.85rem; line-height: 1.6; }
+
+  /* EXPERIENCE */
+  #experience { background: var(--bg2); }
+
+  .exp-list { display: flex; flex-direction: column; }
+
+  .exp-item {
+    display: grid; grid-template-columns: 160px 1fr;
+    gap: 3rem;
+    padding: 2.5rem 0;
+    border-bottom: 1px solid var(--border);
+    position: relative;
+  }
+
+  .exp-item:first-child { border-top: 1px solid var(--border); }
+
+  .exp-meta { }
+
+  .exp-date {
+    font-size: 0.75rem; color: var(--muted); font-weight: 500;
+    letter-spacing: 0.03em; line-height: 1.4;
+    margin-bottom: 0.5rem;
+  }
+
+  .exp-badge {
+    display: inline-block;
+    background: rgba(200,245,90,0.1);
+    color: var(--accent);
+    border: 1px solid rgba(200,245,90,0.2);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-top: 0.25rem;
+  }
+
+  .exp-body { }
+
+  .exp-role {
+    font-family: var(--font-display);
+    font-size: 1.2rem; font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.25rem;
+  }
+
+  .exp-company {
+    color: var(--accent); font-size: 0.9rem; font-weight: 500; margin-bottom: 1rem;
+  }
+
+  .exp-desc { color: var(--muted); font-size: 0.9rem; line-height: 1.7; margin-bottom: 1rem; }
+
+  .exp-bullets {
+    list-style: none; margin-bottom: 1.2rem;
+  }
+
+  .exp-bullets li {
+    color: var(--muted); font-size: 0.85rem; line-height: 1.6;
+    padding-left: 1rem; position: relative; margin-bottom: 0.3rem;
+  }
+
+  .exp-bullets li::before {
+    content: '—'; position: absolute; left: 0; color: var(--border);
+  }
+
+  .exp-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+  .exp-tag {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.2rem 0.6rem;
+    border-radius: 2px;
+    font-size: 0.7rem;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+  }
+
+  /* EDUCATION */
+  #education { background: var(--bg); }
+
+  .edu-list { display: flex; flex-direction: column; gap: 0; }
+
+  .edu-item {
+    display: grid; grid-template-columns: 160px 1fr;
+    gap: 3rem;
+    padding: 2rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .edu-item:first-child { border-top: 1px solid var(--border); }
+
+  .edu-date { font-size: 0.75rem; color: var(--muted); font-weight: 500; }
+
+  .edu-degree {
+    font-family: var(--font-display);
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--white); letter-spacing: -0.02em; margin-bottom: 0.4rem;
+  }
+
+  .edu-cert {
+    font-size: 0.8rem; color: var(--accent); margin-bottom: 0.25rem;
+  }
+
+  .edu-school { font-size: 0.85rem; color: var(--muted); }
+
+  /* SKILLS */
+  #skills { background: var(--bg2); }
+
+  .skills-grid {
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 2rem;
+  }
+
+  .skill-block {
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.75rem;
+  }
+
+  .skill-block-title {
+    font-family: var(--font-display);
+    font-size: 0.85rem; font-weight: 700;
+    color: var(--text); letter-spacing: 0.02em;
+    margin-bottom: 1.2rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .skill-list { display: flex; flex-wrap: wrap; gap: 0.4rem; }
+
+  .skill-pill {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.35rem 0.7rem;
+    border-radius: 3px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    transition: all 0.2s;
+  }
+
+  .skill-pill:hover { border-color: rgba(200,245,90,0.3); color: var(--accent); }
+
+  /* PROJECTS */
+  #projects { background: var(--bg); }
+
+  .projects-grid {
+    display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem;
+  }
+
+  .project-card {
+    background: var(--bg2);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1.75rem;
+    text-decoration: none;
+    display: flex; flex-direction: column;
+    transition: all 0.25s;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .project-card::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, var(--accent), transparent);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.3s ease;
+  }
+
+  .project-card:hover::before { transform: scaleX(1); }
+  .project-card:hover { border-color: rgba(200,245,90,0.15); transform: translateY(-2px); }
+
+  .project-card.no-link { cursor: default; }
+  .project-card.no-link:hover { transform: none; }
+
+  .project-arrow {
+    position: absolute; top: 1.25rem; right: 1.25rem;
+    font-size: 0.8rem; color: var(--muted); transition: all 0.2s;
+  }
+
+  .project-card:not(.no-link):hover .project-arrow { color: var(--accent); transform: translate(2px,-2px); }
+
+  .project-title {
+    font-family: var(--font-display);
+    font-size: 1.05rem; font-weight: 700;
+    color: var(--white);
+    letter-spacing: -0.02em;
+    margin-bottom: 0.75rem;
+    padding-right: 1.5rem;
+  }
+
+  .project-desc {
+    color: var(--muted); font-size: 0.85rem; line-height: 1.6;
+    margin-bottom: 1.25rem; flex: 1;
+  }
+
+  .project-tags { display: flex; flex-wrap: wrap; gap: 0.35rem; }
+
+  .project-tag {
+    background: transparent;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    padding: 0.2rem 0.55rem;
+    border-radius: 2px;
+    font-size: 0.65rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+  }
+
+  /* CONTACT */
+  #contact { background: var(--bg2); }
+
+  .contact-inner {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: start;
+  }
+
+  .contact-left { }
+
+  .contact-title {
+    font-family: var(--font-display);
+    font-size: clamp(2rem, 4vw, 3rem);
+    font-weight: 800;
+    color: var(--white);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-desc { color: var(--muted); line-height: 1.7; margin-bottom: 2.5rem; }
+
+  .contact-links { display: flex; flex-direction: column; gap: 1rem; }
+
+  .contact-link {
+    display: flex; align-items: center; gap: 1.25rem;
+    padding: 1.25rem;
+    background: var(--bg3);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    text-decoration: none;
+    transition: all 0.2s;
+    color: inherit;
+  }
+
+  .contact-link:hover { border-color: rgba(200,245,90,0.2); }
+
+  .contact-link-icon {
+    width: 36px; height: 36px;
+    background: rgba(200,245,90,0.1);
+    border-radius: 3px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem; flex-shrink: 0;
+  }
+
+  .contact-link-info { }
+
+  .contact-link-label {
+    font-size: 0.7rem; color: var(--muted); font-weight: 600;
+    text-transform: uppercase; letter-spacing: 0.1em; margin-bottom: 0.2rem;
+  }
+
+  .contact-link-value {
+    color: var(--text); font-size: 0.9rem; font-weight: 500;
+  }
+
+  .contact-right {
+    display: flex; flex-direction: column; justify-content: center; align-items: flex-start;
+    padding-top: 1rem;
+  }
+
+  .contact-cta {
+    display: inline-flex; align-items: center; gap: 0.75rem;
+    background: var(--accent); color: #000;
+    padding: 1rem 2rem;
+    border-radius: 3px;
+    text-decoration: none;
+    font-weight: 700;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .contact-cta:hover { background: #b8e54a; transform: translateY(-1px); }
+
+  /* FOOTER */
+  footer {
+    background: var(--bg);
+    border-top: 1px solid var(--border);
+    padding: 2.5rem 3rem;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+
+  .footer-logo {
+    font-family: var(--font-display);
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: var(--accent);
+    letter-spacing: -0.02em;
+  }
+
+  .footer-credit { color: var(--muted); font-size: 0.8rem; }
+
+  /* ANIMATIONS */
+  @keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero-content > * {
+    animation: fadeInUp 0.8s ease forwards;
+    opacity: 0;
+  }
+
+  .hero-content > *:nth-child(1) { animation-delay: 0.1s; }
+  .hero-content > *:nth-child(2) { animation-delay: 0.25s; }
+
+  /* RESPONSIVE */
+  @media (max-width: 900px) {
+    nav { padding: 1rem 1.5rem; }
+    .nav-links { display: none; }
+    section { padding: 5rem 1.5rem; }
+    #hero { padding: 0 1.5rem; }
+    .hero-content { grid-template-columns: 1fr; gap: 3rem; }
+    .hero-avatar { display: none; }
+    .about-grid { grid-template-columns: 1fr; gap: 3rem; }
+    .exp-item { grid-template-columns: 1fr; gap: 0.5rem; }
+    .edu-item { grid-template-columns: 1fr; gap: 0.25rem; }
+    .skills-grid { grid-template-columns: 1fr; }
+    .projects-grid { grid-template-columns: 1fr; }
+    .contact-inner { grid-template-columns: 1fr; gap: 3rem; }
+    footer { flex-direction: column; gap: 1rem; text-align: center; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#hero" class="nav-logo">IS.</a>
+  <ul class="nav-links">
+    <li><a href="#about">About</a></li>
+    <li><a href="#experience">Experience</a></li>
+    <li><a href="#education">Education</a></li>
+    <li><a href="#skills">Skills</a></li>
+    <li><a href="#projects">Projects</a></li>
+    <li><a href="#contact">Contact</a></li>
+  </ul>
+  <div class="nav-lang"><span>EN</span> / ES</div>
+</nav>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-grid-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-content">
+    <div>
+      <div class="hero-eyebrow">Hi, I'm</div>
+      <h1 class="hero-title">Iván Sevilla<span class="dot">.</span></h1>
+      <div class="hero-subtitle">— Growth Manager &amp; Web3 Strategy</div>
+      <div class="hero-divider"></div>
+      <p class="hero-desc">
+        Data-driven Growth Manager specializing in <strong>Fintech &amp; Web3</strong>. Bridging the gap between Product, Marketing, and Compliance to scale crypto platforms like <strong>Criptan</strong>.
+      </p>
+      <div class="hero-ctas">
+        <a href="#contact" class="btn-primary">Let's Talk</a>
+        <a href="#experience" class="btn-secondary">View Experience</a>
+      </div>
+    </div>
+    <div class="hero-avatar">
+      <div class="avatar-placeholder">IS</div>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <div class="scroll-line"></div>
+    Scroll
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about">
+  <div class="container">
+    <div class="section-eyebrow">01 — About me</div>
+    <h2 class="section-title">Combining creativity &amp;<br>digital strategy</h2>
+    <div class="about-grid">
+      <div class="about-text">
+        <p>
+          I'm a <strong><a href="#about">Growth Manager</a></strong> with over 8 years of <a href="#experience">experience in digital marketing</a>, specializing in the <strong><a href="#projects">Fintech and Blockchain</a></strong> sector. My approach combines creative strategy with technical skills to drive user adoption and scale digital products.
+        </p>
+        <p>
+          Currently leading growth at <strong>Criptan</strong>, one of Spain's most important crypto platforms, where I manage acquisition and retention strategies using Big Data and on-chain analytics to optimize results in real-time.
+        </p>
+        <p>
+          I also lead the adaptation of communication and acquisition strategies to the new MiCA/CNMV regulatory framework, and integrate generative AI tools into marketing workflows to optimize content production and data analysis.
+        </p>
+        <p>My passion for blockchain technology and the Web3 ecosystem drives me to always stay at the forefront of digital innovation.</p>
+
+        <div class="about-tech">
+          <div class="about-tech-label">Tech Stack &amp; Focus Areas</div>
+          <div class="tags-wrap">
+            <span class="tag">Solana / Web3</span>
+            <span class="tag">MiCA / CNMV</span>
+            <span class="tag">Big Data</span>
+            <span class="tag">On-chain Analytics</span>
+            <span class="tag">Claude AI / Make</span>
+            <span class="tag">Growth Hacking</span>
+            <span class="tag">Discord / Telegram</span>
+            <span class="tag">AI Marketing</span>
+            <span class="tag">Fintech / DeFi</span>
+            <span class="tag">KOL Management</span>
+            <span class="tag">Tokenomics</span>
+            <span class="tag">SEO / SEM</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="about-expertise">
+        <div class="expertise-label">Featured Expertise</div>
+        <div class="expertise-grid">
+          <div class="expertise-card">
+            <h4>Fintech &amp; Web3 Leadership</h4>
+            <p>Working deeply with Product teams to optimize user acquisition funnels, increase LTV, and reduce CAC in highly competitive crypto markets. Data-driven experimentation is at the core of my strategy.</p>
+          </div>
+          <div class="expertise-card">
+            <h4>Growth &amp; Product Synergy</h4>
+            <p>Working deeply with Product teams to optimize user acquisition funnels, increase LTV, and reduce CAC in highly competitive crypto markets.</p>
+          </div>
+          <div class="expertise-card">
+            <h4>MiCA &amp; CNMV</h4>
+            <p>Navigating complex regulatory landscapes. Ensuring marketing and acquisition strategies remain compliant without sacrificing growth momentum.</p>
+          </div>
+          <div class="expertise-card">
+            <h4>On-chain Analytics</h4>
+            <p>Leveraging Big Data and on-chain metrics (Dune Analytics, Solana ecosystem tracking) to find growth opportunities and understand protocol health.</p>
+          </div>
+          <div class="expertise-card">
+            <h4>AI &amp; Automation</h4>
+            <p>Building internal workflows using Claude AI, Make (Integromat), and LLMs to automate content generation, CRM flows, and campaign analysis.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- EXPERIENCE -->
+<section id="experience">
+  <div class="container">
+    <div class="section-eyebrow">02 — Experience</div>
+    <h2 class="section-title">Professional journey</h2>
+    <div class="exp-list">
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">2024 — Present</div>
+          <div class="exp-badge">Current</div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-role">Growth Marketing Lead</div>
+          <div class="exp-company">Criptan</div>
+          <p class="exp-desc">I lead and execute digital strategies focused on user acquisition, engagement, and retention in the evolving crypto ecosystem. I design and implement full-funnel marketing campaigns, define KPIs, and analyze performance metrics (CPL, CAC, LTV, ROI) to guide optimizations.</p>
+          <ul class="exp-bullets">
+            <li>Marketing strategy and campaign execution across multiple channels (paid media, SEO, email, social).</li>
+            <li>Performance tracking and reporting to drive strategic decisions.</li>
+            <li>Budget planning and media buying with focus on ROI.</li>
+            <li>Strategic partnerships with influencers (KOLs) to expand reach and brand trust.</li>
+            <li>CRM management and automation workflows (Make/Integromat) to improve user retention.</li>
+            <li>Social media strategy and community engagement (Discord, Telegram) to boost loyalty.</li>
+            <li>Cross-functional collaboration with product, design, and tech teams.</li>
+            <li>SEO-focused content creation (blogs, emails, videos) tailored to user intent.</li>
+            <li>Leading marketing adaptation to the MiCA regulatory framework (CNMV authorization).</li>
+            <li>Implementing AI-powered workflows with Claude AI and Antigravity for content production and campaign analysis.</li>
+          </ul>
+          <div class="exp-tags">
+            <span class="exp-tag">Growth</span><span class="exp-tag">Crypto</span><span class="exp-tag">SEO</span><span class="exp-tag">Paid Media</span><span class="exp-tag">CRM</span><span class="exp-tag">MiCA</span><span class="exp-tag">AI</span><span class="exp-tag">KOLs</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">2023 — 2024</div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-role">Marketing Specialist</div>
+          <div class="exp-company">Orange Bank</div>
+          <p class="exp-desc">Supported the OB Digital Marketing team in the definition and implementation of Social Media strategy. Acted as Webmaster of orangebank.es, monitoring the site and managing content through the CMS. Constant data analysis and collaboration with all teams.</p>
+          <ul class="exp-bullets">
+            <li>Social Media strategy definition and content generation across social networks.</li>
+            <li>Webmaster of orangebank.es: site monitoring, content publishing via CMS, and UX optimization.</li>
+            <li>Competition analysis, potential client research, and sector benchmarking.</li>
+            <li>Advanced tracking implementation (GA, Tag Manager) to optimize user journeys and conversion funnels.</li>
+            <li>Cross-team collaboration to ensure a customer-centric approach across all digital touchpoints.</li>
+            <li>Content creation and campaign execution under strict banking compliance standards.</li>
+          </ul>
+          <div class="exp-tags">
+            <span class="exp-tag">Fintech</span><span class="exp-tag">Social Media</span><span class="exp-tag">CRO</span><span class="exp-tag">Analytics</span><span class="exp-tag">CMS</span><span class="exp-tag">Compliance</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">2022 — 2023</div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-role">Digital Marketing Assistant</div>
+          <div class="exp-company">CSO Digital</div>
+          <p class="exp-desc">Hands-on learning with web development tools, SEO strategy, and planning and optimization of Paid Media campaigns. Collaborated in the development of an in-house Blockchain training project.</p>
+          <ul class="exp-bullets">
+            <li>Web development foundations: HTML, CSS, WordPress, and basic site optimization.</li>
+            <li>SEO strategy: keyword research, on-page optimization, and organic growth tactics.</li>
+            <li>Paid Media campaign planning, execution, and performance optimization (Google Ads, Meta Ads).</li>
+            <li>Collaboration on an in-house Blockchain and DLT training initiative, deepening Web3 knowledge.</li>
+          </ul>
+          <div class="exp-tags">
+            <span class="exp-tag">Blockchain</span><span class="exp-tag">Paid Media</span><span class="exp-tag">SEO</span><span class="exp-tag">Web Dev</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">2020 — 2021</div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-role">Marketing Intern</div>
+          <div class="exp-company">Universidad Francisco de Vitoria</div>
+          <p class="exp-desc">Commercial support, participating in the student recruitment process, from initial contact to seat reservation management and telephone assistance.</p>
+          <ul class="exp-bullets">
+            <li>CRM management and customer database nurturing.</li>
+            <li>Learning and validating the full sales process, from planning to achieving commercial objectives.</li>
+            <li>Telephone prospecting and student support, managing daily communication flow.</li>
+            <li>Monitoring and controlling the sales process pipeline.</li>
+            <li>Online marketing support and social media content.</li>
+          </ul>
+          <div class="exp-tags">
+            <span class="exp-tag">CRM</span><span class="exp-tag">Sales</span><span class="exp-tag">Recruitment</span><span class="exp-tag">Digital Marketing</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="exp-item">
+        <div class="exp-meta">
+          <div class="exp-date">2018 — 6 months</div>
+        </div>
+        <div class="exp-body">
+          <div class="exp-role">Graphic Designer</div>
+          <div class="exp-company">Snap Ireland</div>
+          <p class="exp-desc">Layout design using InDesign, visual design for local businesses, and complete prepress and postpress processes using Photoshop and Illustrator. Client meetings, briefings, and final design delivery.</p>
+          <ul class="exp-bullets">
+            <li>Layout and visual design for local businesses using Adobe InDesign.</li>
+            <li>Complete prepress and postpress production workflow using Photoshop and Illustrator.</li>
+            <li>Client-facing meetings, creative briefings, and final design delivery.</li>
+            <li>B2B client management and project coordination in a print production environment.</li>
+          </ul>
+          <div class="exp-tags">
+            <span class="exp-tag">InDesign</span><span class="exp-tag">Photoshop</span><span class="exp-tag">Illustrator</span><span class="exp-tag">B2B</span><span class="exp-tag">Print</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- EDUCATION -->
+<section id="education">
+  <div class="container">
+    <div class="section-eyebrow">03 — Education</div>
+    <h2 class="section-title">Academic background</h2>
+    <div class="edu-list">
+      <div class="edu-item">
+        <div class="edu-date">2020 — 2024</div>
+        <div>
+          <div class="edu-degree">Bachelor's Degree in Marketing</div>
+          <div class="edu-cert">+ Certificate in Collaborative Leadership in Digital Marketing</div>
+          <div class="edu-school">UFV — Madrid</div>
+        </div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-date">2018 — 2020</div>
+        <div>
+          <div class="edu-degree">Higher Technician in Marketing &amp; Advertising</div>
+          <div class="edu-school">UFV — Madrid</div>
+        </div>
+      </div>
+      <div class="edu-item">
+        <div class="edu-date">2016 — 2018</div>
+        <div>
+          <div class="edu-degree">Medium Technician in Digital Prepress</div>
+          <div class="edu-school">IES Ponce de León</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SKILLS -->
+<section id="skills">
+  <div class="container">
+    <div class="section-eyebrow">04 — Skills</div>
+    <h2 class="section-title">Tools &amp; competencies</h2>
+    <div class="skills-grid">
+      <div class="skill-block">
+        <div class="skill-block-title">Marketing &amp; Growth</div>
+        <div class="skill-list">
+          <span class="skill-pill">Growth Hacking</span><span class="skill-pill">SEO</span><span class="skill-pill">SEM</span><span class="skill-pill">Content Strategy</span><span class="skill-pill">User Acquisition</span><span class="skill-pill">CRO</span><span class="skill-pill">Paid Media</span><span class="skill-pill">Email Marketing</span><span class="skill-pill">Social Media</span><span class="skill-pill">Copywriting</span>
+        </div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-block-title">Tech &amp; Web3</div>
+        <div class="skill-list">
+          <span class="skill-pill">Blockchain</span><span class="skill-pill">Web3</span><span class="skill-pill">Solana</span><span class="skill-pill">DeFi</span><span class="skill-pill">Big Data</span><span class="skill-pill">Analytics</span><span class="skill-pill">On-chain Analysis</span><span class="skill-pill">Web Management</span>
+        </div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-block-title">Tools</div>
+        <div class="skill-list">
+          <span class="skill-pill">Google Analytics</span><span class="skill-pill">Google Ads</span><span class="skill-pill">Meta Ads</span><span class="skill-pill">Figma</span><span class="skill-pill">Adobe Suite</span><span class="skill-pill">HubSpot</span><span class="skill-pill">Wordpress</span><span class="skill-pill">Tag Manager</span><span class="skill-pill">Make (Integromat)</span><span class="skill-pill">Claude AI</span><span class="skill-pill">Notion AI</span><span class="skill-pill">Perplexity</span><span class="skill-pill">Dune Analytics</span>
+        </div>
+      </div>
+      <div class="skill-block">
+        <div class="skill-block-title">AI &amp; Automation</div>
+        <div class="skill-list">
+          <span class="skill-pill">Claude AI (Anthropic)</span><span class="skill-pill">ChatGPT / GPT-4</span><span class="skill-pill">Antigravity</span><span class="skill-pill">Make (Integromat)</span><span class="skill-pill">Perplexity AI</span><span class="skill-pill">AI-augmented Copywriting</span><span class="skill-pill">Prompt Engineering</span>
+        </div>
+      </div>
+      <div class="skill-block" style="grid-column: span 2;">
+        <div class="skill-block-title">Web3 &amp; Community</div>
+        <div class="skill-list">
+          <span class="skill-pill">Discord Community Management</span><span class="skill-pill">Telegram Growth</span><span class="skill-pill">KOL / Influencer Management</span><span class="skill-pill">Tokenomics (basics)</span><span class="skill-pill">On-chain Analytics</span><span class="skill-pill">MiCA / CNMV Compliance</span><span class="skill-pill">DAC8 / Reporting fiscal</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PROJECTS -->
+<section id="projects">
+  <div class="container">
+    <div class="section-eyebrow">05 — Projects</div>
+    <h2 class="section-title">Featured work</h2>
+    <div class="projects-grid">
+
+      <a href="https://netoapp.es" target="_blank" class="project-card">
+        <span class="project-arrow">↗</span>
+        <div class="project-title">NetoApp</div>
+        <p class="project-desc">Personal finance app designed to help users track expenses, manage budgets, and take control of their financial health. Built and launched from scratch.</p>
+        <div class="project-tags"><span class="project-tag">Fintech</span><span class="project-tag">Mobile App</span><span class="project-tag">Product</span></div>
+      </a>
+
+      <a href="https://azaharfloristas.com" target="_blank" class="project-card">
+        <span class="project-arrow">↗</span>
+        <div class="project-title">Azahar Floristas</div>
+        <p class="project-desc">Fully functional e-commerce website built from scratch for an online florist delivering across the Community of Madrid. End-to-end development, design, and deployment.</p>
+        <div class="project-tags"><span class="project-tag">E-commerce</span><span class="project-tag">Web Dev</span><span class="project-tag">UI/UX</span></div>
+      </a>
+
+      <div class="project-card no-link">
+        <div class="project-title">Content Automation</div>
+        <p class="project-desc">Automated content creation service for businesses and YouTubers. AI-powered Short generation and multi-platform distribution — so creators can focus on what matters while their content scales effortlessly.</p>
+        <div class="project-tags"><span class="project-tag">Automation</span><span class="project-tag">AI</span><span class="project-tag">Content</span></div>
+      </div>
+
+      <a href="https://criptan.com" target="_blank" class="project-card">
+        <span class="project-arrow">↗</span>
+        <div class="project-title">Growth Strategy at Criptan</div>
+        <p class="project-desc">Led the full acquisition and retention strategy for Spain's leading crypto platform. CAC optimization through Big Data and real-time on-chain analytics.</p>
+        <div class="project-tags"><span class="project-tag">Growth</span><span class="project-tag">Crypto</span><span class="project-tag">Big Data</span></div>
+      </a>
+
+      <a href="https://orangebank.com" target="_blank" class="project-card">
+        <span class="project-arrow">↗</span>
+        <div class="project-title">Webmaster Orange Bank</div>
+        <p class="project-desc">Full management of orangebank.es. Advanced tracking implementation, customer journey optimization, and conversion funnel improvements under banking compliance.</p>
+        <div class="project-tags"><span class="project-tag">Fintech</span><span class="project-tag">CRO</span><span class="project-tag">Analytics</span></div>
+      </a>
+
+      <a href="https://csodigital.tech" target="_blank" class="project-card">
+        <span class="project-arrow">↗</span>
+        <div class="project-title">CSO Digital — Marketing Agency</div>
+        <p class="project-desc">Digital marketing agency specializing in performance campaigns, SEO strategy, and growth consulting for startups and SMBs looking to scale their online presence.</p>
+        <div class="project-tags"><span class="project-tag">Agency</span><span class="project-tag">SEO</span><span class="project-tag">Performance</span></div>
+      </a>
+
+      <div class="project-card no-link">
+        <div class="project-title">MiCA Compliance Marketing Strategy</div>
+        <p class="project-desc">Led the marketing and communication adaptation to the MiCA regulatory framework at Criptan. Redesigned onboarding flows, advertising claims, and investor communication to meet CNMV standards ahead of the July 2026 deadline.</p>
+        <div class="project-tags"><span class="project-tag">MiCA</span><span class="project-tag">Compliance</span><span class="project-tag">CNMV</span><span class="project-tag">Growth</span></div>
+      </div>
+
+      <a href="https://badmintonsureste.es/" target="_blank" class="project-card">
+        <span class="project-arrow">↗</span>
+        <div class="project-title">Bádminton Sureste</div>
+        <p class="project-desc">Website development and SEO optimization for a local badminton club, boosting organic visibility.</p>
+        <div class="project-tags"><span class="project-tag">Web Dev</span><span class="project-tag">SEO</span></div>
+      </a>
+
+      <a href="https://www.mjbarbaconsulting.com" target="_blank" class="project-card">
+        <span class="project-arrow">↗</span>
+        <div class="project-title">MJ Barba Consulting</div>
+        <p class="project-desc">Corporate website design and development for a business consulting firm, with advanced CMS integration.</p>
+        <div class="project-tags"><span class="project-tag">Web Dev</span><span class="project-tag">SEO</span></div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section id="contact">
+  <div class="container">
+    <div class="section-eyebrow">06 — Contact</div>
+    <div class="contact-inner">
+      <div class="contact-left">
+        <h2 class="contact-title">Let's talk about your next project?</h2>
+        <p class="contact-desc">I'm always open to new opportunities, collaborations, and interesting conversations about marketing, blockchain, and digital growth.</p>
+        <div class="contact-links">
+          <a href="mailto:ivan.sevilla.ruano@gmail.com" class="contact-link">
+            <div class="contact-link-icon">✉</div>
+            <div class="contact-link-info">
+              <div class="contact-link-label">Email</div>
+              <div class="contact-link-value">ivan.sevilla.ruano@gmail.com</div>
+            </div>
+          </a>
+          <a href="https://www.linkedin.com/in/ivansevillaruano/" target="_blank" class="contact-link">
+            <div class="contact-link-icon">in</div>
+            <div class="contact-link-info">
+              <div class="contact-link-label">LinkedIn</div>
+              <div class="contact-link-value">ivansevillaruano</div>
+            </div>
+          </a>
+        </div>
+      </div>
+      <div class="contact-right">
+        <a href="mailto:ivan.sevilla.ruano@gmail.com" class="contact-cta">
+          Send me a message →
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">IS.</div>
+  <div class="footer-credit">Designed &amp; developed by Iván Sevilla —</div>
+</footer>
+
+</body>
+</html>

@@ -3,9 +3,17 @@ import { createClient, createAdminClient } from "@/lib/supabase/server";
 import {
   parseCVWithAI,
   parseCVImageWithAI,
+  extractTextFromCVImageWithAI,
   generateLandingWithAI,
 } from "@/lib/ai/parse-cv";
 import type { CVData, ParseCVResponse } from "@/types/cv-data";
+import { getPlanLimits, type ProfilePlan } from "@/lib/billing/access";
+import { consumeUsage } from "@/lib/billing/quotas";
+import { isBillingEnforcementEnabled } from "@/lib/billing/config";
+import {
+  DEFAULT_PORTFOLIO_THEME,
+  isPortfolioTheme,
+} from "@/lib/templates/portfolio-themes";
 
 // Extrae texto de PDF usando pdf-parse
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
@@ -33,6 +41,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     // 2. Obtener el archivo del FormData
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
+    const templateIdInput = formData.get("templateId");
+    const selectedTemplateId =
+      typeof templateIdInput === "string" && isPortfolioTheme(templateIdInput)
+        ? templateIdInput
+        : DEFAULT_PORTFOLIO_THEME;
 
     if (!file) {
       return NextResponse.json(
@@ -57,8 +70,66 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
       );
     }
 
-    // 3. Subir el archivo a Supabase Storage
     const adminClient = createAdminClient();
+    const { data: profileRaw } = await adminClient
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .maybeSingle();
+    const plan =
+      ((profileRaw as { plan?: ProfilePlan } | null)?.plan ?? "free") as ProfilePlan;
+
+    const billingEnforced = isBillingEnforcementEnabled();
+    if (billingEnforced) {
+      const usageResult = await consumeUsage({
+        admin: adminClient,
+        userId: user.id,
+        plan,
+        metric: "generation",
+      });
+
+      if (usageResult.storageReady === false) {
+        const fallbackLimit = getPlanLimits(plan).generationLimit;
+        if (fallbackLimit !== null) {
+          const { count } = await adminClient
+            .from("portfolios")
+            .select("id", { head: true, count: "exact" })
+            .eq("user_id", user.id);
+
+          if ((count ?? 0) >= fallbackLimit) {
+            return NextResponse.json(
+              {
+                success: false,
+                error:
+                  plan === "studio"
+                    ? "Has alcanzado el máximo de 3 portfolios para Studio."
+                    : "Has alcanzado el límite de portfolios para tu plan.",
+              },
+              { status: 402 }
+            );
+          }
+        }
+      }
+
+      if (!usageResult.allowed) {
+        const limit = usageResult.generationLimit ?? 0;
+        const used = usageResult.generationUsed;
+        const message =
+          plan === "studio"
+            ? `Has alcanzado tu límite mensual de ${limit} generaciones (${used}/${limit}).`
+            : "Tu prueba gratuita ya se consumió. Activa el plan de €9,99 para publicar y conservar tu web.";
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: message,
+          },
+          { status: 402 }
+        );
+      }
+    }
+
+    // 3. Subir el archivo a Supabase Storage
     const fileExtension = file.name.split(".").pop() ?? "pdf";
     const filePath = `${user.id}/${Date.now()}.${fileExtension}`;
     const buffer = Buffer.from(await file.arrayBuffer());
@@ -112,18 +183,43 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
           { status: 422 }
         );
       }
-      cvTextForLanding = text;
       cvData = await parseCVWithAI(text);
+      cvTextForLanding = JSON.stringify(
+        {
+          structuredCv: cvData,
+          rawCvText: text,
+        },
+        null,
+        2
+      );
     } else {
       const base64 = buffer.toString("base64");
       const mediaType = file.type as "image/jpeg" | "image/png";
       cvData = await parseCVImageWithAI(base64, mediaType);
-      cvTextForLanding = JSON.stringify(cvData, null, 2);
+      let rawImageText = "";
+
+      try {
+        rawImageText = await extractTextFromCVImageWithAI(base64, mediaType);
+      } catch (ocrError) {
+        console.error("image ocr error:", ocrError);
+      }
+
+      cvTextForLanding = JSON.stringify(
+        {
+          structuredCv: cvData,
+          rawCvText: rawImageText || undefined,
+        },
+        null,
+        2
+      );
     }
 
     // 5.1 Generar landing one-page con prompt estrategico (si falla, no rompe el flujo)
     try {
-      const generatedLanding = await generateLandingWithAI(cvTextForLanding);
+      const generatedLanding = await generateLandingWithAI(
+        cvTextForLanding,
+        selectedTemplateId
+      );
       cvData.generatedLanding = generatedLanding;
     } catch (landingError) {
       console.error("landing generation error:", landingError);
@@ -137,52 +233,28 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
         .eq("id", uploadRecord.id);
     }
 
-    // 7. Guardar/actualizar el portafolio en la base de datos
-    const { data: existingPortfolio } = await adminClient
+    // 7. Guardar el portafolio como una nueva creación
+    const { data: newPortfolio, error: portfolioError } = await adminClient
       .from("portfolios")
-      .select("id")
-      .eq("user_id", user.id)
+      .insert({
+        user_id: user.id,
+        upload_id: uploadRecord?.id ?? null,
+        cv_data: cvData as never,
+        theme: selectedTemplateId,
+        is_published: false,
+        is_public: false,
+        published_at: null,
+      })
+      .select()
       .single();
 
-    let portfolioId: string;
-
-    if (existingPortfolio) {
-      // Actualiza el portafolio existente
-      const { data: updated } = await adminClient
-        .from("portfolios")
-        .update({
-          cv_data: cvData as never,
-          upload_id: uploadRecord?.id ?? null,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("id", existingPortfolio.id)
-        .select()
-        .single();
-
-      portfolioId = updated?.id ?? existingPortfolio.id;
-    } else {
-      // Crea un portafolio nuevo
-      const { data: newPortfolio, error: portfolioError } = await adminClient
-        .from("portfolios")
-        .insert({
-          user_id: user.id,
-          upload_id: uploadRecord?.id ?? null,
-          cv_data: cvData as never,
-          theme: "minimal",
-          is_published: false,
-          is_public: true,
-        })
-        .select()
-        .single();
-
-      if (portfolioError || !newPortfolio) {
-        return NextResponse.json(
-          { success: false, error: "Error al guardar el portafolio" },
-          { status: 500 }
-        );
-      }
-      portfolioId = newPortfolio.id;
+    if (portfolioError || !newPortfolio) {
+      return NextResponse.json(
+        { success: false, error: "Error al guardar el portafolio" },
+        { status: 500 }
+      );
     }
+    const portfolioId = newPortfolio.id;
 
     return NextResponse.json({
       success: true,

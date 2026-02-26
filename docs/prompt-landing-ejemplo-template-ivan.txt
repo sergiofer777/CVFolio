@@ -1,0 +1,1261 @@
+PROMPT REAL ENVIADO A LA API (EJEMPLO TEMPLATE ELEGIDA: MODERN/TEMPLATE IVAN)
+NOTA: El bloque "CV A TRANSFORMAR" es un ejemplo manual para visualizar el prompt.
+
+=== SYSTEM PROMPT ===
+Actua como un Disenador UX/UI Senior, Desarrollador Frontend experto (Tailwind/JS) y Estratega de Marca Personal.
+
+Tu objetivo es transformar la informacion del CV en una landing one-page final usando una plantilla HTML base como fuente de verdad visual.
+
+REGLAS DE IMPLEMENTACION (OBLIGATORIAS):
+1. La plantilla HTML base manda: respeta su arquitectura, orden de secciones, layout, clases, ids, data-attributes, tipografias, colores, animaciones y JavaScript.
+2. No redisenes la plantilla ni cambies su estilo global: solo reemplaza contenido con datos reales del CV.
+3. Sustituye placeholders por contenido concreto y coherente con el CV.
+4. Si falta una categoria de datos (por ejemplo: proyectos, certificaciones, educacion, idiomas o imagen), elimina el bloque completo y sus separadores visuales para evitar huecos.
+5. Si no hay foto, elimina el bloque de imagen/placeholder y reequilibra el layout manteniendo el estilo original.
+6. No inventes logros, metricas, empresas, fechas ni enlaces que no existan en el CV.
+7. Mantiene el idioma principal del CV.
+8. Evita texto generico y cliches (como "proactivo", "apasionado" o "trabajador").
+9. Prioriza claridad, legibilidad y jerarquia visual.
+
+FORMATO DE SALIDA OBLIGATORIO:
+- Devuelve solo un documento HTML completo.
+- El texto debe empezar por `<!doctype html>` y terminar con `</html>`.
+- No incluyas Markdown, JSON ni explicaciones fuera del HTML.
+
+=== USER PROMPT (INTERPOLADO) ===
+Genera la landing one-page final a partir del CV y la plantilla base.
+
+PLANTILLA ELEGIDA:
+- Nombre: Template Ivan
+- Direccion visual: Usa exactamente la estructura visual de index-ivan.html. Si una seccion (proyectos, certificaciones, educacion, imagen, etc.) no tiene datos fiables en el CV, elimina el bloque completo y sus separadores en lugar de dejar placeholders.
+
+REGLAS DE PLANTILLA:
+1. Copia la arquitectura HTML de la plantilla base y manten el orden de sus bloques.
+2. Conserva clases, ids, estilos, scripts y comportamiento visual.
+3. Reemplaza placeholders por contenido real extraido del CV.
+4. Si una seccion no aplica por falta de datos (proyectos, certificaciones, educacion, idiomas, imagen), elimina ese bloque y sus divisores.
+5. No inventes informacion no presente en el CV.
+6. El HTML final debe basarse en esta plantilla:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iván Sevilla | Growth Manager & Web3 Strategy</title>
+    <meta name="description"
+        content="Portfolio of Iván Sevilla Ruano — Growth Manager specialized in Digital Marketing, Fintech, and Blockchain. Experience at Criptan, Orange Bank and more.">
+    <meta property="og:title" content="Iván Sevilla Ruano — Portfolio">
+    <meta property="og:description"
+        content="Growth Manager | Marketing & Blockchain Strategy. Specialist in Fintech, Crypto & Web3.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://ivansevilla.es">
+    <meta property="og:image" content="https://ivansevilla.es/img/ivan-avatar.jpg">
+    <meta property="og:image:width" content="1024">
+    <meta property="og:image:height" content="1024">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Iván Sevilla Ruano — Growth Manager | Fintech & Blockchain">
+    <meta name="twitter:description"
+        content="Growth Manager especializado en Fintech, Crypto y Web3. Experiencia en Criptan y Orange Bank.">
+    <meta name="twitter:image" content="https://ivansevilla.es/img/ivan-avatar.jpg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="32x32" href="img/favicon-32.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="img/apple-touch-icon.png">
+    <link rel="stylesheet" href="styles.css">
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Iván Sevilla Ruano",
+        "jobTitle": "Growth Marketing Lead",
+        "url": "https://ivansevilla.es",
+        "image": "https://ivansevilla.es/img/ivan-avatar.jpg",
+        "email": "ivan.sevilla.ruano@gmail.com",
+        "description": "Growth Manager specialized in Digital Marketing, Fintech, and Blockchain.",
+        "knowsAbout": ["Growth Marketing", "Fintech", "Blockchain", "Web3", "MiCA", "SEO", "Big Data", "On-chain Analytics"],
+        "sameAs": [
+            "https://www.linkedin.com/in/ivansevillaruano/"
+        ]
+    }
+    </script>
+</head>
+
+<body>
+    <!-- Custom Cursor -->
+    <div class="cursor" id="cursor"></div>
+    <div class="cursor-follower" id="cursorFollower"></div>
+
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Navigation -->
+    <nav class="nav" id="nav">
+        <a href="#hero" class="nav-logo">IS<span class="nav-logo-dot">.</span></a>
+        <div class="nav-links" id="navLinks">
+            <a href="#about" class="nav-link" data-en="About" data-es="Sobre mí">About</a>
+            <a href="#experience" class="nav-link" data-en="Experience" data-es="Experiencia">Experience</a>
+            <a href="#education" class="nav-link" data-en="Education" data-es="Educación">Education</a>
+            <a href="#skills" class="nav-link" data-en="Skills" data-es="Skills">Skills</a>
+            <a href="#projects" class="nav-link" data-en="Projects" data-es="Proyectos">Projects</a>
+            <a href="#contact" class="nav-link" data-en="Contact" data-es="Contacto">Contact</a>
+        </div>
+        <div class="nav-right">
+            <button class="lang-toggle" id="langToggle" aria-label="Toggle language">
+                <span class="lang-option active" data-lang="en">EN</span>
+                <span class="lang-separator">/</span>
+                <span class="lang-option" data-lang="es">ES</span>
+            </button>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle menu">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <canvas class="hero-canvas" id="heroCanvas"></canvas>
+        <div class="hero-content">
+            <div class="hero-greeting reveal-text">
+                <span class="hero-greeting-line"></span>
+                <span data-en="Hi, I'm" data-es="Hola, soy">Hi, I'm</span>
+            </div>
+            <h1 class="hero-name" id="heroName">
+                <span class="hero-name-line">Iván</span>
+                <span class="hero-name-line">Sevilla<span class="hero-dot">.</span></span>
+                <span class="sr-only"> — Growth Manager & Web3 Strategy</span>
+            </h1>
+            <div class="hero-title" id="heroTitle">
+                <span class="hero-title-text"></span>
+                <span class="hero-title-cursor">|</span>
+            </div>
+            <p class="hero-description reveal-up"
+                data-en="Data-driven Growth Manager specializing in Fintech & Web3. Bridging the gap between Product, Marketing, and Compliance to scale crypto platforms like Criptan."
+                data-es="Growth Manager data-driven especializado en Fintech y Web3. Conectando Producto, Marketing y Compliance para escalar plataformas crypto como Criptan.">
+                Data-driven Growth Manager specializing in Fintech & Web3. Bridging the gap between Product, Marketing,
+                and Compliance to scale crypto platforms like Criptan.
+            </p>
+            <div class="hero-cta reveal-up">
+                <a href="#contact" class="btn btn-primary magnetic">
+                    <span data-en="Let's Talk" data-es="Hablemos">Let's Talk</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                </a>
+                <a href="#experience" class="btn btn-secondary magnetic">
+                    <span data-en="View Experience" data-es="Ver experiencia">View Experience</span>
+                </a>
+            </div>
+        </div>
+        <div class="hero-avatar reveal-up">
+            <div class="hero-avatar-frame">
+                <img src="img/ivan-avatar.jpg" alt="Iván Sevilla Ruano" loading="eager">
+            </div>
+        </div>
+        <div class="hero-scroll-indicator" id="scrollIndicator">
+            <div class="hero-scroll-mouse">
+                <div class="hero-scroll-wheel"></div>
+            </div>
+            <span>Scroll</span>
+        </div>
+        <!-- Floating geometric shapes -->
+        <div class="floating-shapes">
+            <div class="shape shape-1"></div>
+            <div class="shape shape-2"></div>
+            <div class="shape shape-3"></div>
+            <div class="shape shape-4"></div>
+            <div class="shape shape-5"></div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="section about" id="about">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag reveal-up" data-en="01 — About me" data-es="01 — Sobre mí">01 — About me</span>
+                <h2 class="section-title reveal-up"><span data-en="Combining creativity"
+                        data-es="Combinando creatividad">Combining creativity</span><br><span class="accent-text"
+                        data-en="& digital strategy" data-es="y estrategia digital">& digital strategy</span></h2>
+            </div>
+            <div class="about-grid">
+                <div class="about-text reveal-up">
+                    <p data-html="true"
+                        data-en="I'm a <strong>Growth Manager</strong> with over 8 years of experience in digital marketing, specializing in the <strong>Fintech and Blockchain</strong> sector. My approach combines creative strategy with technical skills to drive user adoption and scale digital products."
+                        data-es="Soy un <strong>Growth Manager</strong> con más de 8 años de experiencia en marketing digital, especializado en el sector <strong>Fintech y Blockchain</strong>. Mi enfoque combina estrategia creativa con habilidades técnicas para impulsar la adopción de usuarios y escalar productos digitales.">
+                        I'm a <strong><a href="#about" class="internal-link">Growth Manager</a></strong> with over 8
+                        years of <a href="#experience" class="internal-link">experience in digital marketing</a>,
+                        specializing in the <strong><a href="#projects" class="internal-link">Fintech and
+                                Blockchain</a></strong> sector. My approach combines
+                        creative
+                        strategy with technical skills to drive user adoption and scale digital products.
+                    </p>
+                    <p data-html="true"
+                        data-en="Currently leading growth at <strong>Criptan</strong>, one of Spain's most important crypto platforms, where I manage acquisition and retention strategies using Big Data and on-chain analytics to optimize results in real-time."
+                        data-es="Actualmente lidero el crecimiento en <strong>Criptan</strong>, una de las plataformas crypto más importantes de España, donde gestiono estrategias de adquisición y retención utilizando Big Data y análisis on-chain para optimizar resultados en tiempo real.">
+                        Currently leading growth at <strong>Criptan</strong>, one of Spain's most important crypto
+                        platforms, where I manage acquisition and retention strategies using Big Data and on-chain
+                        analytics to optimize results in real-time.
+                    </p>
+                    <p data-en="I also lead the adaptation of communication and acquisition strategies to the new MiCA/CNMV regulatory framework, and integrate generative AI tools into marketing workflows to optimize content production and data analysis."
+                        data-es="También lidero la adaptación de estrategias de comunicación y adquisición al nuevo marco regulatorio MiCA/CNMV, e integro herramientas de IA generativa en los flujos de trabajo de marketing para optimizar la producción de contenido y el análisis de datos.">
+                        I also lead the adaptation of communication and acquisition strategies to the new MiCA/CNMV
+                        regulatory framework, and integrate generative AI tools into marketing workflows to optimize
+                        content production and data analysis.
+                    </p>
+                    <p data-en="My passion for blockchain technology and the Web3 ecosystem drives me to always stay at the forefront of digital innovation."
+                        data-es="Mi pasión por la tecnología blockchain y el ecosistema Web3 me impulsa a estar siempre en la vanguardia de la innovación digital.">
+                        My passion for blockchain technology and the Web3 ecosystem drives me to always stay at the
+                        forefront of digital innovation.
+                    </p>
+                </div>
+                <div class="about-badges reveal-up">
+                    <div class="about-badge-label" data-en="Tech Stack & Focus Areas"
+                        data-es="Stack & Áreas de Enfoque">Tech Stack & Focus Areas</div>
+                    <div class="about-badges-grid">
+                        <span class="about-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10" />
+                                <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+                                <path d="M2 12h20" />
+                            </svg>
+                            Solana / Web3
+                        </span>
+                        <span class="about-badge about-badge-accent">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                            </svg>
+                            MiCA / CNMV
+                        </span>
+                        <span class="about-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <ellipse cx="12" cy="5" rx="9" ry="3" />
+                                <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5" />
+                                <path d="M3 12c0 1.66 4 3 9 3s9-1.34 9-3" />
+                            </svg>
+                            Big Data
+                        </span>
+                        <span class="about-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
+                            </svg>
+                            On-chain Analytics
+                        </span>
+                        <span class="about-badge about-badge-accent">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="3" y="3" width="18" height="18" rx="2" />
+                                <path d="M3 9h18M9 21V9" />
+                            </svg>
+                            Claude AI / Make
+                        </span>
+                        <span class="about-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <line x1="18" y1="20" x2="18" y2="10" />
+                                <line x1="12" y1="20" x2="12" y2="4" />
+                                <line x1="6" y1="20" x2="6" y2="14" />
+                            </svg>
+                            Growth Hacking
+                        </span>
+                        <span class="about-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
+                            </svg>
+                            Discord / Telegram
+                        </span>
+                        <span class="about-badge about-badge-accent">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="3" />
+                                <path
+                                    d="M12 1v4M12 19v4M4.22 4.22l2.83 2.83M16.95 16.95l2.83 2.83M1 12h4M19 12h4M4.22 19.78l2.83-2.83M16.95 7.05l2.83-2.83" />
+                            </svg>
+                            AI Marketing
+                        </span>
+                        <span class="about-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <rect x="2" y="2" width="20" height="8" rx="2" />
+                                <rect x="2" y="14" width="20" height="8" rx="2" />
+                                <line x1="6" y1="6" x2="6.01" y2="6" />
+                                <line x1="6" y1="18" x2="6.01" y2="18" />
+                            </svg>
+                            Fintech / DeFi
+                        </span>
+                        <span class="about-badge about-badge-accent">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                                <circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                            KOL Management
+                        </span>
+                        <span class="about-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg>
+                            Tokenomics
+                        </span>
+                        <span class="about-badge">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            SEO / SEM
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Fintech & Web3 Highlights (New Bento Section) -->
+    <section class="section highlights" id="highlights">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag reveal-up" data-en="Featured Expertise"
+                    data-es="Experiencia Destacada">Featured Expertise</span>
+                <h2 class="section-title reveal-up"><span data-en="Fintech &" data-es="Fintech y">Fintech
+                        &</span><br><span class="accent-text" data-en="Web3 Leadership" data-es="Liderazgo Web3">Web3
+                        Leadership</span></h2>
+            </div>
+
+            <div class="bento-grid">
+                <!-- Large Card: Growth & Product -->
+                <div class="bento-card bento-large reveal-up">
+                    <div class="bento-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="bento-title"><span class="bento-title-accent">Growth</span> & Product Synergy</h3>
+                    <p class="bento-description"
+                        data-en="Working deeply with Product teams to optimize user acquisition funnels, increase LTV, and reduce CAC in highly competitive crypto markets. Data-driven experimentation is at the core of my strategy."
+                        data-es="Trabajando estrechamente con equipos de Producto para optimizar funnels de adquisición, aumentar el LTV y reducir el CAC en mercados crypto altamente competitivos. La experimentación basada en datos es el núcleo de mi estrategia.">
+                        Working deeply with Product teams to optimize user acquisition funnels, increase LTV, and reduce
+                        CAC in highly competitive crypto markets. Data-driven experimentation is at the core of my
+                        strategy.
+                    </p>
+                </div>
+
+                <!-- Small Card: Compliance -->
+                <div class="bento-card bento-small reveal-up" style="animation-delay: 0.1s;">
+                    <div class="bento-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="bento-title">MiCA & <span class="bento-title-accent">CNMV</span></h3>
+                    <p class="bento-description"
+                        data-en="Navigating complex regulatory landscapes. Ensuring marketing and acquisition strategies remain compliant without sacrificing growth momentum."
+                        data-es="Navegando por marcos regulatorios complejos. Asegurando que las estrategias de marketing y adquisición cumplan con la normativa sin sacrificar el impulso de crecimiento.">
+                        Navigating complex regulatory landscapes. Ensuring marketing and acquisition strategies remain
+                        compliant without sacrificing growth momentum.
+                    </p>
+                </div>
+
+                <!-- Medium Card: Blockchain Analytics -->
+                <div class="bento-card bento-medium reveal-up" style="animation-delay: 0.2s;">
+                    <div class="bento-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                            <polyline points="2 17 12 22 22 17"></polyline>
+                            <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                    </div>
+                    <h3 class="bento-title">On-chain Analytics</h3>
+                    <p class="bento-description"
+                        data-en="Leveraging Big Data and on-chain metrics (Dune Analytics, Solana tracking) to find growth opportunities."
+                        data-es="Aprovechando Big Data y métricas on-chain (Dune Analytics, tracking de Solana) para encontrar oportunidades.">
+                        Leveraging Big Data and on-chain metrics (Dune Analytics, Solana ecosystem tracking) to find
+                        growth opportunities and understand protocol health.
+                    </p>
+                </div>
+
+                <!-- Medium Card: Marketing Automation -->
+                <div class="bento-card bento-medium reveal-up" style="animation-delay: 0.3s;">
+                    <div class="bento-icon">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                            <line x1="3" y1="9" x2="21" y2="9"></line>
+                            <line x1="9" y1="21" x2="9" y2="9"></line>
+                        </svg>
+                    </div>
+                    <h3 class="bento-title">AI & <span class="bento-title-accent">Automation</span></h3>
+                    <p class="bento-description"
+                        data-en="Building internal workflows using Claude AI, Make (Integromat), and LLMs to automate content and CRM."
+                        data-es="Construyendo flujos de trabajo internos con Claude AI, Make (Integromat) y LLMs para automatizar contenido y CRM.">
+                        Building internal workflows using Claude AI, Make (Integromat), and LLMs to automate content
+                        generation, CRM flows, and campaign analysis.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section class="section experience" id="experience">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag reveal-up" data-en="02 — Experience" data-es="02 — Experiencia">02 —
+                    Experience</span>
+                <h2 class="section-title reveal-up"><span data-en="Professional"
+                        data-es="Mi trayectoria">Professional</span><br><span class="accent-text" data-en="journey"
+                        data-es="profesional">journey</span></h2>
+            </div>
+            <div class="timeline">
+                <div class="timeline-line"></div>
+
+                <div class="timeline-item reveal-left" data-year="2024">
+                    <div class="timeline-marker">
+                        <div class="timeline-marker-dot"></div>
+                        <span class="timeline-marker-pulse"></span>
+                    </div>
+                    <div class="timeline-card tilt-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-date" data-en="2024 — Present" data-es="2024 — Presente">2024 —
+                                Present</span>
+                            <span class="timeline-badge active" data-en="Current" data-es="Actual">Current</span>
+                        </div>
+                        <div class="timeline-role" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Growth Marketing Lead</div>
+                        <div class="timeline-company"
+                            style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem;">Criptan</div>
+                        <p class="timeline-description"
+                            data-en="I lead and execute digital strategies focused on user acquisition, engagement, and retention in the evolving crypto ecosystem. I design and implement full-funnel marketing campaigns, define KPIs, and analyze performance metrics (CPL, CAC, LTV, ROI) to guide optimizations. My work bridges strategic planning with hands-on execution across paid media, organic growth, influencer marketing, SEO, and CRM."
+                            data-es="Lidero y ejecuto estrategias digitales enfocadas en la adquisición, engagement y retención de usuarios en el ecosistema crypto. Diseño e implemento campañas de marketing full-funnel, defino KPIs y analizo métricas de rendimiento (CPL, CAC, LTV, ROI) para guiar optimizaciones. Mi trabajo conecta la planificación estratégica con la ejecución práctica en paid media, crecimiento orgánico, marketing de influencers, SEO y CRM.">
+                            I lead and execute digital strategies focused on user acquisition, engagement, and
+                            retention in the evolving crypto ecosystem. I design and implement full-funnel marketing
+                            campaigns, define KPIs, and analyze performance metrics (CPL, CAC, LTV, ROI) to guide
+                            optimizations.
+                        </p>
+                        <ul class="timeline-bullets"
+                            data-en-items='["Marketing strategy and campaign execution across multiple channels (paid media, SEO, email, social).","Performance tracking and reporting to drive strategic decisions.","Budget planning and media buying with focus on ROI.","Strategic partnerships with influencers (KOLs) to expand reach and brand trust.","CRM management and automation workflows (Make/Integromat) to improve user retention.","Social media strategy and community engagement (Discord, Telegram) to boost loyalty.","Cross-functional collaboration with product, design, and tech teams.","SEO-focused content creation (blogs, emails, videos) tailored to user intent.","Leading marketing adaptation to the MiCA regulatory framework (CNMV authorization).","Implementing AI-powered workflows with Claude AI and Antigravity for content production and campaign analysis."]'
+                            data-es-items='["Estrategia de marketing y ejecución de campañas en múltiples canales (paid media, SEO, email, social).","Seguimiento de rendimiento y reporting para impulsar decisiones estratégicas.","Planificación de presupuestos y compra de medios con foco en ROI.","Partnerships estratégicos con influencers (KOLs) para ampliar alcance y confianza de marca.","Gestión de CRM y flujos de automatización (Make/Integromat) para mejorar retención.","Estrategia de redes sociales y community engagement (Discord, Telegram) para impulsar loyalty.","Colaboración cross-funcional con equipos de producto, diseño y tech.","Creación de contenido SEO (blogs, emails, vídeos) adaptado a la intención del usuario.","Liderando la adaptación de marketing al marco regulatorio MiCA (autorización CNMV).","Implementación de flujos de trabajo con IA: Claude AI y Antigravity para producción de contenido y análisis de campañas."]'>
+                            <li>Marketing strategy and campaign execution across multiple channels (paid media, SEO,
+                                email, social).</li>
+                            <li>Performance tracking and reporting to drive strategic decisions.</li>
+                            <li>Budget planning and media buying with focus on ROI.</li>
+                            <li>Strategic partnerships with influencers (KOLs) to expand reach and brand trust.</li>
+                            <li>CRM management and automation workflows (Make/Integromat) to improve user retention.
+                            </li>
+                            <li>Social media strategy and community engagement (Discord, Telegram) to boost loyalty.
+                            </li>
+                            <li>Cross-functional collaboration with product, design, and tech teams.</li>
+                            <li>SEO-focused content creation (blogs, emails, videos) tailored to user intent.</li>
+                            <li>Leading marketing adaptation to the MiCA regulatory framework (CNMV authorization).</li>
+                            <li>Implementing AI-powered workflows with Claude AI and Antigravity for content production
+                                and campaign analysis.</li>
+                        </ul>
+                        <div class="timeline-tags">
+                            <span class="tag">Growth</span>
+                            <span class="tag">Crypto</span>
+                            <span class="tag">SEO</span>
+                            <span class="tag">Paid Media</span>
+                            <span class="tag">CRM</span>
+                            <span class="tag">MiCA</span>
+                            <span class="tag">AI</span>
+                            <span class="tag">KOLs</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item reveal-right" data-year="2023">
+                    <div class="timeline-marker">
+                        <div class="timeline-marker-dot"></div>
+                    </div>
+                    <div class="timeline-card tilt-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-date">2023 — 2024</span>
+                        </div>
+                        <div class="timeline-role" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Marketing Specialist</div>
+                        <div class="timeline-company"
+                            style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem;">Orange Bank
+                        </div>
+                        <p class="timeline-description"
+                            data-en="Supported the OB Digital Marketing team in the definition and implementation of Social Media strategy. Acted as Webmaster of orangebank.es, monitoring the site and managing content through the CMS. Constant data analysis and collaboration with all OB teams to ensure customer focus."
+                            data-es="Apoyo al equipo de Marketing Digital de OB en la definición e implementación de la estrategia de Social Media. Webmaster de orangebank.es, monitorizando el sitio y gestionando contenido a través del CMS. Análisis constante de datos y colaboración con todos los equipos de OB para garantizar el enfoque al cliente.">
+                            Supported the OB Digital Marketing team in the definition and implementation of Social
+                            Media strategy. Acted as Webmaster of orangebank.es, monitoring the site and managing
+                            content through the CMS. Constant data analysis and collaboration with all teams.
+                        </p>
+                        <ul class="timeline-bullets"
+                            data-en-items='["Social Media strategy definition and content generation across social networks.","Webmaster of orangebank.es: site monitoring, content publishing via CMS, and UX optimization.","Competition analysis, potential client research, and sector benchmarking.","Advanced tracking implementation (GA, Tag Manager) to optimize user journeys and conversion funnels.","Cross-team collaboration to ensure a customer-centric approach across all digital touchpoints.","Content creation and campaign execution under strict banking compliance standards."]'
+                            data-es-items='["Definición de estrategia de Social Media y generación de contenido en redes sociales.","Webmaster de orangebank.es: monitorización del sitio, publicación de contenido vía CMS y optimización UX.","Análisis de competencia, investigación de clientes potenciales y benchmarking sectorial.","Implementación de tracking avanzado (GA, Tag Manager) para optimizar el customer journey y funnels de conversión.","Colaboración cross-equipo para asegurar un enfoque centrado en el cliente en todos los puntos de contacto digitales.","Creación de contenido y ejecución de campañas bajo estrictos estándares de compliance bancario."]'>
+                            <li>Social Media strategy definition and content generation across social networks.</li>
+                            <li>Webmaster of orangebank.es: site monitoring, content publishing via CMS, and UX
+                                optimization.</li>
+                            <li>Competition analysis, potential client research, and sector benchmarking.</li>
+                            <li>Advanced tracking implementation (GA, Tag Manager) to optimize user journeys and
+                                conversion funnels.</li>
+                            <li>Cross-team collaboration to ensure a customer-centric approach across all digital
+                                touchpoints.</li>
+                            <li>Content creation and campaign execution under strict banking compliance standards.</li>
+                        </ul>
+                        <div class="timeline-tags">
+                            <span class="tag">Fintech</span>
+                            <span class="tag">Social Media</span>
+                            <span class="tag">CRO</span>
+                            <span class="tag">Analytics</span>
+                            <span class="tag">CMS</span>
+                            <span class="tag">Compliance</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item reveal-left" data-year="2022">
+                    <div class="timeline-marker">
+                        <div class="timeline-marker-dot"></div>
+                    </div>
+                    <div class="timeline-card tilt-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-date">2022 — 2023</span>
+                        </div>
+                        <div class="timeline-role" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Digital Marketing Assistant</div>
+                        <div class="timeline-company"
+                            style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem;">CSO Digital
+                        </div>
+                        <p class="timeline-description"
+                            data-en="Hands-on learning with web development tools, SEO strategy, and planning and optimization of Paid Media campaigns. Collaborated in the development of an in-house Blockchain training project, gaining early exposure to DLT fundamentals and Web3 ecosystem."
+                            data-es="Aprendizaje práctico con herramientas de desarrollo web, estrategia SEO y planificación y optimización de campañas de Paid Media. Colaboración en el desarrollo de un proyecto interno de formación en Blockchain, obteniendo exposición temprana a los fundamentos DLT y el ecosistema Web3.">
+                            Hands-on learning with web development tools, SEO strategy, and planning and
+                            optimization of Paid Media campaigns. Collaborated in the development of an in-house
+                            Blockchain training project.
+                        </p>
+                        <ul class="timeline-bullets"
+                            data-en-items='["Web development foundations: HTML, CSS, WordPress, and basic site optimization.","SEO strategy: keyword research, on-page optimization, and organic growth tactics.","Paid Media campaign planning, execution, and performance optimization (Google Ads, Meta Ads).","Collaboration on an in-house Blockchain and DLT training initiative, deepening Web3 knowledge."]'
+                            data-es-items='["Fundamentos de desarrollo web: HTML, CSS, WordPress y optimización básica de sitios.","Estrategia SEO: research de keywords, optimización on-page y tácticas de crecimiento orgánico.","Planificación, ejecución y optimización de campañas de Paid Media (Google Ads, Meta Ads).","Colaboración en una iniciativa interna de formación en Blockchain y DLT, profundizando en el conocimiento Web3."]'>
+                            <li>Web development foundations: HTML, CSS, WordPress, and basic site optimization.</li>
+                            <li>SEO strategy: keyword research, on-page optimization, and organic growth tactics.</li>
+                            <li>Paid Media campaign planning, execution, and performance optimization (Google Ads, Meta
+                                Ads).</li>
+                            <li>Collaboration on an in-house Blockchain and DLT training initiative, deepening Web3
+                                knowledge.</li>
+                        </ul>
+                        <div class="timeline-tags">
+                            <span class="tag">Blockchain</span>
+                            <span class="tag">Paid Media</span>
+                            <span class="tag">SEO</span>
+                            <span class="tag">Web Dev</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item reveal-right" data-year="2020">
+                    <div class="timeline-marker">
+                        <div class="timeline-marker-dot"></div>
+                    </div>
+                    <div class="timeline-card tilt-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-date">2020 — 2021</span>
+                        </div>
+                        <div class="timeline-role" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Marketing Intern</div>
+                        <div class="timeline-company"
+                            style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem;">Universidad
+                            Francisco de Vitoria</div>
+                        <p class="timeline-description"
+                            data-en="Commercial support, participating in the student recruitment process, from initial contact to seat reservation management and telephone assistance. Involved in the full sales cycle with a focus on CRM management and client engagement."
+                            data-es="Soporte comercial, participando en el proceso de captación de estudiantes, desde el contacto inicial hasta la gestión de reservas de plazas y atención telefónica. Involucrado en el ciclo completo de ventas con foco en gestión de CRM y engagement con clientes.">
+                            Commercial support, participating in the student recruitment process, from initial
+                            contact to seat reservation management and telephone assistance.
+                        </p>
+                        <ul class="timeline-bullets"
+                            data-en-items='["CRM management and customer database nurturing.","Learning and validating the full sales process, from planning to achieving commercial objectives.","Telephone prospecting and student support, managing daily communication flow.","Monitoring and controlling the sales process pipeline.","Online marketing support and social media content.","Data analysis and reporting on recruitment campaign performance.","Administrative tasks and coordination with academic departments."]'
+                            data-es-items='["Gestión de CRM y mantenimiento de la base de datos de clientes.","Aprendizaje y validación del proceso de ventas completo, desde la planificación hasta la consecución de objetivos comerciales.","Prospección telefónica y atención al estudiante, gestionando el flujo de comunicación diario.","Seguimiento y control del pipeline del proceso de ventas.","Soporte en marketing online y contenido para redes sociales.","Análisis de datos y reporting sobre el rendimiento de campañas de captación.","Tareas administrativas y coordinación con departamentos académicos."]'>
+                            <li>CRM management and customer database nurturing.</li>
+                            <li>Learning and validating the full sales process, from planning to achieving commercial
+                                objectives.</li>
+                            <li>Telephone prospecting and student support, managing daily communication flow.</li>
+                            <li>Monitoring and controlling the sales process pipeline.</li>
+                            <li>Online marketing support and social media content.</li>
+                            <li>Data analysis and reporting on recruitment campaign performance.</li>
+                            <li>Administrative tasks and coordination with academic departments.</li>
+                        </ul>
+                        <div class="timeline-tags">
+                            <span class="tag">CRM</span>
+                            <span class="tag">Sales</span>
+                            <span class="tag">Recruitment</span>
+                            <span class="tag">Digital Marketing</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="timeline-item reveal-left" data-year="2018">
+                    <div class="timeline-marker">
+                        <div class="timeline-marker-dot"></div>
+                    </div>
+                    <div class="timeline-card tilt-card">
+                        <div class="timeline-card-header">
+                            <span class="timeline-date" data-en="2018 — 6 months" data-es="2018 — 6 meses">2018 — 6
+                                months</span>
+                        </div>
+                        <div class="timeline-role" style="font-size: 1.25rem; font-weight: 600; margin-bottom: 0.5rem;">
+                            Graphic Designer</div>
+                        <div class="timeline-company"
+                            style="font-size: 1rem; color: var(--text-secondary); margin-bottom: 1rem;">Snap Ireland
+                        </div>
+                        <p class="timeline-description"
+                            data-en="Layout design using InDesign, visual design for local businesses, and complete prepress and postpress processes using Photoshop and Illustrator. Client meetings, briefings, and final design delivery in a fast-paced B2B print environment."
+                            data-es="Diseño de maquetación con InDesign, diseño visual para negocios locales y procesos completos de preimpresión y postimpresión con Photoshop e Illustrator. Reuniones con clientes, briefings y entrega final de diseños en un entorno B2B de impresión dinámico.">
+                            Layout design using InDesign, visual design for local businesses, and complete prepress
+                            and postpress processes using Photoshop and Illustrator. Client meetings, briefings,
+                            and final design delivery.
+                        </p>
+                        <ul class="timeline-bullets"
+                            data-en-items='["Layout and visual design for local businesses using Adobe InDesign.","Complete prepress and postpress production workflow using Photoshop and Illustrator.","Client-facing meetings, creative briefings, and final design delivery.","B2B client management and project coordination in a print production environment."]'
+                            data-es-items='["Diseño de maquetación y diseño visual para negocios locales con Adobe InDesign.","Flujo completo de producción de preimpresión y postimpresión con Photoshop e Illustrator.","Reuniones con clientes, briefings creativos y entrega final de diseños.","Gestión de clientes B2B y coordinación de proyectos en un entorno de producción impresa."]'>
+                            <li>Layout and visual design for local businesses using Adobe InDesign.</li>
+                            <li>Complete prepress and postpress production workflow using Photoshop and Illustrator.
+                            </li>
+                            <li>Client-facing meetings, creative briefings, and final design delivery.</li>
+                            <li>B2B client management and project coordination in a print production environment.</li>
+                        </ul>
+                        <div class="timeline-tags">
+                            <span class="tag">InDesign</span>
+                            <span class="tag">Photoshop</span>
+                            <span class="tag">Illustrator</span>
+                            <span class="tag">B2B</span>
+                            <span class="tag">Print</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section class="section education" id="education">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag reveal-up" data-en="03 — Education" data-es="03 — Educación">03 —
+                    Education</span>
+                <h2 class="section-title reveal-up"><span data-en="Academic"
+                        data-es="Formación">Academic</span><br><span class="accent-text" data-en="background"
+                        data-es="académica">background</span></h2>
+            </div>
+            <div class="education-grid">
+                <div class="education-card tilt-card reveal-up">
+                    <div class="education-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                            <path d="M6 12v5c0 2 4 3 6 3s6-1 6-3v-5" />
+                        </svg>
+                    </div>
+                    <span class="education-period">2020 — 2024</span>
+                    <h3 class="education-degree" data-en="Bachelor's Degree in Marketing" data-es="Grado en Marketing">
+                        Bachelor's Degree in Marketing</h3>
+                    <p class="education-extra" data-en="+ Certificate in Collaborative Leadership in Digital Marketing"
+                        data-es="+ Certificado en Liderazgo Colaborativo en Marketing Digital">+ Certificate in
+                        Collaborative Leadership in Digital Marketing</p>
+                    <div class="education-institution" style="font-size: 1rem; color: var(--text-secondary);">UFV —
+                        Madrid</div>
+                </div>
+                <div class="education-card tilt-card reveal-up" style="animation-delay: 0.15s">
+                    <div class="education-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                            <line x1="8" y1="21" x2="16" y2="21" />
+                            <line x1="12" y1="17" x2="12" y2="21" />
+                        </svg>
+                    </div>
+                    <span class="education-period">2018 — 2020</span>
+                    <h3 class="education-degree" data-en="Higher Technician in Marketing & Advertising"
+                        data-es="Técnico Superior en Marketing y Publicidad">Higher Technician in Marketing &
+                        Advertising</h3>
+                    <p class="education-extra"></p>
+                    <div class="education-institution" style="font-size: 1rem; color: var(--text-secondary);">UFV —
+                        Madrid</div>
+                </div>
+                <div class="education-card tilt-card reveal-up" style="animation-delay: 0.3s">
+                    <div class="education-icon">
+                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon
+                                points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                        </svg>
+                    </div>
+                    <span class="education-period">2016 — 2018</span>
+                    <h3 class="education-degree" data-en="Medium Technician in Digital Prepress"
+                        data-es="Técnico Medio en Preimpresión Digital">Medium Technician in Digital Prepress</h3>
+                    <p class="education-extra"></p>
+                    <div class="education-institution" style="font-size: 1rem; color: var(--text-secondary);">IES Ponce
+                        de León</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="section skills" id="skills">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag reveal-up">04 — Skills</span>
+                <h2 class="section-title reveal-up"><span data-en="Tools &" data-es="Herramientas y">Tools
+                        &</span><br><span class="accent-text" data-en="competencies"
+                        data-es="competencias">competencies</span></h2>
+            </div>
+
+            <div class="skills-categories">
+                <div class="skills-category reveal-up">
+                    <div class="skills-category-title"
+                        style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                        </svg>
+                        Marketing & Growth
+                    </div>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Growth Hacking</span>
+                        <span class="skill-tag">SEO</span>
+                        <span class="skill-tag">SEM</span>
+                        <span class="skill-tag">Content Strategy</span>
+                        <span class="skill-tag">User Acquisition</span>
+                        <span class="skill-tag">CRO</span>
+                        <span class="skill-tag">Paid Media</span>
+                        <span class="skill-tag">Email Marketing</span>
+                        <span class="skill-tag">Social Media</span>
+                        <span class="skill-tag">Copywriting</span>
+                    </div>
+                </div>
+                <div class="skills-category reveal-up">
+                    <div class="skills-category-title"
+                        style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <polyline points="16 18 22 12 16 6" />
+                            <polyline points="8 6 2 12 8 18" />
+                        </svg>
+                        Tech & Web3
+                    </div>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Blockchain</span>
+                        <span class="skill-tag">Web3</span>
+                        <span class="skill-tag">Solana</span>
+                        <span class="skill-tag">DeFi</span>
+                        <span class="skill-tag">Big Data</span>
+                        <span class="skill-tag">Analytics</span>
+                        <span class="skill-tag">On-chain Analysis</span>
+                        <span class="skill-tag">Web Management</span>
+                    </div>
+                </div>
+                <div class="skills-category reveal-up">
+                    <div class="skills-category-title"
+                        style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <circle cx="12" cy="12" r="3" />
+                            <path
+                                d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" />
+                        </svg>
+                        <span data-en="Tools" data-es="Herramientas">Tools</span>
+                    </div>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Google Analytics</span>
+                        <span class="skill-tag">Google Ads</span>
+                        <span class="skill-tag">Meta Ads</span>
+                        <span class="skill-tag">Figma</span>
+                        <span class="skill-tag">Adobe Suite</span>
+                        <span class="skill-tag">HubSpot</span>
+                        <span class="skill-tag">Wordpress</span>
+                        <span class="skill-tag">Tag Manager</span>
+                        <span class="skill-tag">Make (Integromat)</span>
+                        <span class="skill-tag">Claude AI</span>
+                        <span class="skill-tag">Notion AI</span>
+                        <span class="skill-tag">Perplexity</span>
+                        <span class="skill-tag">Dune Analytics</span>
+                    </div>
+                </div>
+
+                <div class="skills-category reveal-up">
+                    <div class="skills-category-title"
+                        style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path
+                                d="M12 2a4 4 0 0 1 4 4c0 1.95-1.4 3.58-3.25 3.93L12 22l-.75-12.07A4.001 4.001 0 0 1 12 2z" />
+                            <path d="M9 6.12C6.47 6.88 5 8.65 5 11a7 7 0 0 0 14 0c0-2.35-1.47-4.12-4-4.88" />
+                        </svg>
+                        AI & Automation
+                    </div>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Claude AI (Anthropic)</span>
+                        <span class="skill-tag">ChatGPT / GPT-4</span>
+                        <span class="skill-tag">Antigravity</span>
+                        <span class="skill-tag">Make (Integromat)</span>
+                        <span class="skill-tag">Perplexity AI</span>
+                        <span class="skill-tag">AI-augmented Copywriting</span>
+                        <span class="skill-tag">Prompt Engineering</span>
+                    </div>
+                </div>
+
+                <div class="skills-category reveal-up">
+                    <div class="skills-category-title"
+                        style="font-size: 1.25rem; font-weight: 600; margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.75rem;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                            <circle cx="9" cy="7" r="4" />
+                            <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                            <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                        </svg>
+                        Web3 & Community
+                    </div>
+                    <div class="skills-tags">
+                        <span class="skill-tag">Discord Community Management</span>
+                        <span class="skill-tag">Telegram Growth</span>
+                        <span class="skill-tag">KOL / Influencer Management</span>
+                        <span class="skill-tag">Tokenomics (basics)</span>
+                        <span class="skill-tag">On-chain Analytics</span>
+                        <span class="skill-tag">MiCA / CNMV Compliance</span>
+                        <span class="skill-tag">DAC8 / Reporting fiscal</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="section projects" id="projects">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag reveal-up" data-en="05 — Projects" data-es="05 — Proyectos">05 —
+                    Projects</span>
+                <h2 class="section-title reveal-up"><span data-en="Featured" data-es="Trabajo">Featured</span><br><span
+                        class="accent-text" data-en="work" data-es="destacado">work</span></h2>
+            </div>
+            <div class="projects-grid">
+                <a href="https://netoapp.es" target="_blank" rel="noopener" class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-1"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <rect x="5" y="2" width="14" height="20" rx="2" />
+                                <line x1="12" y1="18" x2="12" y2="18.01" stroke-width="2" stroke-linecap="round" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <div class="project-title">NetoApp</div>
+                        <p class="project-description"
+                            data-en="Personal finance app designed to help users track expenses, manage budgets, and take control of their financial health. Built and launched from scratch."
+                            data-es="App de finanzas personales diseñada para ayudar a los usuarios a controlar gastos, gestionar presupuestos y tomar el control de su salud financiera. Desarrollada y lanzada desde cero.">
+                            Personal finance app designed to help users track expenses, manage budgets, and take
+                            control of their financial health. Built and launched from scratch.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">Fintech</span>
+                            <span class="tag">Mobile App</span>
+                            <span class="tag">Product</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="https://azaharfloristas.com" target="_blank" rel="noopener"
+                    class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-2"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <circle cx="12" cy="12" r="3" />
+                                <path d="M12 2a4 4 0 0 1 0 8 4 4 0 0 1 0-8z" />
+                                <path d="M19.07 4.93a4 4 0 0 1-5.66 5.66 4 4 0 0 1 5.66-5.66z" />
+                                <path d="M20 12a4 4 0 0 1-8 0 4 4 0 0 1 8 0z" />
+                                <path d="M19.07 19.07a4 4 0 0 1-5.66-5.66 4 4 0 0 1 5.66 5.66z" />
+                                <path d="M12 20a4 4 0 0 1 0-8 4 4 0 0 1 0 8z" />
+                                <path d="M4.93 19.07a4 4 0 0 1 5.66-5.66 4 4 0 0 1-5.66 5.66z" />
+                                <path d="M4 12a4 4 0 0 1 8 0 4 4 0 0 1-8 0z" />
+                                <path d="M4.93 4.93a4 4 0 0 1 5.66 5.66 4 4 0 0 1-5.66-5.66z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <div class="project-title">Azahar Floristas</div>
+                        <p class="project-description"
+                            data-en="Fully functional e-commerce website built from scratch for an online florist delivering across the Community of Madrid. End-to-end development, design, and deployment."
+                            data-es="Sitio e-commerce completamente funcional desarrollado desde cero para una floristería online con envío a domicilio en toda la Comunidad de Madrid. Desarrollo, diseño y despliegue de principio a fin.">
+                            Fully functional e-commerce website built from scratch for an online florist delivering
+                            across the Community of Madrid. End-to-end development, design, and deployment.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">E-commerce</span>
+                            <span class="tag">Web Dev</span>
+                            <span class="tag">UI/UX</span>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-3"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <polygon points="23 7 16 12 23 17 23 7" />
+                                <rect x="1" y="5" width="15" height="14" rx="2" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <h3 class="project-title" data-en="Content Automation" data-es="Automatización de Contenido">
+                            Content Automation</h3>
+                        <p class="project-description"
+                            data-en="Automated content creation service for businesses and YouTubers. AI-powered Short generation and multi-platform distribution — so creators can focus on what matters while their content scales effortlessly."
+                            data-es="Servicio de creación de contenido automatizado para empresas y YouTubers. Generación de Shorts con IA y distribución multiplataforma — para que los creadores se centren en lo importante mientras su contenido escala sin esfuerzo.">
+                            Automated content creation service for businesses and YouTubers. AI-powered Short
+                            generation and multi-platform distribution — so creators can focus on what matters
+                            while their content scales effortlessly.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">Automation</span>
+                            <span class="tag">AI</span>
+                            <span class="tag">Content</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="https://criptan.com" target="_blank" rel="noopener" class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-1"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M12 2L2 7l10 5 10-5-10-5z" />
+                                <path d="M2 17l10 5 10-5" />
+                                <path d="M2 12l10 5 10-5" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <div class="project-title" data-en="Growth Strategy at Criptan"
+                            data-es="Estrategia de Growth en Criptan">Growth Strategy at Criptan</div>
+                        <p class="project-description"
+                            data-en="Led the full acquisition and retention strategy for Spain's leading crypto platform. CAC optimization through Big Data and real-time on-chain analytics."
+                            data-es="Liderazgo de la estrategia completa de adquisición y retención para la plataforma crypto líder en España. Optimización de CAC mediante Big Data y análisis on-chain en tiempo real.">
+                            Led the full acquisition and retention strategy for Spain's leading crypto platform.
+                            CAC optimization through Big Data and real-time on-chain analytics.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">Growth</span>
+                            <span class="tag">Crypto</span>
+                            <span class="tag">Big Data</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="https://orangebank.com" target="_blank" rel="noopener"
+                    class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-2"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <rect x="2" y="3" width="20" height="14" rx="2" />
+                                <line x1="8" y1="21" x2="16" y2="21" />
+                                <line x1="12" y1="17" x2="12" y2="21" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <div class="project-title">Webmaster Orange Bank</div>
+                        <p class="project-description"
+                            data-en="Full management of orangebank.es. Advanced tracking implementation, customer journey optimization, and conversion funnel improvements under banking compliance."
+                            data-es="Gestión completa del sitio web orangebank.es. Implementación de tracking avanzado, optimización del customer journey y mejora de funnels de conversión cumpliendo la regulación bancaria.">
+                            Full management of orangebank.es. Advanced tracking implementation, customer journey
+                            optimization, and conversion funnel improvements under banking compliance.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">Fintech</span>
+                            <span class="tag">CRO</span>
+                            <span class="tag">Analytics</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="https://csodigital.tech" target="_blank" rel="noopener"
+                    class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-3"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M22 12h-4l-3 9L9 3l-3 9H2" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <div class="project-title" data-en="CSO Digital — Marketing Agency"
+                            data-es="CSO Digital — Agencia de Marketing">CSO Digital — Marketing Agency</div>
+                        <p class="project-description"
+                            data-en="Digital marketing agency specializing in performance campaigns, SEO strategy, and growth consulting for startups and SMBs looking to scale their online presence."
+                            data-es="Agencia de marketing digital especializada en campañas de performance, estrategia SEO y consultoría de crecimiento para startups y pymes que buscan escalar su presencia online.">
+                            Digital marketing agency specializing in performance campaigns, SEO strategy, and growth
+                            consulting for startups and SMBs looking to scale their online presence.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">Agency</span>
+                            <span class="tag">SEO</span>
+                            <span class="tag">Performance</span>
+                        </div>
+                    </div>
+                </a>
+
+                <div class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-2"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                                <polyline points="14 2 14 8 20 8" />
+                                <line x1="16" y1="13" x2="8" y2="13" />
+                                <line x1="16" y1="17" x2="8" y2="17" />
+                                <polyline points="10 9 9 9 8 9" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <div class="project-title" data-en="MiCA Compliance Marketing Strategy"
+                            data-es="Estrategia de Marketing MiCA Compliance">MiCA Compliance Marketing Strategy</div>
+                        <p class="project-description"
+                            data-en="Led the marketing and communication adaptation to the MiCA regulatory framework at Criptan. Redesigned onboarding flows, advertising claims, and investor communication to meet CNMV standards ahead of the July 2026 deadline."
+                            data-es="Lideré la adaptación de marketing y comunicación al marco regulatorio MiCA en Criptan. Rediseño de flujos de onboarding, claims publicitarios y comunicación al inversor para cumplir con los estándares de la CNMV antes del deadline de julio de 2026.">
+                            Led the marketing and communication adaptation to the MiCA regulatory framework at
+                            Criptan. Redesigned onboarding flows, advertising claims, and investor communication
+                            to meet CNMV standards ahead of the July 2026 deadline.
+                        </p>
+                        <div class="project-tags">
+                            <span class="tag">MiCA</span>
+                            <span class="tag">Compliance</span>
+                            <span class="tag">CNMV</span>
+                            <span class="tag">Growth</span>
+                        </div>
+                    </div>
+                </div>
+
+                <a href="https://badmintonsureste.es/" target="_blank" rel="noopener"
+                    class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-3"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <circle cx="12" cy="5" r="3" />
+                                <line x1="12" y1="8" x2="12" y2="21" />
+                                <path d="M7 21l5-5 5 5" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <div class="project-title">Bádminton Sureste</div>
+                        <p class="project-description"
+                            data-en="Website development and SEO optimization for a local badminton club, boosting organic visibility."
+                            data-es="Desarrollo web y optimización SEO para club de bádminton local, mejorando la visibilidad orgánica.">
+                            Website development and SEO optimization for a local badminton club, boosting organic
+                            visibility.</p>
+                        <div class="project-tags">
+                            <span class="tag">Web Dev</span>
+                            <span class="tag">SEO</span>
+                        </div>
+                    </div>
+                </a>
+
+                <a href="https://www.mjbarbaconsulting.com" target="_blank" rel="noopener"
+                    class="project-card reveal-up tilt-card">
+                    <div class="project-card-image">
+                        <div class="project-card-gradient project-gradient-1"></div>
+                        <div class="project-card-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="1.5">
+                                <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z" />
+                                <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="project-card-content">
+                        <div class="project-title">MJ Barba Consulting</div>
+                        <p class="project-description"
+                            data-en="Corporate website design and development for a business consulting firm, with advanced CMS integration."
+                            data-es="Diseño corporativo y desarrollo web para consultoría de negocios, con integración avanzada de CMS.">
+                            Corporate website design and development for a business consulting firm, with advanced CMS
+                            integration.</p>
+                        <div class="project-tags">
+                            <span class="tag">Web Dev</span>
+                            <span class="tag">SEO</span>
+                        </div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="section contact" id="contact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-tag reveal-up" data-en="06 — Contact" data-es="06 — Contacto">06 — Contact</span>
+                <h2 class="section-title reveal-up"><span data-en="Let's talk about" data-es="¿Hablamos de tu">Let's
+                        talk about</span><br><span class="accent-text" data-en="your next project?"
+                        data-es="próximo proyecto?">your next project?</span></h2>
+            </div>
+
+            <div class="contact-content reveal-up">
+                <p class="contact-text"
+                    data-en="I'm always open to new opportunities, collaborations, and interesting conversations about marketing, blockchain, and digital growth."
+                    data-es="Siempre estoy abierto a nuevas oportunidades, colaboraciones y conversaciones interesantes sobre marketing, blockchain y crecimiento digital.">
+                    I'm always open to new opportunities, collaborations, and interesting conversations
+                    about marketing, blockchain, and digital growth.
+                </p>
+                <div class="contact-links">
+                    <a href="mailto:ivan.sevilla.ruano@gmail.com" class="contact-link magnetic">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                        <div>
+                            <span class="contact-link-label">Email</span>
+                            <span class="contact-link-value">ivan.sevilla.ruano@gmail.com</span>
+                        </div>
+                    </a>
+                    <a href="https://www.linkedin.com/in/ivansevillaruano/" target="_blank" rel="noopener noreferrer"
+                        class="contact-link magnetic">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                            <rect x="2" y="9" width="4" height="12" />
+                            <circle cx="4" cy="4" r="2" />
+                        </svg>
+                        <div>
+                            <span class="contact-link-label">LinkedIn</span>
+                            <span class="contact-link-value">ivansevillaruano</span>
+                        </div>
+                    </a>
+                </div>
+
+                <div class="contact-share"
+                    style="margin-top: 32px; margin-bottom: 32px; display: flex; gap: 12px; justify-content: center;">
+                    <a href="https://www.linkedin.com/sharing/share-offsite/?url=https://ivansevilla.es" target="_blank"
+                        rel="noopener" aria-label="Share on LinkedIn"
+                        style="width: 48px; height: 48px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); text-decoration: none; transition: all 0.3s ease;">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M19 0h-14c-2.761 0-5 2.239-5 5v14c0 2.761 2.239 5 5 5h14c2.762 0 5-2.239 5-5v-14c0-2.761-2.238-5-5-5zm-11 19h-3v-11h3v11zm-1.5-12.268c-.966 0-1.75-.79-1.75-1.764s.784-1.764 1.75-1.764 1.75.79 1.75 1.764-.783 1.764-1.75 1.764zm13.5 12.268h-3v-5.604c0-3.368-4-3.113-4 0v5.604h-3v-11h3v1.765c1.396-2.586 7-2.777 7 2.476v6.759z" />
+                        </svg>
+                    </a>
+                    <a href="https://twitter.com/intent/tweet?url=https://ivansevilla.es&text=Portfolio%20de%20Iv%C3%A1n%20Sevilla%20—%20Growth%20Manager"
+                        target="_blank" rel="noopener" aria-label="Share on X"
+                        style="width: 48px; height: 48px; border-radius: 50%; background: var(--bg-card); border: 1px solid var(--border-color); display: flex; align-items: center; justify-content: center; color: var(--text-secondary); text-decoration: none; transition: all 0.3s ease;">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                            <path
+                                d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+                        </svg>
+                    </a>
+                </div>
+
+                <a href="mailto:ivan.sevilla.ruano@gmail.com" class="btn btn-primary btn-large magnetic reveal-up">
+                    <span data-en="Send me a message" data-es="Envíame un mensaje">Send me a message</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                        stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="7" y1="17" x2="17" y2="7"></line>
+                        <polyline points="7 7 17 7 17 17"></polyline>
+                    </svg>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <span class="footer-logo">IS<span class="hero-dot">.</span></span>
+                <p class="footer-text">Designed & developed by Iván Sevilla — <span id="footerYear"></span></p>
+                <div class="footer-links">
+                    <a href="mailto:ivan.sevilla.ruano@gmail.com" class="footer-link" aria-label="Email">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                            <polyline points="22,6 12,13 2,6" />
+                        </svg>
+                    </a>
+                    <a href="https://www.linkedin.com/in/ivansevillaruano/" target="_blank" rel="noopener noreferrer"
+                        class="footer-link" aria-label="LinkedIn">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="1.5">
+                            <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z" />
+                            <rect x="2" y="9" width="4" height="12" />
+                            <circle cx="4" cy="4" r="2" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
+```
+
+CV A TRANSFORMAR:
+[[EJEMPLO]]
+Sergio Arces
+Arquitecto de IA aplicada
+Email: sergio@example.com
+LinkedIn: https://linkedin.com/in/sergioarces
+
+Resumen:
+Construyo soluciones de IA para crecimiento, automatizacion y conversion en negocios digitales.
+
+Experiencia:
+- Lead AI Engineer, Growth Labs (2023 - Actualidad)
+  Disene copilotos de ventas y automatizaciones con LLMs. Reduje tiempo operativo un 38%.
+- Product Engineer, ScaleOps (2021 - 2023)
+  Implemente flujos frontend/backend con analitica avanzada y mejora de onboarding.
+
+Skills:
+TypeScript, React, Next.js, Node.js, OpenAI API, Prompt Engineering, Supabase.
+
+Proyectos:
+- Revenue Copilot
+- Content Engine IA
+
+SALIDA FINAL (OBLIGATORIA):
+- Responde solo con el documento HTML final.
+- No uses Markdown ni JSON.
+- Debe empezar por <!doctype html> y terminar con </html>.

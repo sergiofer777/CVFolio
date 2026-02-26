@@ -3,6 +3,7 @@ export interface GeneratedLanding {
   html?: string;
   generatedAt: string;
   model: string;
+  templateId: PortfolioTheme;
 }
 
 export interface CVData {

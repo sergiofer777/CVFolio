@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { CustomCursor } from "@/components/custom-cursor";
+import { PORTFOLIO_THEME_OPTIONS } from "@/lib/templates/portfolio-themes";
 
 /* ── SVG Icons inline ── */
 function UploadCloudIcon({ className }: { className?: string }) {
@@ -80,56 +81,45 @@ function useCounter(target: number, suffix: string = "", duration: number = 1800
   return { ref, value };
 }
 
-/* ── Showcase data ── */
-const SHOWCASE = [
-  {
-    initials: "AG",
-    bg: "#c0440a",
-    name: "Ana García López",
-    title: "Senior Frontend Engineer · Madrid",
-    skills: ["React", "TypeScript", "Next.js", "GraphQL"],
-    url: "cvfolio.com/ana-garcia",
-  },
-  {
-    initials: "MR",
-    bg: "#0d0d0d",
-    name: "Marcos Rodríguez",
-    title: "Product Designer · Barcelona",
-    skills: ["Figma", "UX Research", "Design Systems"],
-    url: "cvfolio.com/marcos-rod",
-  },
-  {
-    initials: "LM",
-    bg: "#7a3f0a",
-    name: "Laura Martínez",
-    title: "Data Scientist · Valencia",
-    skills: ["Python", "TensorFlow", "SQL", "Spark"],
-    url: "cvfolio.com/laura-ds",
-  },
-  {
-    initials: "JP",
-    bg: "#4a1a6e",
-    name: "Jorge Pérez",
-    title: "Backend Engineer · Sevilla",
-    skills: ["Node.js", "Rust", "Kubernetes", "AWS"],
-    url: "cvfolio.com/jorge-perez",
-  },
-];
+const TEMPLATE_PREVIEW_COPY: Record<
+  (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
+  string[]
+> = {
+  minimal: ["Hero con foto", "Secciones modulares", "Modo dark/light"],
+  modern: ["Aesthetic Web3", "Animaciones avanzadas", "Storytelling premium"],
+  bold: ["Concepto creativo", "Motion elegante", "Nivel Awwwards"],
+};
+
+const TEMPLATE_DEMO_PATHS: Record<
+  (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
+  string
+> = {
+  minimal: "https://sergio-fernandez.com",
+  modern: "https://ivansevilla.es",
+  bold: "/template-demos/bold.html",
+};
 
 /* ── Pricing ── */
 const FREE_FEATURES = [
-  "1 portafolio activo",
-  "Subdominio cvfolio.com",
-  "Descarga del HTML",
-  "1 tema incluido",
-  "Analítica básica",
+  "Vista previa no interactiva",
+  "Caduca en 24 horas",
+  "Sin publicación pública",
+  "Sin subdominio",
+  "1 generación de prueba",
 ];
 const PRO_FEATURES = [
-  "Portafolios ilimitados",
-  "Dominio personalizado",
-  "Sin marca de CVfolio",
-  "3 temas premium",
-  "Analítica avanzada",
+  "Subdominio usuario.webiculum.com",
+  "Publicación durante 1 año",
+  "Editable desde dashboard",
+  "Sin límites de visualización",
+  "Pago único por web",
+];
+const STUDIO_FEATURES = [
+  "Hasta 3 webs al mes",
+  "Hasta 3 iteraciones por web con chat",
+  "Prioridad de generación",
+  "Solicitar dominio personalizado por API",
+  "Soporte premium",
 ];
 
 /* ═════════ MAIN PAGE ═════════ */
@@ -162,7 +152,7 @@ export default function LandingPage() {
           href="/"
           className="font-display text-2xl font-semibold text-[var(--ink)] tracking-tight no-underline"
         >
-          CV<span className="text-[var(--rust)]">folio</span>
+          web<span className="text-[var(--rust)]">iculum</span>
         </Link>
         <div className="flex items-center gap-6 md:gap-9">
           <a
@@ -353,59 +343,70 @@ export default function LandingPage() {
           <div>
             <div className="flex items-center gap-2 text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-4">
               <span className="w-6 h-[1.5px] bg-[var(--rust)]" />
-              Ejemplos reales
+              Plantillas disponibles
             </div>
             <h2 className="font-display text-[clamp(2rem,3.5vw,3.2rem)] font-light tracking-tight text-[var(--ink)] leading-[1.1]">
-              Portafolios
+              Elige la
               <br />
-              <em className="italic text-[var(--rust)]">generados</em>
+              <em className="italic text-[var(--rust)]">base visual</em>
               <br />
-              por CVfolio.
+              de tu web.
             </h2>
           </div>
           <p className="text-[0.95rem] text-[var(--muted-color)] leading-[1.7] max-w-[320px] font-light">
-            Cada portafolio generado automáticamente a partir de un PDF real. Sin
-            edición manual.
+            Todas las webs se generan a partir de una plantilla concreta. Puedes
+            previsualizar y luego subir tu CV con la que mejor encaje contigo.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {SHOWCASE.map((card) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          {PORTFOLIO_THEME_OPTIONS.map((template) => (
             <div
-              key={card.initials}
+              key={template.id}
               className="rounded-xl overflow-hidden bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-300"
             >
-              <div className="px-7 pt-6 flex items-start justify-between">
-                <div
-                  className="w-[52px] h-[52px] rounded-full font-display text-[1.2rem] font-semibold flex items-center justify-center text-[var(--paper)] flex-shrink-0"
-                  style={{ background: card.bg }}
-                >
-                  {card.initials}
-                </div>
-                <div className="flex items-center gap-1.5 text-[0.7rem] uppercase tracking-[0.08em] text-[var(--muted-color)]">
-                  <span className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
-                  En vivo
+              <div className="h-40 bg-[var(--cream)] border-b border-[var(--sand)] p-5">
+                <div className={`h-2.5 w-full rounded-full ${template.accentClass}`} />
+                <div className="mt-4 space-y-2">
+                  <div className="h-4 w-3/5 bg-white rounded" />
+                  <div className="h-3 w-4/5 bg-white rounded" />
+                  <div className="h-3 w-2/3 bg-white rounded" />
                 </div>
               </div>
-              <div className="px-7 pb-7 pt-5">
-                <div className="font-display text-[1.3rem] font-normal text-[var(--ink)] tracking-tight mb-0.5">
-                  {card.name}
+              <div className="px-6 pb-6 pt-5">
+                <div className="font-display text-[1.2rem] font-normal text-[var(--ink)] tracking-tight mb-0.5">
+                  {template.name}
                 </div>
-                <div className="text-[0.78rem] text-[var(--muted-color)] mb-4">
-                  {card.title}
+                <div className="text-[0.78rem] text-[var(--rust)] mb-4 font-medium">
+                  {template.tagline}
                 </div>
                 <div className="flex flex-wrap gap-1.5 mb-5">
-                  {card.skills.map((skill) => (
+                  {TEMPLATE_PREVIEW_COPY[template.id].map((feature) => (
                     <span
-                      key={skill}
+                      key={feature}
                       className="bg-[var(--cream)] text-[var(--muted-color)] text-[0.7rem] px-2.5 py-1 rounded-full"
                     >
-                      {skill}
+                      {feature}
                     </span>
                   ))}
                 </div>
-                <div className="text-[0.75rem] text-[var(--rust)] font-mono">
-                  {card.url}
+                <div className="flex items-center justify-between gap-4">
+                  <a
+                    href={TEMPLATE_DEMO_PATHS[template.id]}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-[0.78rem] font-medium text-[var(--muted-color)] hover:text-[var(--ink)] no-underline transition-colors"
+                  >
+                    Ver ejemplo
+                    <span aria-hidden>↗</span>
+                  </a>
+                  <Link
+                    href={`/upload?template=${template.id}`}
+                    className="inline-flex items-center gap-2 text-[0.78rem] font-medium text-[var(--ink)] hover:text-[var(--rust)] no-underline transition-colors"
+                  >
+                    Usar plantilla
+                    <span aria-hidden>→</span>
+                  </Link>
                 </div>
               </div>
             </div>
@@ -431,7 +432,7 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-[800px] mx-auto mt-16">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1100px] mx-auto mt-16">
           {/* Free */}
           <div className="bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
             <div className="text-[0.7rem] uppercase tracking-[0.1em] text-[var(--muted-color)] mb-6">
@@ -441,7 +442,7 @@ export default function LandingPage() {
               €0
             </div>
             <div className="text-[0.82rem] text-[var(--muted-color)] font-light mb-8">
-              para siempre
+              por prueba
             </div>
             <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
               {FREE_FEATURES.map((f) => (
@@ -458,7 +459,7 @@ export default function LandingPage() {
               href="/signup"
               className="block w-full py-3.5 text-center rounded bg-[var(--paper)] text-[var(--ink)] border-[1.5px] border-[var(--sand)] font-medium text-[0.9rem] hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
             >
-              Empezar gratis
+              Probar ahora
             </Link>
           </div>
 
@@ -471,10 +472,10 @@ export default function LandingPage() {
               Plan Pro
             </div>
             <div className="font-display text-[3rem] font-light tracking-tighter leading-none mb-1.5 text-[var(--paper)]">
-              €9
+              €9,99
             </div>
             <div className="text-[0.82rem] text-[var(--sand)] font-light mb-8">
-              / mes · facturación anual
+              pago único / web
             </div>
             <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
               {PRO_FEATURES.map((f) => (
@@ -487,9 +488,42 @@ export default function LandingPage() {
                 </li>
               ))}
             </ul>
-            <button className="w-full py-3.5 rounded bg-[var(--rust)] text-white border-none font-medium text-[0.9rem] hover:bg-[var(--rust-light)] transition-all cursor-pointer">
-              Conseguir Pro
-            </button>
+            <Link
+              href="/checkout?plan=publish"
+              className="block w-full py-3.5 text-center rounded bg-[var(--rust)] text-white border-none font-medium text-[0.9rem] hover:bg-[var(--rust-light)] transition-all cursor-pointer no-underline"
+            >
+              Comprar publicación
+            </Link>
+          </div>
+
+          {/* Studio */}
+          <div className="bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
+            <div className="text-[0.7rem] uppercase tracking-[0.1em] text-[var(--muted-color)] mb-6">
+              Plan Studio
+            </div>
+            <div className="font-display text-[3rem] font-light tracking-tighter leading-none mb-1.5 text-[var(--ink)]">
+              €25
+            </div>
+            <div className="text-[0.82rem] text-[var(--muted-color)] font-light mb-8">
+              / mes
+            </div>
+            <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
+              {STUDIO_FEATURES.map((f) => (
+                <li
+                  key={f}
+                  className="flex items-center gap-2.5 text-sm text-[var(--muted-color)]"
+                >
+                  <CheckIcon className="w-4 h-4 text-[var(--rust)] flex-shrink-0" />
+                  {f}
+                </li>
+              ))}
+            </ul>
+            <Link
+              href="/checkout?plan=studio"
+              className="block w-full py-3.5 text-center rounded bg-[var(--ink)] text-[var(--paper)] border-none font-medium text-[0.9rem] hover:bg-[var(--rust)] transition-all no-underline"
+            >
+              Activar Studio
+            </Link>
           </div>
         </div>
       </section>
@@ -523,7 +557,7 @@ export default function LandingPage() {
           href="/"
           className="font-display text-[1.2rem] font-semibold text-[var(--ink)] tracking-tight no-underline"
         >
-          CV<span className="text-[var(--rust)]">folio</span>
+          web<span className="text-[var(--rust)]">iculum</span>
         </Link>
         <div className="flex gap-7">
           {["Privacidad", "Términos", "Blog", "Contacto"].map((link) => (
@@ -537,7 +571,7 @@ export default function LandingPage() {
           ))}
         </div>
         <div className="text-[0.78rem] text-[var(--muted-color)]">
-          © {new Date().getFullYear()} CVfolio. Hecho con ♥ y IA.
+          © {new Date().getFullYear()} webiculum. Hecho con ♥ y IA.
         </div>
       </footer>
     </div>

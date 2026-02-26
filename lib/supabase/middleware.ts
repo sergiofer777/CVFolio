@@ -46,7 +46,8 @@ export async function updateSession(request: NextRequest) {
   if ((isDashboardRoute || isUploadRoute) && !user) {
     const redirectUrl = request.nextUrl.clone();
     redirectUrl.pathname = "/login";
-    redirectUrl.searchParams.set("redirectTo", request.nextUrl.pathname);
+    const redirectTo = `${request.nextUrl.pathname}${request.nextUrl.search}`;
+    redirectUrl.searchParams.set("redirectTo", redirectTo);
     return NextResponse.redirect(redirectUrl);
   }
 

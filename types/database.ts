@@ -16,7 +16,7 @@ export interface Database {
           email: string;
           full_name: string | null;
           avatar_url: string | null;
-          plan: "free" | "premium";
+          plan: "free" | "premium" | "studio";
           custom_domain: string | null;
           created_at: string;
           updated_at: string;
@@ -27,15 +27,94 @@ export interface Database {
           email: string;
           full_name?: string | null;
           avatar_url?: string | null;
-          plan?: "free" | "premium";
+          plan?: "free" | "premium" | "studio";
           custom_domain?: string | null;
         };
         Update: {
           username?: string;
           full_name?: string | null;
           avatar_url?: string | null;
-          plan?: "free" | "premium";
+          plan?: "free" | "premium" | "studio";
           custom_domain?: string | null;
+        };
+      };
+      billing_usage: {
+        Row: {
+          user_id: string;
+          period_key: string;
+          generation_count: number;
+          chat_iteration_count: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          period_key: string;
+          generation_count?: number;
+          chat_iteration_count?: number;
+        };
+        Update: {
+          generation_count?: number;
+          chat_iteration_count?: number;
+          updated_at?: string;
+        };
+      };
+      domain_requests: {
+        Row: {
+          id: string;
+          user_id: string;
+          requested_domain: string;
+          status: "pending" | "processing" | "completed" | "failed";
+          provider: string | null;
+          price_cents: number | null;
+          currency: string;
+          notes: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          requested_domain: string;
+          status?: "pending" | "processing" | "completed" | "failed";
+          provider?: string | null;
+          price_cents?: number | null;
+          currency?: string;
+          notes?: string | null;
+        };
+        Update: {
+          requested_domain?: string;
+          status?: "pending" | "processing" | "completed" | "failed";
+          provider?: string | null;
+          price_cents?: number | null;
+          currency?: string;
+          notes?: string | null;
+          updated_at?: string;
+        };
+      };
+      billing_subscriptions: {
+        Row: {
+          id: string;
+          user_id: string;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          status: string;
+          current_period_end: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          user_id: string;
+          stripe_customer_id: string;
+          stripe_subscription_id: string;
+          status: string;
+          current_period_end?: string | null;
+        };
+        Update: {
+          stripe_customer_id?: string;
+          stripe_subscription_id?: string;
+          status?: string;
+          current_period_end?: string | null;
+          updated_at?: string;
         };
       };
       cv_uploads: {

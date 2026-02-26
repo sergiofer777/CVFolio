@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
@@ -24,11 +23,20 @@ export default function LoginPage() {
   const handleGoogle = async () => {
     setLoading(true);
     setError(null);
+
+    const params = new URLSearchParams(window.location.search);
+    const redirectToRaw = params.get("redirectTo") ?? "/dashboard";
+    const redirectTo = redirectToRaw.startsWith("/")
+      ? redirectToRaw
+      : "/dashboard";
+    const callbackUrl = new URL("/auth/callback", window.location.origin);
+    callbackUrl.searchParams.set("next", redirectTo);
+
     const supabase = createClient();
     const { error: authError } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
-        redirectTo: `${window.location.origin}/auth/callback?next=/dashboard`,
+        redirectTo: callbackUrl.toString(),
       },
     });
     if (authError) {
@@ -46,7 +54,7 @@ export default function LoginPage() {
             href="/"
             className="inline-block font-display text-2xl font-semibold text-[var(--ink)] tracking-tight no-underline mb-8"
           >
-            CV<span className="text-[var(--rust)]">folio</span>
+            web<span className="text-[var(--rust)]">iculum</span>
           </Link>
           <h1 className="font-display text-[2rem] font-light tracking-tight text-[var(--ink)]">
             Bienvenido de nuevo

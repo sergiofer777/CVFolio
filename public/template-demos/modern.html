@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Demo Modern Gradient</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-slate-950 text-slate-100 antialiased">
+    <main class="mx-auto max-w-6xl px-6 py-10 md:py-16">
+      <section class="rounded-3xl border border-slate-800 bg-gradient-to-br from-slate-900 to-blue-950 p-8 md:p-12">
+        <p class="text-xs uppercase tracking-[0.25em] text-cyan-300">Modern Gradient</p>
+        <h1 class="mt-4 text-4xl md:text-6xl font-semibold tracking-tight">
+          Interface entre producto, datos e IA.
+        </h1>
+        <p class="mt-4 max-w-3xl text-slate-300 text-lg">
+          Construyo experiencias y sistemas inteligentes para equipos digitales que quieren escalar con control.
+        </p>
+        <div class="mt-8 flex flex-wrap gap-3">
+          <a class="rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 no-underline" href="#contacto">Agendar llamada</a>
+          <a class="rounded-full border border-slate-600 px-5 py-3 text-sm font-medium text-slate-200 no-underline" href="#proyectos">Ver casos</a>
+        </div>
+      </section>
+
+      <section class="mt-10 grid gap-6 lg:grid-cols-[1.2fr_0.8fr]">
+        <article class="rounded-3xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400">Historia profesional</h2>
+          <div class="mt-4 text-slate-200 leading-relaxed space-y-3">
+            <p>He trabajado en SaaS y eCommerce optimizando onboarding, activation y retention.</p>
+            <p>Mi foco actual: sistemas de IA para operaciones de producto y crecimiento con ciclos de entrega cortos.</p>
+          </div>
+        </article>
+        <article class="rounded-3xl border border-slate-800 bg-slate-900/60 p-6" id="resultados">
+          <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400">Resultados</h2>
+          <div class="mt-4 grid gap-3">
+            <div class="rounded-2xl border border-slate-700 bg-slate-950/40 p-4">
+              <p class="text-xs text-slate-400 uppercase tracking-wider">Activation</p>
+              <p class="text-3xl font-semibold mt-1" data-counter="34">0</p>
+              <p class="text-sm text-slate-400">incremento en trial->paid</p>
+            </div>
+            <div class="rounded-2xl border border-slate-700 bg-slate-950/40 p-4">
+              <p class="text-xs text-slate-400 uppercase tracking-wider">Velocity</p>
+              <p class="text-3xl font-semibold mt-1" data-counter="46">0</p>
+              <p class="text-sm text-slate-400">menos tiempo de ejecucion</p>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="mt-10 rounded-3xl border border-slate-800 bg-slate-900/60 p-6" id="experiencia">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400">Experiencia visual</h2>
+        <div class="mt-4 grid gap-4 md:grid-cols-2">
+          <article class="rounded-2xl border border-slate-700 bg-slate-950/40 p-5">
+            <p class="text-xs text-slate-400">2022 - Actualidad</p>
+            <h3 class="font-semibold text-lg mt-1">Senior AI Product Engineer</h3>
+            <p class="mt-2 text-sm text-slate-300">Roadmaps de IA aplicada, experimentation y medicion de impacto por squad.</p>
+          </article>
+          <article class="rounded-2xl border border-slate-700 bg-slate-950/40 p-5">
+            <p class="text-xs text-slate-400">2019 - 2022</p>
+            <h3 class="font-semibold text-lg mt-1">Frontend Platform Lead</h3>
+            <p class="mt-2 text-sm text-slate-300">Design systems, performance web y tooling para equipos distribuidos.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="mt-10 rounded-3xl border border-slate-800 bg-slate-900/60 p-6" id="skills">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400">Stack y capacidades</h2>
+        <div class="mt-4 flex flex-wrap gap-2">
+          <span class="rounded-full border border-slate-600 px-3 py-1 text-sm">TypeScript</span>
+          <span class="rounded-full border border-slate-600 px-3 py-1 text-sm">Next.js</span>
+          <span class="rounded-full border border-slate-600 px-3 py-1 text-sm">Node.js</span>
+          <span class="rounded-full border border-slate-600 px-3 py-1 text-sm">OpenAI API</span>
+          <span class="rounded-full border border-slate-600 px-3 py-1 text-sm">Supabase</span>
+          <span class="rounded-full border border-slate-600 px-3 py-1 text-sm">A/B Testing</span>
+        </div>
+      </section>
+
+      <section class="mt-10" id="proyectos">
+        <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400">Proyectos destacados</h2>
+        <div class="mt-4 grid gap-4 md:grid-cols-3">
+          <article class="rounded-2xl border border-slate-700 bg-slate-900/70 p-5"><h3 class="font-semibold">AI Ticket Triage</h3><p class="text-sm text-slate-300 mt-2">Clasificacion automatica para soporte tecnico.</p></article>
+          <article class="rounded-2xl border border-slate-700 bg-slate-900/70 p-5"><h3 class="font-semibold">Journey Optimizer</h3><p class="text-sm text-slate-300 mt-2">Recomendador de pasos para onboarding.</p></article>
+          <article class="rounded-2xl border border-slate-700 bg-slate-900/70 p-5"><h3 class="font-semibold">Prompt Studio</h3><p class="text-sm text-slate-300 mt-2">Versionado y evaluacion de prompts productivos.</p></article>
+        </div>
+      </section>
+
+      <section class="mt-10 grid gap-6 md:grid-cols-2">
+        <article class="rounded-3xl border border-slate-800 bg-slate-900/60 p-6">
+          <h2 class="text-xs uppercase tracking-[0.2em] text-slate-400">Filosofia</h2>
+          <p class="mt-4 text-slate-200 leading-relaxed">No hay IA util sin procesos robustos, ownership claro y metrica de negocio definida.</p>
+        </article>
+        <footer class="rounded-3xl border border-cyan-400/30 bg-gradient-to-br from-cyan-500/10 to-blue-500/10 p-6" id="contacto">
+          <h2 class="text-2xl font-semibold tracking-tight">Quieres usar Modern Gradient?</h2>
+          <p class="mt-2 text-slate-300">Sube tu CV y genera este estilo de forma automatica.</p>
+          <a class="inline-flex mt-5 rounded-full bg-cyan-400 px-5 py-3 text-sm font-semibold text-slate-950 no-underline" href="/upload?template=modern">Usar Modern Gradient</a>
+        </footer>
+      </section>
+    </main>
+
+    <script>
+      const counters = document.querySelectorAll("[data-counter]");
+      counters.forEach((node) => {
+        const target = Number(node.getAttribute("data-counter"));
+        const start = performance.now();
+        const duration = 900;
+        const tick = (now) => {
+          const p = Math.min((now - start) / duration, 1);
+          node.textContent = String(Math.round(target * p));
+          if (p < 1) requestAnimationFrame(tick);
+        };
+        requestAnimationFrame(tick);
+      });
+    </script>
+  </body>
+</html>
