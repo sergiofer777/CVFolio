@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
-import { createClient } from "@/lib/supabase/server";
+import { createAdminClient } from "@/lib/supabase/server";
 import { PortfolioRenderer } from "@/components/portfolio/portfolio-renderer";
 import type { CVData } from "@/types/cv-data";
 import {
@@ -14,22 +14,73 @@ interface PageProps {
   params: Promise<{ username: string }>;
 }
 
-export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
-  const { username } = await params;
-  const supabase = await createClient();
-  const billingEnforced = isBillingEnforcementEnabled();
+interface PublicPortfolioSnapshot {
+  profile: {
+    id: string;
+    full_name: string | null;
+    plan: ProfilePlan;
+  } | null;
+  portfolio: {
+    cv_data: unknown;
+    published_at: string | null;
+    meta_title: string | null;
+    meta_description: string | null;
+  } | null;
+}
 
-  const { data: profileRaw } = await supabase
+async function loadPublicPortfolioByUsername(
+  username: string
+): Promise<PublicPortfolioSnapshot> {
+  const admin = createAdminClient();
+
+  const { data: profileRaw } = await admin
     .from("profiles")
     .select("id, full_name, plan")
     .eq("username", username)
-    .single();
+    .maybeSingle();
   const profile =
     (profileRaw as {
       id: string;
       full_name: string | null;
       plan?: ProfilePlan;
     } | null) ?? null;
+
+  if (!profile) {
+    return { profile: null, portfolio: null };
+  }
+
+  const { data: portfolioRows } = await admin
+    .from("portfolios")
+    .select("cv_data, published_at, meta_title, meta_description")
+    .eq("user_id", profile.id)
+    .eq("is_published", true)
+    .eq("is_public", true)
+    .order("updated_at", { ascending: false })
+    .limit(1);
+
+  const portfolio =
+    ((portfolioRows as Array<{
+      cv_data: unknown;
+      published_at: string | null;
+      meta_title: string | null;
+      meta_description: string | null;
+    }> | null) ?? [])[0] ?? null;
+
+  return {
+    profile: {
+      id: profile.id,
+      full_name: profile.full_name,
+      plan: (profile.plan ?? "free") as ProfilePlan,
+    },
+    portfolio,
+  };
+}
+
+export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
+  const { username } = await params;
+  const billingEnforced = isBillingEnforcementEnabled();
+
+  const { profile, portfolio } = await loadPublicPortfolioByUsername(username);
 
   if (!profile) {
     return { title: "Portafolio no encontrado" };
@@ -39,21 +90,6 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     return { title: "Portafolio no disponible" };
   }
 
-  const { data: portfolioRows } = await supabase
-    .from("portfolios")
-    .select("meta_title, meta_description, cv_data, published_at")
-    .eq("user_id", profile.id)
-    .eq("is_published", true)
-    .order("updated_at", { ascending: false })
-    .limit(1);
-  const portfolio = (
-    (portfolioRows as Array<{
-      meta_title: string | null;
-      meta_description: string | null;
-      cv_data: unknown;
-      published_at: string | null;
-    }> | null) ?? []
-  )[0];
   if (portfolio) {
     const publicationAccess = getPublicationAccess({
       plan: profile.plan ?? "free",
@@ -83,33 +119,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PublicPortfolioPage({ params }: PageProps) {
   const { username } = await params;
-  const supabase = await createClient();
   const billingEnforced = isBillingEnforcementEnabled();
-
-  // Buscar el profile por username
-  const { data: profileRaw } = await supabase
-    .from("profiles")
-    .select("id, plan")
-    .eq("username", username)
-    .single();
-  const profile =
-    (profileRaw as { id: string; plan?: ProfilePlan } | null) ?? null;
+  const { profile, portfolio } = await loadPublicPortfolioByUsername(username);
 
   if (!profile) notFound();
   if (billingEnforced && !isPaidPlan(profile.plan ?? "free")) notFound();
-
-  // Buscar el portafolio publicado
-  const { data: portfolioRows } = await supabase
-    .from("portfolios")
-    .select("cv_data, theme, is_published, is_public, published_at")
-    .eq("user_id", profile.id)
-    .eq("is_published", true)
-    .eq("is_public", true)
-    .order("updated_at", { ascending: false })
-    .limit(1);
-  const portfolio =
-    ((portfolioRows as Array<{ cv_data: unknown; published_at: string | null }> | null) ??
-      [])[0] ?? null;
 
   if (!portfolio) notFound();
   const publicationAccess = getPublicationAccess({
