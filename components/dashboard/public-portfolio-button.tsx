@@ -62,6 +62,7 @@ export function PublicPortfolioButton({
       });
       const data = (await response.json()) as {
         publicUrl?: string;
+        subdomainUrl?: string;
         fallbackUrl?: string;
         error?: string;
       };
@@ -78,7 +79,7 @@ export function PublicPortfolioButton({
         return;
       }
 
-      window.location.href = data.publicUrl ?? publicUrl;
+      window.location.href = data.subdomainUrl ?? data.publicUrl ?? publicUrl;
     } catch (publishError) {
       setError(
         publishError instanceof Error

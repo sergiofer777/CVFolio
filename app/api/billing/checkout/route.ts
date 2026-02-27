@@ -3,7 +3,7 @@ import Stripe from "stripe";
 import { z } from "zod";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isPaidPlan, type ProfilePlan } from "@/lib/billing/access";
-import { activatePlanForUser } from "@/lib/billing/activation";
+import { activatePlanForUser, buildPublicPortfolioUrl } from "@/lib/billing/activation";
 import { isBillingMockPaymentsEnabled } from "@/lib/billing/config";
 
 export const runtime = "nodejs";
@@ -71,6 +71,8 @@ export async function POST(request: NextRequest) {
       (profileRaw as { username?: string; plan?: ProfilePlan } | null) ?? null;
     const username = profile?.username?.trim().toLowerCase();
     const currentPlan = profile?.plan ?? "free";
+    const subdomainUrl = username ? buildPublicPortfolioUrl(username) : null;
+    const fallbackPathUrl = username ? `/p/${username}` : "/dashboard";
 
     if (!username) {
       return NextResponse.json(
@@ -84,8 +86,8 @@ export async function POST(request: NextRequest) {
       (plan === "studio" && currentPlan === "studio");
     if (alreadyPaidOnRequestedPlan) {
       return NextResponse.json({
-        checkoutUrl: `/p/${username}`,
-        fallbackUrl: `/p/${username}`,
+        checkoutUrl: subdomainUrl ?? fallbackPathUrl,
+        fallbackUrl: fallbackPathUrl,
         mode: "already-active",
         alreadyActive: true,
       });
@@ -139,13 +141,11 @@ export async function POST(request: NextRequest) {
 
       const successDashboardUrl = `/dashboard?billing=success&plan=${plan}`;
       const checkoutUrl =
-        activation.publishedPortfolioId && username
-          ? `/p/${username}`
+        activation.publishedPortfolioId
+          ? subdomainUrl ?? fallbackPathUrl
           : successDashboardUrl;
       const fallbackUrl = activation.publishedPortfolioId
-        ? username
-          ? `/p/${username}`
-          : "/dashboard"
+        ? fallbackPathUrl
         : `/dashboard?billing=success&plan=${plan}`;
 
       return NextResponse.json({

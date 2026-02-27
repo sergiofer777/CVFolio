@@ -8,6 +8,7 @@ import {
   resolvePlan,
   type ProfilePlan,
 } from "@/lib/billing/access";
+import { buildPublicPortfolioUrl } from "@/lib/billing/activation";
 import type { CVData } from "@/types/cv-data";
 
 interface BillingPortfolioRow {
@@ -55,7 +56,8 @@ export default async function DashboardBillingPage({
   if (!selectedPortfolio) redirect("/upload");
 
   const username = profile?.username?.trim().toLowerCase();
-  const publicUrl = username ? `/p/${username}` : null;
+  const publicUrl = username ? buildPublicPortfolioUrl(username) : null;
+  const fallbackPublicPath = username ? `/p/${username}` : null;
   const isPaid = isPaidPlan(plan);
 
   return (
@@ -122,7 +124,7 @@ export default async function DashboardBillingPage({
             <ul className="mt-3 space-y-2 text-sm text-[var(--muted-color)]">
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />
-                URL pública {username ? `/p/${username}` : "/p/usuario"}
+                URL pública {publicUrl ?? fallbackPublicPath ?? "/p/usuario"}
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />

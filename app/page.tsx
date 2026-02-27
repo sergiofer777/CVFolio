@@ -118,7 +118,7 @@ const STUDIO_FEATURES = [
   "Hasta 3 webs al mes",
   "Hasta 3 iteraciones por web con chat",
   "Prioridad de generación",
-  "Solicitar dominio personalizado por API",
+  "Configuración de subdominio desde dashboard",
   "Soporte premium",
 ];
 

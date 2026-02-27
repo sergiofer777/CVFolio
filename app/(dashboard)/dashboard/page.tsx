@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PortfolioRenderer } from "@/components/portfolio/portfolio-renderer";
-import { CustomDomainRequest } from "@/components/billing/custom-domain-request";
 import { CheckoutButton } from "@/components/billing/checkout-button";
 import { PortfolioIterationChat } from "@/components/dashboard/portfolio-iteration-chat";
 import { PublicPortfolioButton } from "@/components/dashboard/public-portfolio-button";
+import { PublicSubdomainSettings } from "@/components/dashboard/public-subdomain-settings";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { FreePreviewCountdown } from "@/components/dashboard/free-preview-countdown";
 import {
@@ -15,6 +15,7 @@ import {
   Lock,
   Clock3,
   Layers3,
+  Download,
 } from "lucide-react";
 import type { CVData, PortfolioTheme } from "@/types/cv-data";
 import {
@@ -26,6 +27,7 @@ import {
 } from "@/lib/billing/access";
 import { isBillingEnforcementEnabled } from "@/lib/billing/config";
 import { PORTFOLIO_THEME_OPTIONS } from "@/lib/templates/portfolio-themes";
+import { buildPublicPortfolioUrl } from "@/lib/billing/activation";
 
 interface DashboardPortfolioRow {
   id: string;
@@ -128,9 +130,12 @@ export default async function DashboardPage({
   const billingHref = selectedPortfolio
     ? `/dashboard/billing?portfolioId=${selectedPortfolio.id}`
     : "/dashboard/billing";
+  const subdomainPortfolioHref = profileUsername
+    ? buildPublicPortfolioUrl(profileUsername.toLowerCase())
+    : null;
   const publicPortfolioHref =
     profileUsername && canAccessPublic
-      ? `/p/${profileUsername}`
+      ? subdomainPortfolioHref ?? `/p/${profileUsername}`
       : billingHref;
   const freeExpiresAtIso = selectedAccess.expiresAt
     ? selectedAccess.expiresAt.toISOString()
@@ -182,6 +187,16 @@ export default async function DashboardPage({
                 billingHref={billingHref}
                 publicUrl={publicPortfolioHref}
               />
+            )}
+
+            {selectedPortfolio && canAccessPublic && (
+              <a
+                href={`/api/portfolio/download-html?portfolioId=${selectedPortfolio.id}`}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded bg-white text-[var(--ink)] border border-[var(--sand)] text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
+              >
+                <Download className="w-3.5 h-3.5" />
+                Descargar HTML
+              </a>
             )}
           </div>
         </div>
@@ -283,7 +298,7 @@ export default async function DashboardPage({
                   <>
                     {" "}Si activas pago, se publicará en{" "}
                     <span className="font-mono">
-                      /p/{profileUsername}
+                      {buildPublicPortfolioUrl(profileUsername.toLowerCase())}
                     </span>
                     .
                   </>
@@ -395,7 +410,12 @@ export default async function DashboardPage({
                   Vista previa del portfolio seleccionado
                 </div>
 
-                {canAccessPublic && <CustomDomainRequest />}
+                {canAccessPublic && profileUsername && subdomainPortfolioHref && (
+                  <PublicSubdomainSettings
+                    currentSlug={profileUsername.toLowerCase()}
+                    publicUrl={subdomainPortfolioHref}
+                  />
+                )}
 
                 {canUseIterationChat ? (
                   <PortfolioIterationChat

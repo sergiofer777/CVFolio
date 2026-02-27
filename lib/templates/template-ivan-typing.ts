@@ -275,8 +275,35 @@ export function injectTemplateIvanTypingOverride(
       "  background: rgba(142, 255, 214, 0.95) !important;",
       "  opacity: 1 !important;",
       "}",
+      ".hero-name {",
+      "  overflow: visible !important;",
+      "  max-width: min(92vw, 820px) !important;",
+      "}",
+      ".hero-name-line {",
+      "  overflow: visible !important;",
+      "  white-space: normal !important;",
+      "  word-break: normal !important;",
+      "  hyphens: auto !important;",
+      "}",
+      ".hero-content {",
+      "  max-width: min(92vw, 900px) !important;",
+      "}",
+      "@media (min-width: 1280px) {",
+      "  .hero-name-line {",
+      "    font-size: clamp(3.4rem, 7.4vw, 7rem) !important;",
+      "    line-height: 0.95 !important;",
+      "  }",
+      "}",
     ].join("\\n");
     document.head.appendChild(style);
+  }
+  function stabilizeLayout() {
+    window.requestAnimationFrame(function() {
+      window.dispatchEvent(new Event("resize"));
+      setTimeout(function() {
+        window.dispatchEvent(new Event("resize"));
+      }, 220);
+    });
   }
   function bindReadableTilt() {
     if (window.innerWidth <= 768) return;
@@ -328,9 +355,11 @@ export function injectTemplateIvanTypingOverride(
   }, 120);
   injectReadabilityStyle();
   setTimeout(bindReadableTilt, 80);
+  stabilizeLayout();
   document.addEventListener("DOMContentLoaded", function() {
     applyTypingTitles();
     bindReadableTilt();
+    stabilizeLayout();
     var langToggle = document.getElementById("langToggle");
     if (!langToggle || langToggle.dataset.webiculumTypingBound === "true") return;
     langToggle.dataset.webiculumTypingBound = "true";

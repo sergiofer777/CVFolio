@@ -72,15 +72,16 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const publicUrl = username ? `/p/${username}` : `/p/${publishedPortfolioId}`;
     const subdomainUrl = username ? buildPublicPortfolioUrl(username) : null;
+    const fallbackUrl = username ? `/p/${username}` : `/dashboard`;
+    const publicUrl = subdomainUrl ?? fallbackUrl;
 
     return NextResponse.json({
       ok: true,
       publicUrl,
       subdomainUrl,
       publishedPortfolioId,
-      fallbackUrl: username ? `/p/${username}` : `/dashboard`,
+      fallbackUrl,
     });
   } catch (error) {
     console.error("[portfolio/publish] error:", error);
