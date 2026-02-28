@@ -68,7 +68,7 @@ export default async function HelpCenterPage({
   return (
     <main className="min-h-screen bg-[var(--paper)]">
       <header className="sticky top-0 z-40 border-b border-[var(--sand)] bg-[rgba(245,242,235,0.9)] backdrop-blur-xl">
-        <div className="mx-auto flex w-full max-w-[1360px] items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8">
+        <div className="flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:px-10">
           <Link
             href="/"
             className="font-display text-2xl font-semibold tracking-tight text-[var(--ink)] no-underline"
@@ -94,22 +94,22 @@ export default async function HelpCenterPage({
         </div>
       </header>
 
-      <section className="border-b border-[var(--sand)] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+      <section className="border-b border-[var(--sand)] px-4 py-8 sm:px-6 sm:py-9 lg:px-8 lg:py-10">
         <div className="mx-auto max-w-[1360px]">
-          <div className="mb-4 flex items-center gap-2 text-[0.72rem] font-medium uppercase tracking-[0.12em] text-[var(--rust)]">
+          <div className="mb-3 flex items-center gap-2 text-[0.72rem] font-medium uppercase tracking-[0.12em] text-[var(--rust)]">
             <span className="h-[1.5px] w-8 bg-[var(--rust)]" />
             Centro de ayuda
           </div>
-          <div className="grid gap-6 lg:grid-cols-[minmax(0,780px)_320px] lg:items-end lg:justify-between">
-            <div className="max-w-[780px]">
-              <h1 className="font-display text-[clamp(2.3rem,4.5vw,4.6rem)] font-light leading-[1.04] tracking-tight text-[var(--ink)]">
+          <div className="grid gap-5 lg:grid-cols-[minmax(0,860px)_300px] lg:items-end lg:justify-between">
+            <div className="max-w-[860px]">
+              <h1 className="font-display text-[clamp(1.9rem,3.4vw,3.7rem)] font-light leading-[1.02] tracking-tight text-[var(--ink)]">
                 Respuestas claras
                 <span className="block">
                   para publicar con <em className="italic text-[var(--rust)]">seguridad</em>.
                 </span>
               </h1>
             </div>
-            <p className="max-w-[320px] text-[0.98rem] leading-[1.65] text-[var(--muted-color)]">
+            <p className="max-w-[300px] text-[0.95rem] leading-[1.55] text-[var(--muted-color)]">
               Aquí tienes las dudas más frecuentes sobre generación, publicación,
               subdominios, planes y edición de portfolios en Webiculum.
             </p>
