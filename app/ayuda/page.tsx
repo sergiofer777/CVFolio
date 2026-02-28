@@ -94,14 +94,14 @@ export default async function HelpCenterPage({
         </div>
       </header>
 
-      <section className="border-b border-[var(--sand)] px-4 py-16 sm:px-6 lg:px-8 lg:py-20">
-        <div className="mx-auto max-w-[1120px]">
-          <div className="mb-6 flex items-center gap-2 text-[0.72rem] font-medium uppercase tracking-[0.12em] text-[var(--rust)]">
+      <section className="border-b border-[var(--sand)] px-4 py-10 sm:px-6 sm:py-12 lg:px-8 lg:py-14">
+        <div className="mx-auto max-w-[1360px]">
+          <div className="mb-4 flex items-center gap-2 text-[0.72rem] font-medium uppercase tracking-[0.12em] text-[var(--rust)]">
             <span className="h-[1.5px] w-8 bg-[var(--rust)]" />
             Centro de ayuda
           </div>
-          <div className="grid gap-8 lg:grid-cols-[minmax(0,620px)_300px] lg:items-end lg:justify-between">
-            <div className="max-w-[620px]">
+          <div className="grid gap-6 lg:grid-cols-[minmax(0,780px)_320px] lg:items-end lg:justify-between">
+            <div className="max-w-[780px]">
               <h1 className="font-display text-[clamp(2.3rem,4.5vw,4.6rem)] font-light leading-[1.04] tracking-tight text-[var(--ink)]">
                 Respuestas claras
                 <span className="block">
@@ -109,7 +109,7 @@ export default async function HelpCenterPage({
                 </span>
               </h1>
             </div>
-            <p className="max-w-[340px] text-[0.98rem] leading-[1.75] text-[var(--muted-color)]">
+            <p className="max-w-[320px] text-[0.98rem] leading-[1.65] text-[var(--muted-color)]">
               Aquí tienes las dudas más frecuentes sobre generación, publicación,
               subdominios, planes y edición de portfolios en Webiculum.
             </p>
