@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { CustomCursor } from "@/components/custom-cursor";
 import { PORTFOLIO_THEME_OPTIONS } from "@/lib/templates/portfolio-themes";
 
@@ -35,6 +36,14 @@ function PieIcon({ className }: { className?: string }) {
       <path d="M12 2a10 10 0 1 0 10 10H12V2z" />
       <path d="M12 2a10 10 0 0 1 10 10" />
       <path d="M2 12h10V2" />
+    </svg>
+  );
+}
+function SparkIcon({ className }: { className?: string }) {
+  return (
+    <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7">
+      <path d="m12 3 1.9 4.5L18 9.3l-4.1 1.8L12 16l-1.9-4.9L6 9.3l4.1-1.8z" />
+      <path d="m5 2 .8 1.9L7.7 4.7l-1.9.8L5 7.4l-.8-1.9L2.3 4.7l1.9-.8z" />
     </svg>
   );
 }
@@ -96,7 +105,25 @@ const TEMPLATE_DEMO_PATHS: Record<
 > = {
   minimal: "https://sergio-fernandez.com",
   modern: "https://ivansevilla.es",
-  bold: "/template-demos/bold.html",
+  bold: "/template-demos/maria.html",
+};
+
+const TEMPLATE_PREVIEW_IMAGES: Record<
+  (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
+  string
+> = {
+  minimal: "/template-previews/sergio-top.png",
+  modern: "/template-previews/ivan-top.png",
+  bold: "/template-previews/maria-top.png",
+};
+
+const TEMPLATE_PREVIEW_OBJECT_POSITIONS: Record<
+  (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
+  string
+> = {
+  minimal: "50% 28%",
+  modern: "50% 18%",
+  bold: "50% 20%",
 };
 
 /* ── Pricing ── */
@@ -269,67 +296,59 @@ export default function LandingPage() {
       <section id="how" className="py-24 md:py-32 px-6 md:px-12 relative">
         <div className="absolute top-0 left-6 right-6 md:left-12 md:right-12 h-px bg-[var(--sand)]" />
 
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 mb-16 md:mb-[72px]">
-          <div>
-            <div className="flex items-center gap-2 text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-4">
-              <span className="w-6 h-[1.5px] bg-[var(--rust)]" />
-              El proceso
-            </div>
-            <h2 className="font-display text-[clamp(2rem,3.5vw,3.2rem)] font-light tracking-tight text-[var(--ink)] leading-[1.1]">
-              Tres pasos,
-              <br />
-              <em className="italic text-[var(--rust)]">un resultado</em>
-              <br />
-              impresionante.
-            </h2>
+        <div className="mb-14 md:mb-16 max-w-[1360px] mx-auto">
+          <div className="flex items-center gap-2 text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-5">
+            <span className="w-8 h-[1.5px] bg-[var(--rust)]" />
+            Cómo funciona
           </div>
-          <p className="text-[0.95rem] text-[var(--muted-color)] leading-[1.7] max-w-[320px] font-light">
-            Sin plantillas genéricas. Sin copiar y pegar. La IA hace el trabajo pesado
-            para que tú solo compartas el enlace.
-          </p>
+          <h2 className="font-display text-[clamp(2rem,3.5vw,3.2rem)] font-light tracking-tight text-[var(--ink)] leading-[1.1] max-w-[780px]">
+            Tres pasos. Una presencia
+            <span className="block italic text-[var(--rust)]">que transmite nivel.</span>
+          </h2>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-0.5 bg-[var(--sand)] rounded-xl overflow-hidden">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-[1360px] mx-auto">
           {[
             {
               num: "01",
-              icon: <UploadCloudIcon className="w-[22px] h-[22px] text-[var(--rust)]" />,
-              title: "Arrastra tu CV",
-              desc: "Sube tu CV en PDF, JPG o PNG. No importa el formato ni el diseño — nuestro parser lo entiende todo.",
-              tag: "PDF · JPG · PNG · max 10MB",
+              icon: <UploadCloudIcon className="w-[18px] h-[18px] text-[var(--rust)]" />,
+              title: "Sube tu CV",
+              desc: "Arrastra tu archivo y Webiculum lo procesa en segundos, incluso si el diseño original es complejo.",
+              tag: "PDF · JPG · PNG",
             },
             {
               num: "02",
-              icon: <PieIcon className="w-[22px] h-[22px] text-[var(--rust)]" />,
-              title: "La IA lo analiza",
-              desc: "Gemini 2.5 Pro extrae experiencia, educación, habilidades y contacto. Devuelve un JSON limpio y estructurado en segundos.",
-              tag: "Gemini 2.5 Pro",
+              icon: <SparkIcon className="w-[18px] h-[18px] text-[var(--rust)]" />,
+              title: "La IA extrae todo",
+              desc: "La IA estructura experiencia, skills y logros en un formato claro, coherente y listo para producción.",
+              tag: "Extracción inteligente",
             },
             {
               num: "03",
-              icon: <LayoutIcon className="w-[22px] h-[22px] text-[var(--rust)]" />,
-              title: "Portafolio listo",
-              desc: "Tu página personal se genera al instante con un diseño profesional, optimizado para móvil y SEO. Comparte el enlace en segundos.",
-              tag: "Tu URL · Descarga HTML",
+              icon: <LayoutIcon className="w-[18px] h-[18px] text-[var(--rust)]" />,
+              title: "Publica una web top",
+              desc: "Elige plantilla, ajusta por chat y comparte una landing profesional con subdominio o HTML descargable.",
+              tag: "Deploy inmediato",
             },
           ].map((s) => (
             <div
               key={s.num}
-              className="bg-[var(--paper)] p-10 md:p-12 relative hover:bg-[var(--cream)] transition-colors"
+              className="rounded-[24px] border border-[rgba(13,13,13,0.08)] bg-[rgba(255,255,255,0.72)] backdrop-blur-sm shadow-[0_22px_36px_rgba(13,13,13,0.05)] p-7 md:p-8 relative"
             >
-              <div className="font-display text-[4rem] font-semibold text-[var(--sand)] tracking-tighter leading-none mb-7">
-                {s.num}
-              </div>
-              <div className="w-12 h-12 rounded-[10px] bg-white flex items-center justify-center mb-5 shadow-[0_2px_8px_rgba(0,0,0,0.06)]">
+              <div className="absolute top-7 right-7 w-10 h-10 rounded-[12px] border border-[rgba(192,68,10,0.25)] bg-[rgba(192,68,10,0.06)] flex items-center justify-center">
                 {s.icon}
               </div>
-              <div className="font-display text-[1.25rem] font-normal text-[var(--ink)] mb-3 tracking-tight">
+
+              <div className="font-display text-[3.5rem] font-semibold text-[rgba(13,13,13,0.14)] tracking-tighter leading-none mb-6">
+                {s.num}
+              </div>
+              <div className="font-display text-[1.7rem] md:text-[1.8rem] font-normal text-[var(--ink)] mb-3 tracking-tight leading-tight">
                 {s.title}
               </div>
-              <p className="text-sm text-[var(--muted-color)] leading-[1.7] font-light">
+              <p className="text-sm md:text-[0.95rem] text-[var(--muted-color)] leading-[1.75] font-light">
                 {s.desc}
               </p>
-              <span className="inline-block mt-4 text-[0.68rem] uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
+              <span className="inline-block mt-6 text-[0.72rem] uppercase tracking-[0.1em] text-[var(--rust)] font-medium">
                 {s.tag}
               </span>
             </div>
@@ -339,7 +358,7 @@ export default function LandingPage() {
 
       {/* ─── SHOWCASE ─── */}
       <section id="ejemplos" className="py-20 md:py-24 px-6 md:px-12">
-        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 mb-16">
+        <div className="flex flex-col md:flex-row items-start md:items-end justify-between gap-10 mb-16 max-w-[1360px] mx-auto">
           <div>
             <div className="flex items-center gap-2 text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-4">
               <span className="w-6 h-[1.5px] bg-[var(--rust)]" />
@@ -359,28 +378,30 @@ export default function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1360px] mx-auto">
           {PORTFOLIO_THEME_OPTIONS.map((template) => (
             <div
               key={template.id}
-              className="rounded-xl overflow-hidden bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-300"
+              className="rounded-xl overflow-hidden bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-300 h-full flex flex-col"
             >
-              <div className="h-40 bg-[var(--cream)] border-b border-[var(--sand)] p-5">
-                <div className={`h-2.5 w-full rounded-full ${template.accentClass}`} />
-                <div className="mt-4 space-y-2">
-                  <div className="h-4 w-3/5 bg-white rounded" />
-                  <div className="h-3 w-4/5 bg-white rounded" />
-                  <div className="h-3 w-2/3 bg-white rounded" />
-                </div>
+              <div className="h-40 bg-[var(--cream)] border-b border-[var(--sand)] overflow-hidden">
+                <Image
+                  src={TEMPLATE_PREVIEW_IMAGES[template.id]}
+                  alt={`Vista previa de ${template.name}`}
+                  width={1440}
+                  height={520}
+                  className="w-full h-full object-cover"
+                  style={{ objectPosition: TEMPLATE_PREVIEW_OBJECT_POSITIONS[template.id] }}
+                />
               </div>
-              <div className="px-6 pb-6 pt-5">
+              <div className="px-6 pb-6 pt-5 flex flex-col flex-1">
                 <div className="font-display text-[1.2rem] font-normal text-[var(--ink)] tracking-tight mb-0.5">
                   {template.name}
                 </div>
                 <div className="text-[0.78rem] text-[var(--rust)] mb-4 font-medium">
                   {template.tagline}
                 </div>
-                <div className="flex flex-wrap gap-1.5 mb-5">
+                <div className="flex flex-wrap gap-1.5 mb-5 min-h-[72px] content-start">
                   {TEMPLATE_PREVIEW_COPY[template.id].map((feature) => (
                     <span
                       key={feature}
@@ -390,7 +411,7 @@ export default function LandingPage() {
                     </span>
                   ))}
                 </div>
-                <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center justify-between gap-4 mt-auto">
                   <a
                     href={TEMPLATE_DEMO_PATHS[template.id]}
                     target="_blank"
@@ -505,7 +526,7 @@ export default function LandingPage() {
               €25
             </div>
             <div className="text-[0.82rem] text-[var(--muted-color)] font-light mb-8">
-              / mes
+              / año
             </div>
             <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
               {STUDIO_FEATURES.map((f) => (

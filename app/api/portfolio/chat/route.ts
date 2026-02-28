@@ -11,7 +11,7 @@ const MODEL = "gemini-2.5-pro";
 
 const schema = z.object({
   portfolioId: z.string().uuid(),
-  message: z.string().min(6).max(1200),
+  message: z.string().min(6).max(200),
 });
 
 function extractHtmlFromText(input: string): string | undefined {

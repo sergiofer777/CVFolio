@@ -17,6 +17,16 @@ export interface ActivatePlanResult {
   publicFqdn: string | null;
 }
 
+function isProfilesPlanConstraintError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const err = error as { code?: string; message?: string };
+  return (
+    err.code === "23514" &&
+    typeof err.message === "string" &&
+    err.message.includes("profiles_plan_check")
+  );
+}
+
 export function buildPublicPortfolioUrl(username: string): string {
   const rootDomain = (process.env.ROOT_DOMAIN ?? "webiculum.com").toLowerCase();
   return `https://${username}.${rootDomain}`;
@@ -64,7 +74,7 @@ export async function publishSelectedPortfolio({
 
   const nowIso = new Date().toISOString();
 
-  await admin
+  const { error: resetError } = await admin
     .from("portfolios")
     .update({
       is_published: false,
@@ -72,8 +82,9 @@ export async function publishSelectedPortfolio({
       published_at: null,
     })
     .eq("user_id", userId);
+  if (resetError) throw resetError;
 
-  await admin
+  const { error: publishError } = await admin
     .from("portfolios")
     .update({
       is_published: true,
@@ -82,6 +93,7 @@ export async function publishSelectedPortfolio({
     })
     .eq("id", targetPortfolioId)
     .eq("user_id", userId);
+  if (publishError) throw publishError;
 
   return targetPortfolioId;
 }
@@ -93,7 +105,19 @@ export async function activatePlanForUser({
   username,
   portfolioId,
 }: ActivatePlanParams): Promise<ActivatePlanResult> {
-  await admin.from("profiles").update({ plan: targetPlan }).eq("id", userId);
+  const { error: planUpdateError } = await admin
+    .from("profiles")
+    .update({ plan: targetPlan })
+    .eq("id", userId);
+
+  if (planUpdateError) {
+    if (targetPlan === "studio" && isProfilesPlanConstraintError(planUpdateError)) {
+      throw new Error(
+        "Tu base de datos aún no admite el plan Studio. Ejecuta la migración SQL de monetización para añadir 'studio' al constraint de profiles.plan."
+      );
+    }
+    throw planUpdateError;
+  }
 
   const publishedPortfolioId = await publishSelectedPortfolio({
     admin,

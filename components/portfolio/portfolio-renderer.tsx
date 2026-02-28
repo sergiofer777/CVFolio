@@ -55,6 +55,10 @@ export function PortfolioRenderer({
         ? previewHtml.replace(/<\/body>/i, `${previewGuardScript}</body>`)
         : `${previewHtml}${previewGuardScript}`;
 
+    const interactiveSandbox =
+      "allow-scripts allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-top-navigation-to-custom-protocols";
+    const previewSandbox = "allow-scripts";
+
     return (
       <div className="relative min-h-screen bg-black">
         <iframe
@@ -66,7 +70,7 @@ export function PortfolioRenderer({
             "w-full border-0",
             interactiveGeneratedLanding ? "h-screen" : "h-[78vh] min-h-[600px]"
           )}
-          sandbox="allow-scripts"
+          sandbox={interactiveGeneratedLanding ? interactiveSandbox : previewSandbox}
         />
 
         {!interactiveGeneratedLanding && (

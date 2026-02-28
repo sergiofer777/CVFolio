@@ -4,9 +4,7 @@ import {
   CV_IMAGE_OCR_SYSTEM_PROMPT,
   CV_IMAGE_OCR_USER_PROMPT,
   LANDING_SYSTEM_PROMPT,
-  LANDING_SYSTEM_PROMPT_TEMPLATE_3,
   LANDING_USER_PROMPT,
-  LANDING_USER_PROMPT_TEMPLATE_3,
 } from "./prompts";
 import type { CVData, GeneratedLanding } from "@/types/cv-data";
 import {
@@ -260,45 +258,6 @@ ${cvText}`,
   return extractPhase6Html(response);
 }
 
-async function recoverLandingHtmlForTemplate3({
-  cvText,
-  previousOutput,
-}: {
-  cvText: string;
-  previousOutput: string;
-}): Promise<string | undefined> {
-  const response = await callGemini({
-    systemPrompt:
-      "Eres un desarrollador frontend senior. Devuelve solo un HTML completo, limpio y listo para abrir en navegador.",
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            text: `Tu salida previa no era HTML utilizable. Regenerala.
-
-REGLAS:
-1. Devuelve solo un documento HTML completo.
-2. Debe empezar con <!doctype html> y terminar con </html>.
-3. Sin Markdown ni JSON.
-4. Conserva todos los datos reales del CV disponibles.
-
-SALIDA PREVIA:
-${previousOutput}
-
-CV:
-${cvText}`,
-          },
-        ],
-      },
-    ],
-    temperature: 0.3,
-    maxOutputTokens: 16384,
-  });
-
-  return extractPhase6Html(response);
-}
-
 export async function parseCVWithAI(cvText: string): Promise<CVData> {
   const text = await callGemini({
     systemPrompt: CV_SYSTEM_PROMPT,
@@ -376,24 +335,19 @@ export async function generateLandingWithAI(
   templateId?: string
 ): Promise<GeneratedLanding> {
   const template = getLandingTemplateConfig(templateId);
-  const isTemplate3 = template.id === "bold";
   const markdown = await callGemini({
-    systemPrompt: isTemplate3
-      ? LANDING_SYSTEM_PROMPT_TEMPLATE_3
-      : LANDING_SYSTEM_PROMPT,
+    systemPrompt: LANDING_SYSTEM_PROMPT,
     contents: [
       {
         role: "user",
         parts: [
           {
-            text: isTemplate3
-              ? LANDING_USER_PROMPT_TEMPLATE_3(cvText)
-              : LANDING_USER_PROMPT({
-                  cvText,
-                  templateName: template.name,
-                  templateDirection: template.direction,
-                  templateHtml: template.htmlSkeleton,
-                }),
+            text: LANDING_USER_PROMPT({
+              cvText,
+              templateName: template.name,
+              templateDirection: template.direction,
+              templateHtml: template.htmlSkeleton,
+            }),
           },
         ],
       },
@@ -406,16 +360,11 @@ export async function generateLandingWithAI(
 
   if (!html) {
     try {
-      html = isTemplate3
-        ? await recoverLandingHtmlForTemplate3({
-            cvText,
-            previousOutput: markdown,
-          })
-        : await recoverLandingHtmlWithAI({
-            cvText,
-            template,
-            previousOutput: markdown,
-          });
+      html = await recoverLandingHtmlWithAI({
+        cvText,
+        template,
+        previousOutput: markdown,
+      });
     } catch (error) {
       console.error("landing recovery error:", error);
     }

@@ -1,6 +1,6 @@
 "use client";
 
-import { type FormEvent, useState } from "react";
+import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Send } from "lucide-react";
 
@@ -19,6 +19,8 @@ interface ApiResponse {
   iterationsLimit?: number | null;
 }
 
+const CHAT_PROMPT_MAX_LENGTH = 200;
+
 export function PortfolioIterationChat({
   portfolioId,
   iterationsUsed,
@@ -31,6 +33,12 @@ export function PortfolioIterationChat({
   const [localUsed, setLocalUsed] = useState(iterationsUsed);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setLocalUsed(iterationsUsed);
+    setMessage(null);
+    setError(null);
+  }, [portfolioId, iterationsUsed]);
 
   const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -114,12 +122,22 @@ export function PortfolioIterationChat({
           onChange={(event) => setPrompt(event.target.value)}
           placeholder="Ejemplo: cambia el hero para destacar SAP BW y reduce el bloque de certificaciones."
           rows={4}
+          maxLength={CHAT_PROMPT_MAX_LENGTH}
           disabled={isLoading || isLimitReached}
           className="w-full rounded border border-[var(--sand)] bg-white px-3 py-2.5 text-sm text-[var(--ink)] outline-none focus:border-[var(--ink)] resize-y min-h-[120px]"
         />
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-[var(--muted-color)]">
             Describe cambios concretos de contenido, orden o foco visual.
+            <span
+              className={`ml-2 ${
+                prompt.length >= CHAT_PROMPT_MAX_LENGTH
+                  ? "text-[var(--rust)]"
+                  : "text-[var(--muted-color)]"
+              }`}
+            >
+              {prompt.length}/{CHAT_PROMPT_MAX_LENGTH}
+            </span>
           </p>
           <button
             type="submit"

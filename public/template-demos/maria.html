@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="es" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nura Health | Medicina de Longevidad de Precisión</title>
+    <meta name="description" content="Decodifica tu plan biológico con medicina de longevidad de precisión. Protocolos de salud personalizados para un rendimiento humano óptimo.">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        nura: {
+                            50: '#f0fdfa',
+                            100: '#ccfbf1',
+                            400: '#2dd4bf',
+                            500: '#14b8a6',
+                            600: '#0d9488',
+                            900: '#134e4a',
+                            950: '#042f2e',
+                            bg: '#050505',
+                            surface: '#111111',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        display: ['Outfit', 'sans-serif'],
+                    },
+                    animation: {
+                        'float': 'float 6s ease-in-out infinite',
+                        'blob': 'blob 7s infinite',
+                    },
+                    keyframes: {
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-20px)' },
+                        },
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Phosphor Icons -->
+    <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    
+    <style>
+        body {
+            background-color: #050505;
+            color: #f3f4f6;
+            overflow-x: hidden;
+        }
+        
+        ::selection {
+            background-color: #14b8a6;
+            color: #000;
+        }
+
+        .glass-nav {
+            background: rgba(5, 5, 5, 0.7);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #ffffff 0%, #2dd4bf 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .text-gradient-alt {
+            background: linear-gradient(135deg, #2dd4bf 0%, #3b82f6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .bento-card {
+            background: rgba(17, 17, 17, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 1.5rem;
+            backdrop-filter: blur(12px);
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .bento-card::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: radial-gradient(800px circle at var(--mouse-x, 50%) var(--mouse-y, 50%), rgba(45, 212, 191, 0.08), transparent 40%);
+            z-index: 0;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        .bento-card:hover::before {
+            opacity: 1;
+        }
+
+        .bento-card:hover {
+            transform: translateY(-5px) scale(1.01);
+            border-color: rgba(45, 212, 191, 0.3);
+            box-shadow: 0 20px 40px -15px rgba(45, 212, 191, 0.15);
+        }
+
+        .bento-content {
+            position: relative;
+            z-index: 1;
+        }
+        
+        .btn-glow {
+            position: relative;
+            background: linear-gradient(135deg, #14b8a6, #0d9488);
+            z-index: 1;
+            transition: all 0.3s ease;
+            overflow: hidden;
+        }
+        
+        .btn-glow::before {
+            content: '';
+            position: absolute;
+            top: -2px; left: -2px; right: -2px; bottom: -2px;
+            background: linear-gradient(135deg, #2dd4bf, #3b82f6, #2dd4bf);
+            z-index: -1;
+            filter: blur(10px);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .btn-glow:hover::before {
+            opacity: 0.6;
+        }
+
+        .btn-glow:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(20, 184, 166, 0.4);
+            color: #fff;
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-outline::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 100%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .btn-outline:hover::after {
+            left: 100%;
+        }
+
+        .btn-outline:hover {
+            border-color: rgba(45, 212, 191, 0.5);
+            background: rgba(45, 212, 191, 0.05);
+        }
+
+        .reveal {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: all 0.9s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* Ambient background */
+        .ambient-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+            pointer-events: none;
+        }
+        
+        .ambient-blob {
+            position: absolute;
+            filter: blur(100px);
+            opacity: 0.4;
+            border-radius: 50%;
+        }
+
+        .blob-1 {
+            top: -10%; left: -10%;
+            width: 50vw; height: 50vw;
+            background: rgba(45, 212, 191, 0.2);
+            animation: blob 15s infinite alternate;
+        }
+
+        .blob-2 {
+            bottom: -20%; right: -10%;
+            width: 60vw; height: 60vw;
+            background: rgba(59, 130, 246, 0.15);
+            animation: blob 20s infinite alternate-reverse;
+        }
+        
+        .blob-3 {
+            top: 40%; left: 40%;
+            width: 40vw; height: 40vw;
+            background: rgba(20, 184, 166, 0.1);
+            animation: blob 18s infinite alternate;
+            transform-origin: center;
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #050505;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #2dd4bf40;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #2dd4bf80;
+        }
+    </style>
+</head>
+<body>
+    <!-- Ambient Background -->
+    <div class="ambient-bg">
+        <div class="ambient-blob blob-1"></div>
+        <div class="ambient-blob blob-2"></div>
+        <div class="ambient-blob blob-3"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="glass-nav fixed w-full top-0 z-50 transition-all duration-300 py-4" id="navbar">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex justify-between items-center">
+            <a href="#" class="flex items-center gap-2 group">
+                <i class="ph-fill ph-dna text-nura-400 text-3xl group-hover:rotate-180 transition-transform duration-700"></i>
+                <span class="font-display font-bold text-xl tracking-wide text-white">Nura<span class="text-nura-400">Health</span></span>
+            </a>
+            <div class="hidden md:flex items-center gap-8 text-sm font-medium">
+                <a href="#ciencia" class="text-gray-300 hover:text-white transition-colors">La Ciencia</a>
+                <a href="#protocolo" class="text-gray-300 hover:text-white transition-colors">El Protocolo</a>
+                <a href="#beneficios" class="text-gray-300 hover:text-white transition-colors">Beneficios</a>
+                <a href="#contacto" class="btn-glow px-5 py-2.5 rounded-full text-white font-medium">Comenzar Viaje</a>
+            </div>
+            <button class="md:hidden text-gray-300 hover:text-white">
+                <i class="ph ph-list text-2xl"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="relative min-h-screen flex items-center pt-20 overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 w-full grid md:grid-cols-2 gap-12 items-center relative z-10">
+            <div class="reveal active">
+                <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-nura-900/30 border border-nura-400/30 text-nura-400 text-xs font-semibold mb-6 uppercase tracking-wider">
+                    <span class="relative flex h-2 w-2">
+                        <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-nura-400 opacity-75"></span>
+                        <span class="relative inline-flex rounded-full h-2 w-2 bg-nura-500"></span>
+                    </span>
+                    El futuro de la longevidad
+                </div>
+                <h1 class="font-display text-5xl md:text-7xl font-bold leading-tight mb-6">
+                    Decodifica tu <br/>
+                    <span class="text-gradient">Plan Biológico</span>
+                </h1>
+                <p class="text-lg md:text-xl text-gray-400 mb-8 max-w-lg font-light leading-relaxed">
+                    Medicina de longevidad de precisión. Implementamos protocolos de salud hiperpersonalizados basados en tu ADN y biomarcadores para un rendimiento humano óptimo.
+                </p>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <a href="#contacto" class="btn-glow px-8 py-4 rounded-full text-white text-center font-semibold text-lg flex items-center justify-center gap-2 group">
+                        Optimiza tu salud
+                        <i class="ph-bold ph-arrow-right group-hover:translate-x-1 transition-transform"></i>
+                    </a>
+                    <a href="#ciencia" class="btn-outline px-8 py-4 rounded-full text-white text-center font-semibold text-lg flex items-center justify-center gap-2">
+                        <i class="ph-bold ph-play-circle"></i>
+                        Descubre cómo
+                    </a>
+                </div>
+                
+                <div class="mt-12 flex items-center gap-6">
+                    <div class="flex -space-x-3">
+                        <img src="https://i.pravatar.cc/100?img=1" alt="Miembro" class="w-10 h-10 rounded-full border-2 border-nura-bg">
+                        <img src="https://i.pravatar.cc/100?img=2" alt="Miembro" class="w-10 h-10 rounded-full border-2 border-nura-bg">
+                        <img src="https://i.pravatar.cc/100?img=3" alt="Miembro" class="w-10 h-10 rounded-full border-2 border-nura-bg">
+                    </div>
+                    <div class="text-sm">
+                        <div class="flex text-nura-400 mb-1">
+                            <i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i><i class="ph-fill ph-star"></i>
+                        </div>
+                        <span class="text-gray-400">+500 Vidas Optimizadas</span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="relative reveal active animate-float hidden md:block">
+                <!-- Abstract 3D/Tech Element Representation -->
+                <div class="relative w-full aspect-square max-w-md mx-auto">
+                    <div class="absolute inset-0 bg-gradient-to-tr from-nura-900/50 to-blue-900/50 rounded-full blur-3xl opacity-50 mix-blend-screen"></div>
+                    <div class="absolute inset-4 border border-nura-400/20 rounded-full animate-[spin_20s_linear_infinite]"></div>
+                    <div class="absolute inset-12 border border-blue-400/20 rounded-full animate-[spin_15s_linear_infinite_reverse]" style="border-style: dashed;"></div>
+                    <div class="absolute inset-20 border border-nura-400/30 rounded-full animate-[spin_10s_linear_infinite]"></div>
+                    
+                    <!-- Core Info Card -->
+                    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 bento-card p-6 w-64 text-center z-20">
+                        <div class="w-16 h-16 rounded-full bg-nura-900/50 flex items-center justify-center mx-auto mb-4 border border-nura-400/30">
+                            <i class="ph-bold ph-heartbeat text-3xl text-nura-400"></i>
+                        </div>
+                        <h3 class="font-display font-bold text-xl mb-1 text-white">Edad Biológica</h3>
+                        <div class="text-3xl font-bold text-gradient-alt mb-2">-7.4<span class="text-sm font-normal text-gray-400"> Años</span></div>
+                        <div class="w-full bg-gray-800 rounded-full h-1.5 mt-4">
+                            <div class="bg-nura-400 h-1.5 rounded-full" style="width: 85%"></div>
+                        </div>
+                        <p class="text-xs text-gray-400 mt-2 text-left">Optimización de ADN activo</p>
+                    </div>
+
+                    <!-- Floating Chips -->
+                    <div class="absolute top-1/4 left-0 bento-card p-3 flex items-center gap-3 z-20 animate-[float_4s_ease-in-out_infinite]">
+                        <div class="w-8 h-8 rounded-full bg-blue-900/50 flex items-center justify-center">
+                            <i class="ph-bold ph-drop text-blue-400"></i>
+                        </div>
+                        <div class="text-sm pr-2">
+                            <p class="text-gray-400 text-xs">Test Hormonal</p>
+                            <p class="font-bold">Óptimo</p>
+                        </div>
+                    </div>
+
+                    <div class="absolute bottom-1/4 right-0 bento-card p-3 flex items-center gap-3 z-20 animate-[float_5s_ease-in-out_infinite_reverse]">
+                        <div class="w-8 h-8 rounded-full bg-purple-900/50 flex items-center justify-center">
+                            <i class="ph-bold ph-brain text-purple-400"></i>
+                        </div>
+                        <div class="text-sm pr-2">
+                            <p class="text-gray-400 text-xs">Rendimiento Cognitivo</p>
+                            <p class="font-bold">+24%</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Logistics / Science Section -->
+    <section id="ciencia" class="py-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="text-center mb-16 reveal">
+                <h2 class="font-display text-3xl md:text-5xl font-bold mb-4">Medicina Basada en <span class="text-gradient">Datos Vivos</span></h2>
+                <p class="text-gray-400 max-w-2xl mx-auto text-lg">No adivinamos. Medimos, analizamos y prescribimos con la mayor precisión tecnológica disponible.</p>
+            </div>
+
+            <div class="grid md:grid-cols-3 gap-6">
+                <!-- Card 1 -->
+                <div class="bento-card p-8 reveal" onmousemove="handleMouseMove(event, this)">
+                    <div class="bento-content">
+                        <div class="w-12 h-12 rounded-xl bg-nura-900/50 flex items-center justify-center mb-6 border border-nura-400/20">
+                            <i class="ph-bold ph-dna text-2xl text-nura-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold font-display mb-3 text-white">Análisis Genómico</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Mapeamos tu genoma completo para identificar predisposiciones, capacidades de absorción de nutrientes y velocidades de recuperación innatas.
+                        </p>
+                    </div>
+                </div>
+                <!-- Card 2 -->
+                <div class="bento-card p-8 reveal" style="transition-delay: 100ms;" onmousemove="handleMouseMove(event, this)">
+                    <div class="bento-content">
+                        <div class="w-12 h-12 rounded-xl bg-blue-900/50 flex items-center justify-center mb-6 border border-blue-400/20">
+                            <i class="ph-bold ph-activity text-2xl text-blue-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold font-display mb-3 text-white">Biomarcadores en Sangre</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Evaluación profunda de más de 100 biomarcadores clave, desde niveles hormonales hasta marcadores de inflamación silenciosa y salud metabólica.
+                        </p>
+                    </div>
+                </div>
+                <!-- Card 3 -->
+                <div class="bento-card p-8 reveal" style="transition-delay: 200ms;" onmousemove="handleMouseMove(event, this)">
+                    <div class="bento-content">
+                        <div class="w-12 h-12 rounded-xl bg-purple-900/50 flex items-center justify-center mb-6 border border-purple-400/20">
+                            <i class="ph-bold ph-chart-line-up text-2xl text-purple-400"></i>
+                        </div>
+                        <h3 class="text-xl font-bold font-display mb-3 text-white">Reloj Epigenético</h3>
+                        <p class="text-gray-400 text-sm leading-relaxed">
+                            Medimos tu verdadera edad biológica a nivel celular. Rastreamos cómo tu estilo de vida está afectando realmente tu tasa de envejecimiento.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- The Protocol Section -->
+    <section id="protocolo" class="py-24 relative bg-black/50 border-y border-white/5">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+            <div class="grid md:grid-cols-2 gap-16 items-center">
+                <div class="order-2 md:order-1 reveal">
+                    <div class="space-y-8 relative before:content-[''] before:absolute before:inset-0 before:ml-6 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-nura-400/30 before:to-transparent">
+                        <!-- Step 1 -->
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-nura-400 bg-nura-bg text-nura-400 font-bold z-10 shadow-[0_0_15px_rgba(45,212,191,0.2)] group-hover:bg-nura-400 group-hover:text-black transition-colors md:order-1 md:ml-auto md:-translate-x-1/2">1</div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] bento-card p-6">
+                                <h4 class="text-white font-bold font-display text-lg mb-2">Evaluación Cuántica</h4>
+                                <p class="text-sm text-gray-400">Toma de muestras exhaustiva en casa o en nuestra clínica. Sangre, saliva y biometría.</p>
+                            </div>
+                        </div>
+                        <!-- Step 2 -->
+                        <div class="relative flex items-center justify-between md:justify-normal md:even:flex-row group">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-nura-400 bg-nura-bg text-nura-400 font-bold z-10 shadow-[0_0_15px_rgba(45,212,191,0.2)] group-hover:bg-nura-400 group-hover:text-black transition-colors md:order-1 md:mr-auto md:translate-x-1/2">2</div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] bento-card p-6">
+                                <h4 class="text-white font-bold font-display text-lg mb-2">Síntesis de IA</h4>
+                                <p class="text-sm text-gray-400">Nuestros motores médicos procesan miles de puntos de datos para encontrar las correlaciones únicas de tu cuerpo.</p>
+                            </div>
+                        </div>
+                        <!-- Step 3 -->
+                        <div class="relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+                            <div class="flex items-center justify-center w-12 h-12 rounded-full border-2 border-nura-400 bg-nura-bg text-nura-400 font-bold z-10 shadow-[0_0_15px_rgba(45,212,191,0.2)] group-hover:bg-nura-400 group-hover:text-black transition-colors md:order-1 md:ml-auto md:-translate-x-1/2">3</div>
+                            <div class="w-[calc(100%-4rem)] md:w-[calc(50%-3rem)] bento-card p-6">
+                                <h4 class="text-white font-bold font-display text-lg mb-2">El Protocolo</h4>
+                                <p class="text-sm text-gray-400">Entrega de intervenciones precisas: nutrición molecular, suplementación a medida y plan de entrenamiento.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="order-1 md:order-2 reveal">
+                    <h2 class="font-display text-3xl md:text-5xl font-bold mb-6">Un enfoque sistemático hacia la <span class="text-gradient">inmortalidad biológica</span></h2>
+                    <p class="text-gray-400 text-lg mb-8 leading-relaxed">
+                        El Protocolo Nura elimina las conjeturas de la salud preventiva. No seguimos tendencias, seguimos tus datos. Cada recomendación está respaldada por una red de evidencia científica adaptada a tu biología única.
+                    </p>
+                    
+                    <ul class="space-y-4">
+                        <li class="flex items-start gap-4">
+                            <i class="ph-bold ph-check-circle text-nura-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-white mb-1">Precisión Absoluta</h5>
+                                <p class="text-sm text-gray-400">Intervenciones basadas 100% en analíticas, no iteraciones genéricas.</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start gap-4">
+                            <i class="ph-bold ph-check-circle text-nura-400 text-xl mt-1"></i>
+                            <div>
+                                <h5 class="font-bold text-white mb-1">Acompañamiento Continuo</h5>
+                                <p class="text-sm text-gray-400">Monitorización constante y re-evaluación trimestral para calibrar resultados.</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Large Bento App Preview -->
+    <section class="py-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-6 md:px-12">
+             <div class="bento-card !rounded-[2rem] p-8 md:p-16 text-center border-t border-nura-400/20 reveal relative overflow-hidden">
+                <!-- Inner Glow -->
+                <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[80%] h-32 bg-nura-500/20 blur-[100px] rounded-full"></div>
+                
+                <div class="relative z-10 max-w-3xl mx-auto">
+                    <h2 class="font-display text-3xl md:text-5xl font-bold mb-6 text-white">
+                        Tu salud en la palma de tu mano
+                    </h2>
+                    <p class="text-gray-400 text-lg mb-10">
+                        Accede a tus biomarcadores, reloj biológico y protocolos diarios desde nuestra aplicación conectada con tus wearables.
+                    </p>
+                    
+                    <!-- App UI Mockup -->
+                    <div class="relative mx-auto max-w-lg bg-black/80 border border-white/10 rounded-3xl overflow-hidden shadow-2xl backdrop-blur-sm aspect-[4/3] flex flex-col pt-6 px-6">
+                        <div class="flex justify-between items-center mb-6">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-full bg-nura-400/20 flex items-center justify-center">
+                                    <i class="ph-fill ph-user text-nura-400"></i>
+                                </div>
+                                <div class="text-left">
+                                    <h6 class="text-white text-sm font-bold">Good Morning, Alex</h6>
+                                    <p class="text-nura-400 text-xs text-gradient-alt">Recovery: 94%</p>
+                                </div>
+                            </div>
+                            <i class="ph ph-bell text-gray-400 text-xl"></i>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4 mb-4 flex-grow">
+                            <div class="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-center">
+                                <i class="ph-fill ph-heartbeat text-red-400 mb-2 text-2xl"></i>
+                                <span class="text-xs text-gray-400">HRV (Vo2Max)</span>
+                                <span class="text-xl font-bold text-white leading-none mt-1">54<span class="text-xs text-gray-500 font-normal"> ml/kg</span></span>
+                            </div>
+                            <div class="bg-white/5 rounded-2xl p-4 border border-white/5 flex flex-col justify-center relative overflow-hidden">
+                                <div class="absolute right-0 bottom-0 text-nura-400/10"><i class="ph-bold ph-shield-check text-6xl rotate-12 translate-x-2 translate-y-2"></i></div>
+                                <i class="ph-fill ph-shield-check text-nura-400 mb-2 text-2xl relative z-10"></i>
+                                <span class="text-xs text-gray-400 relative z-10">Daily Protocol</span>
+                                <span class="text-xl font-bold text-white leading-none mt-1 relative z-10">All Done</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+             </div>
+        </div>
+    </section>
+
+    <!-- Call to Action -->
+    <section id="contacto" class="py-24 relative">
+        <div class="max-w-4xl mx-auto px-6 md:px-12 text-center reveal">
+            <h2 class="font-display text-4xl md:text-6xl font-bold mb-6">El arte de vivir <br><span class="text-gradient">más y mejor</span>.</h2>
+            <p class="text-xl text-gray-400 mb-10">Las plazas para nuevos pacientes están limitadas para garantizar un enfoque de ultra-precisión en cada individuo.</p>
+            
+            <a href="mailto:contacto@nurahealth.com" class="inline-block font-display text-2xl md:text-4xl font-semibold tracking-tight text-nura-400 hover:text-white transition-colors">
+                contacto@nurahealth.com
+            </a>
+            <p class="text-xs text-gray-500 mt-4"><i class="ph-fill ph-lock-key mr-1 text-nura-400"></i> Tus datos médicos están encriptados a nivel bancario y de punta a punta.</p>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="border-t border-white/10 bg-black py-12">
+        <div class="max-w-7xl mx-auto px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6">
+            <div class="flex items-center gap-2">
+                <i class="ph-fill ph-dna text-nura-400 text-2xl"></i>
+                <span class="font-display font-medium text-lg text-white">Nura<span class="text-nura-400">Health</span></span>
+            </div>
+            
+            <div class="flex gap-6 text-sm text-gray-400">
+                <a href="#" class="hover:text-nura-400 transition-colors">Términos</a>
+                <a href="#" class="hover:text-nura-400 transition-colors">Privacidad</a>
+                <a href="#" class="hover:text-nura-400 transition-colors">Ciencia</a>
+            </div>
+            
+            <div class="flex gap-4">
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-nura-500/20 transition-all">
+                    <i class="ph-fill ph-instagram-logo"></i>
+                </a>
+                <a href="#" class="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 hover:text-white hover:bg-nura-500/20 transition-all">
+                    <i class="ph-fill ph-twitter-logo"></i>
+                </a>
+            </div>
+        </div>
+        <div class="text-center mt-12 text-xs text-gray-600">
+            &copy; 2026 Nura Health, Inc. Todos los derechos reservados. Rediseñado para impacto.
+        </div>
+    </footer>
+
+    <!-- Interactive Scripts -->
+    <script>
+        // Scroll Reveal Animation
+        function reveal() {
+            var reveals = document.querySelectorAll(".reveal");
+            for (var i = 0; i < reveals.length; i++) {
+                var windowHeight = window.innerHeight;
+                var elementTop = reveals[i].getBoundingClientRect().top;
+                var elementVisible = 100;
+                if (elementTop < windowHeight - elementVisible) {
+                    reveals[i].classList.add("active");
+                }
+            }
+        }
+        window.addEventListener("scroll", reveal);
+        // Trigger once on load
+        setTimeout(reveal, 100);
+
+        // Bento Cards Mouse Tracking Effect
+        function handleMouseMove(e, element) {
+            const rect = element.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            
+            element.style.setProperty('--mouse-x', `${x}px`);
+            element.style.setProperty('--mouse-y', `${y}px`);
+        }
+
+        // Navbar blur effect on scroll
+        const navbar = document.getElementById('navbar');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                navbar.classList.add('shadow-lg');
+                navbar.classList.add('bg-black/80');
+                navbar.classList.remove('bg-transparent');
+            } else {
+                navbar.classList.remove('shadow-lg');
+                navbar.classList.remove('bg-black/80');
+                navbar.classList.add('bg-transparent');
+            }
+        });
+    </script>
+</body>
+</html>

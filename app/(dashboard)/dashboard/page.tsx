@@ -2,10 +2,10 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { PortfolioRenderer } from "@/components/portfolio/portfolio-renderer";
-import { CheckoutButton } from "@/components/billing/checkout-button";
 import { PortfolioIterationChat } from "@/components/dashboard/portfolio-iteration-chat";
 import { PublicPortfolioButton } from "@/components/dashboard/public-portfolio-button";
 import { PublicSubdomainSettings } from "@/components/dashboard/public-subdomain-settings";
+import { LinkSubdomainButton } from "@/components/dashboard/link-subdomain-button";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { FreePreviewCountdown } from "@/components/dashboard/free-preview-countdown";
 import {
@@ -25,9 +25,18 @@ import {
   resolvePlan,
   type ProfilePlan,
 } from "@/lib/billing/access";
+import {
+  STUDIO_PRICE_EUR,
+  STUDIO_UPGRADE_FROM_PRO_EUR,
+  formatEuro,
+} from "@/lib/billing/pricing";
 import { isBillingEnforcementEnabled } from "@/lib/billing/config";
 import { PORTFOLIO_THEME_OPTIONS } from "@/lib/templates/portfolio-themes";
 import { buildPublicPortfolioUrl } from "@/lib/billing/activation";
+import {
+  confirmLatestStripeCheckoutForUser,
+  confirmStripeCheckoutForUser,
+} from "@/lib/billing/stripe-confirmation";
 
 interface DashboardPortfolioRow {
   id: string;
@@ -77,6 +86,7 @@ export default async function DashboardPage({
     new?: string;
     billing?: string;
     plan?: string;
+    session_id?: string;
     limit?: string;
     from?: string;
   }>;
@@ -86,6 +96,31 @@ export default async function DashboardPage({
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) redirect("/login");
+
+  const params = await searchParams;
+  const billingSuccess = params.billing === "success";
+  const billingCancelled = params.billing === "cancelled";
+  const billingPlanLabel = params.plan === "studio" ? "Studio" : "Pro";
+  const generationLimitReached =
+    params.limit === "generation" && params.from === "upload";
+  const expectedPlanFromBilling =
+    params.plan === "studio"
+      ? "studio"
+      : params.plan === "publish"
+        ? "premium"
+        : null;
+
+  if (billingSuccess && params.session_id) {
+    await confirmStripeCheckoutForUser({
+      userId: user.id,
+      sessionId: params.session_id,
+    });
+  } else if (billingSuccess && expectedPlanFromBilling) {
+    await confirmLatestStripeCheckoutForUser({
+      userId: user.id,
+      expectedPlan: expectedPlanFromBilling,
+    });
+  }
 
   const { data: profileRaw } = await supabase
     .from("profiles")
@@ -106,14 +141,7 @@ export default async function DashboardPage({
     .eq("user_id", user.id)
     .order("updated_at", { ascending: false });
   const portfolios = (portfoliosRaw as DashboardPortfolioRow[] | null) ?? [];
-
-  const params = await searchParams;
   const isNew = params.new === "true";
-  const billingSuccess = params.billing === "success";
-  const billingCancelled = params.billing === "cancelled";
-  const billingPlanLabel = params.plan === "studio" ? "Studio" : "Pro";
-  const generationLimitReached =
-    params.limit === "generation" && params.from === "upload";
 
   const selectedPortfolio =
     portfolios.find((portfolio) => portfolio.id === params.portfolioId) ?? portfolios[0];
@@ -147,10 +175,25 @@ export default async function DashboardPage({
   );
   const chatIterationsPerPortfolio = planLimits.chatIterationLimitPerPortfolio ?? 0;
   const canUseIterationChat = chatIterationsPerPortfolio > 0;
+  const hasProAccess = profilePlan === "premium" || profilePlan === "studio";
+  const hasStudioAccess = profilePlan === "studio";
+  const billingApplied =
+    expectedPlanFromBilling === "studio"
+      ? hasStudioAccess
+      : expectedPlanFromBilling === "premium"
+        ? hasProAccess
+        : false;
+  const isUpgradeFromPro = profilePlan === "premium";
+  const isFreePlan = profilePlan === "free";
+  const studioBillingHref = selectedPortfolio
+    ? `/dashboard/billing?portfolioId=${selectedPortfolio.id}&plan=studio`
+    : "/dashboard/billing?plan=studio";
+  const studioUpgradePriceLabel = formatEuro(STUDIO_UPGRADE_FROM_PRO_EUR);
+  const studioOriginalPriceLabel = formatEuro(STUDIO_PRICE_EUR);
 
   return (
     <div className="min-h-screen bg-[var(--paper)]">
-      <header className="border-b border-[var(--sand)] bg-white/80 backdrop-blur-xl sticky top-0 z-20">
+      <header className="border-b border-[var(--sand)] bg-white sticky top-0 z-50">
         <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between gap-4">
           <Link
             href="/"
@@ -213,8 +256,18 @@ export default async function DashboardPage({
 
         {billingSuccess && (
           <div className="rounded-lg border border-[rgba(10,125,70,0.22)] bg-[rgba(10,125,70,0.08)] p-3 text-sm text-[rgb(10,125,70)]">
-            <strong>Pago confirmado ({billingPlanLabel}).</strong> El flujo de
-            activación está listo para publicar en subdominio al conectar pagos.
+            {billingApplied ? (
+              <>
+                <strong>Plan activado ({billingPlanLabel}).</strong> Ya tienes
+                acceso a las funciones de este plan.
+              </>
+            ) : (
+              <>
+                <strong>Pago confirmado ({billingPlanLabel}).</strong> Estamos
+                sincronizando la activación; recarga en unos segundos si no se
+                actualiza automáticamente.
+              </>
+            )}
           </div>
         )}
 
@@ -229,7 +282,7 @@ export default async function DashboardPage({
           <div className="rounded-lg border border-[rgba(192,68,10,0.2)] bg-[rgba(192,68,10,0.06)] p-3 text-sm text-[var(--rust)]">
             <strong>Límite de webs alcanzado para tu plan.</strong>{" "}
             {profilePlan === "studio"
-              ? "Ya tienes 3 portfolios. Borra uno o espera al siguiente periodo."
+              ? "Ya tienes 3 portfolios."
               : "Para crear más necesitas activar Studio (€24,99)."}
           </div>
         )}
@@ -242,9 +295,16 @@ export default async function DashboardPage({
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             <div className="rounded-lg border border-[var(--sand)] bg-[var(--paper)] p-3">
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
-                Gratis
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
+                  Gratis
+                </p>
+                {isFreePlan && (
+                  <span className="text-[0.65rem] px-2 py-1 rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] uppercase tracking-[0.08em] font-medium">
+                    Activo
+                  </span>
+                )}
+              </div>
               <p className="mt-2 text-sm text-[var(--ink)]">
                 1 portfolio en preview durante 24h.
               </p>
@@ -254,36 +314,87 @@ export default async function DashboardPage({
             </div>
 
             <div className="rounded-lg border border-[var(--sand)] bg-[var(--paper)] p-3">
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
-                Pro · €9,99
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
+                  Pro · €9,99
+                </p>
+                {hasProAccess && (
+                  <span className="text-[0.65rem] px-2 py-1 rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] uppercase tracking-[0.08em] font-medium">
+                    Activo
+                  </span>
+                )}
+              </div>
               <p className="mt-2 text-sm text-[var(--ink)]">
                 1 portfolio con subdominio durante 1 año.
               </p>
-              <CheckoutButton
-                plan="publish"
-                portfolioId={selectedPortfolio?.id}
-                className="mt-3 w-full rounded bg-[var(--ink)] text-[var(--paper)] px-3 py-2 text-xs font-medium hover:bg-[var(--rust)] transition-colors"
-              >
-                <Lock className="w-3.5 h-3.5" />
-                Activar plan Pro
-              </CheckoutButton>
+              {hasProAccess ? (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-3 w-full rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] px-3 py-2 text-xs font-medium cursor-not-allowed"
+                >
+                  {hasStudioAccess ? "Incluido en Studio" : "Plan Pro activo"}
+                </button>
+              ) : (
+                <Link
+                  href={billingHref}
+                  className="mt-3 w-full rounded bg-[var(--ink)] text-[var(--paper)] px-3 py-2 text-xs font-medium hover:bg-[var(--rust)] transition-colors no-underline inline-flex items-center justify-center gap-2"
+                >
+                  <Lock className="w-3.5 h-3.5" />
+                  Elegir plan Pro
+                </Link>
+              )}
             </div>
 
             <div className="rounded-lg border border-[var(--sand)] bg-[var(--paper)] p-3">
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
-                Studio · €24,99
-              </p>
+              <div className="flex items-center justify-between gap-2">
+                <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
+                  {isUpgradeFromPro ? (
+                    <>
+                      Studio ·{" "}
+                      <span className="line-through opacity-75">
+                        {studioOriginalPriceLabel}
+                      </span>{" "}
+                      <span className="text-[rgb(10,125,70)] font-semibold no-underline">
+                        {studioUpgradePriceLabel}
+                      </span>
+                    </>
+                  ) : (
+                    "Studio · €24,99"
+                  )}
+                </p>
+                {hasStudioAccess && (
+                  <span className="text-[0.65rem] px-2 py-1 rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] uppercase tracking-[0.08em] font-medium">
+                    Activo
+                  </span>
+                )}
+              </div>
               <p className="mt-2 text-sm text-[var(--ink)]">
                 3 portfolios y 3 iteraciones por portfolio con chat.
               </p>
-              <CheckoutButton
-                plan="studio"
-                portfolioId={selectedPortfolio?.id}
-                className="mt-3 w-full rounded border border-[var(--sand)] bg-white text-[var(--ink)] px-3 py-2 text-xs font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors"
-              >
-                Activar Studio
-              </CheckoutButton>
+              {isUpgradeFromPro && !hasStudioAccess && (
+                <p className="mt-1 text-xs text-[rgb(10,125,70)]">
+                  Upgrade desde Pro: descuento de €9,99 aplicado.
+                </p>
+              )}
+              {hasStudioAccess ? (
+                <button
+                  type="button"
+                  disabled
+                  className="mt-3 w-full rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] px-3 py-2 text-xs font-medium cursor-not-allowed"
+                >
+                  Plan Studio activo
+                </button>
+              ) : (
+                <Link
+                  href={studioBillingHref}
+                  className="mt-3 w-full rounded border border-[var(--sand)] bg-white text-[var(--ink)] px-3 py-2 text-xs font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors no-underline inline-flex items-center justify-center"
+                >
+                  {isUpgradeFromPro
+                    ? `Mejorar a Studio por ${studioUpgradePriceLabel}`
+                    : "Elegir Studio"}
+                </Link>
+              )}
             </div>
           </div>
         </section>
@@ -296,11 +407,24 @@ export default async function DashboardPage({
                 portfolios.
                 {profileUsername && (
                   <>
-                    {" "}Si activas pago, se publicará en{" "}
-                    <span className="font-mono">
-                      {buildPublicPortfolioUrl(profileUsername.toLowerCase())}
-                    </span>
-                    .
+                    {" "}
+                    {hasProAccess ? (
+                      <>
+                        Puedes publicarlo ahora en{" "}
+                        <span className="font-mono">
+                          {buildPublicPortfolioUrl(profileUsername.toLowerCase())}
+                        </span>
+                        .
+                      </>
+                    ) : (
+                      <>
+                        Si activas pago, se publicará en{" "}
+                        <span className="font-mono">
+                          {buildPublicPortfolioUrl(profileUsername.toLowerCase())}
+                        </span>
+                        .
+                      </>
+                    )}
                   </>
                 )}
               </div>
@@ -323,12 +447,18 @@ export default async function DashboardPage({
                   return (
                     <article
                       key={portfolio.id}
-                      className={`rounded-lg border p-4 transition-colors ${
+                      className={`relative rounded-lg border p-4 transition-colors cursor-pointer ${
                         isSelected
                           ? "border-[var(--ink)] bg-white"
-                          : "border-[var(--sand)] bg-white/80"
+                          : "border-[var(--sand)] bg-white/80 hover:border-[var(--ink)]"
                       }`}
                     >
+                      <Link
+                        href={`/dashboard?portfolioId=${portfolio.id}`}
+                        className="absolute inset-0 z-10 rounded-lg"
+                        aria-label={`Seleccionar portfolio de ${heading.name}`}
+                      />
+
                       <div className="flex items-center justify-between gap-2">
                         <p className="text-xs text-[var(--rust)] font-medium uppercase tracking-[0.08em]">
                           {getThemeName(portfolio.theme)}
@@ -351,7 +481,7 @@ export default async function DashboardPage({
                         Actualizado: {formatDate(portfolio.updated_at)}
                       </p>
 
-                      <div className="mt-3 flex items-center gap-2">
+                      <div className="relative z-20 mt-3 flex items-center gap-2">
                         <Link
                           href={`/dashboard?portfolioId=${portfolio.id}`}
                           className="inline-flex items-center gap-1 text-xs font-medium text-[var(--ink)] hover:text-[var(--rust)] no-underline"
@@ -417,8 +547,18 @@ export default async function DashboardPage({
                   />
                 )}
 
+                {selectedPortfolio && profileUsername && subdomainPortfolioHref && (
+                  <LinkSubdomainButton
+                    canAccessPublic={canAccessPublic}
+                    portfolioId={selectedPortfolio.id}
+                    billingHref={billingHref}
+                    publicUrl={subdomainPortfolioHref}
+                  />
+                )}
+
                 {canUseIterationChat ? (
                   <PortfolioIterationChat
+                    key={selectedPortfolio.id}
                     portfolioId={selectedPortfolio.id}
                     iterationsUsed={selectedIterationsUsed}
                     iterationsLimit={planLimits.chatIterationLimitPerPortfolio}
@@ -437,13 +577,12 @@ export default async function DashboardPage({
                       portfolio.
                     </p>
                     <div className="mt-4">
-                      <CheckoutButton
-                        plan="studio"
-                        portfolioId={selectedPortfolio.id}
-                        className="rounded border border-[var(--sand)] bg-white text-[var(--ink)] px-3 py-2 text-xs font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors"
+                      <Link
+                        href={studioBillingHref}
+                        className="inline-flex items-center justify-center rounded border border-[var(--sand)] bg-white text-[var(--ink)] px-3 py-2 text-xs font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors no-underline"
                       >
-                        Activar Studio
-                      </CheckoutButton>
+                        Elegir plan Studio
+                      </Link>
                     </div>
                   </section>
                 )}

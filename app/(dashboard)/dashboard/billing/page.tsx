@@ -8,6 +8,11 @@ import {
   resolvePlan,
   type ProfilePlan,
 } from "@/lib/billing/access";
+import {
+  STUDIO_PRICE_EUR,
+  STUDIO_UPGRADE_FROM_PRO_EUR,
+  formatEuro,
+} from "@/lib/billing/pricing";
 import { buildPublicPortfolioUrl } from "@/lib/billing/activation";
 import type { CVData } from "@/types/cv-data";
 
@@ -24,7 +29,7 @@ function getPortfolioName(cvData: CVData): string {
 export default async function DashboardBillingPage({
   searchParams,
 }: {
-  searchParams: Promise<{ portfolioId?: string }>;
+  searchParams: Promise<{ portfolioId?: string; plan?: string }>;
 }) {
   const supabase = await createClient();
   const {
@@ -34,6 +39,7 @@ export default async function DashboardBillingPage({
 
   const params = await searchParams;
   const requestedPortfolioId = params.portfolioId;
+  const requestedPlan = params.plan;
 
   const { data: profileRaw } = await supabase
     .from("profiles")
@@ -59,6 +65,14 @@ export default async function DashboardBillingPage({
   const publicUrl = username ? buildPublicPortfolioUrl(username) : null;
   const fallbackPublicPath = username ? `/p/${username}` : null;
   const isPaid = isPaidPlan(plan);
+  const hasProAccess = plan === "premium" || plan === "studio";
+  const hasStudioAccess = plan === "studio";
+  const isUpgradeFromPro = plan === "premium";
+  const activePlanLabel = hasStudioAccess ? "Studio" : hasProAccess ? "Pro" : null;
+  const isProHighlighted = requestedPlan === "publish";
+  const isStudioHighlighted = requestedPlan === "studio";
+  const studioUpgradePriceLabel = formatEuro(STUDIO_UPGRADE_FROM_PRO_EUR);
+  const studioOriginalPriceLabel = formatEuro(STUDIO_PRICE_EUR);
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
@@ -97,7 +111,8 @@ export default async function DashboardBillingPage({
 
         {isPaid && publicUrl && (
           <section className="rounded-xl border border-[rgba(10,125,70,0.22)] bg-[rgba(10,125,70,0.08)] p-4 text-sm text-[rgb(10,125,70)]">
-            Ya tienes un plan activo. Puedes abrir ahora tu portfolio público en{" "}
+            Ya tienes el plan {activePlanLabel} activo. Puedes abrir ahora tu
+            portfolio público en{" "}
             <a
               href={publicUrl}
               target="_blank"
@@ -111,12 +126,24 @@ export default async function DashboardBillingPage({
         )}
 
         <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <article className="rounded-xl border border-[var(--sand)] bg-white p-5">
-            <div className="flex items-center gap-2">
-              <Crown className="w-4 h-4 text-[var(--rust)]" />
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
-                Pro · €9,99
-              </p>
+          <article
+            className={`rounded-xl border bg-white p-5 ${isProHighlighted
+              ? "border-[var(--ink)]"
+              : "border-[var(--sand)]"
+              }`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Crown className="w-4 h-4 text-[var(--rust)]" />
+                <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
+                  Pro · €9,99
+                </p>
+              </div>
+              {hasProAccess && (
+                <span className="text-[0.65rem] px-2 py-1 rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] uppercase tracking-[0.08em] font-medium">
+                  {hasStudioAccess ? "Incluido" : "Activo"}
+                </span>
+              )}
             </div>
             <h2 className="font-display text-[1.3rem] text-[var(--ink)] tracking-tight mt-2">
               1 web publicada durante 1 año
@@ -136,21 +163,55 @@ export default async function DashboardBillingPage({
               </li>
             </ul>
 
-            <CheckoutButton
-              plan="publish"
-              portfolioId={selectedPortfolio.id}
-              className="mt-5 w-full rounded bg-[var(--ink)] text-[var(--paper)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--rust)] transition-colors"
-            >
-              Activar Pro y publicar
-            </CheckoutButton>
+            {hasProAccess ? (
+              <button
+                type="button"
+                disabled
+                className="mt-5 w-full rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] px-4 py-2.5 text-sm font-medium cursor-not-allowed"
+              >
+                {hasStudioAccess ? "Incluido en Studio" : "Plan Pro activo"}
+              </button>
+            ) : (
+              <CheckoutButton
+                plan="publish"
+                portfolioId={selectedPortfolio.id}
+                className="mt-5 w-full rounded bg-[var(--ink)] text-[var(--paper)] px-4 py-2.5 text-sm font-medium hover:bg-[var(--rust)] transition-colors"
+              >
+                Activar Pro y publicar
+              </CheckoutButton>
+            )}
           </article>
 
-          <article className="rounded-xl border border-[var(--sand)] bg-white p-5">
-            <div className="flex items-center gap-2">
-              <Sparkles className="w-4 h-4 text-[var(--rust)]" />
-              <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
-                Studio · €24,99
-              </p>
+          <article
+            className={`rounded-xl border bg-white p-5 ${isStudioHighlighted
+              ? "border-[var(--ink)]"
+              : "border-[var(--sand)]"
+              }`}
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <Sparkles className="w-4 h-4 text-[var(--rust)]" />
+                <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
+                  {isUpgradeFromPro ? (
+                    <>
+                      Studio ·{" "}
+                      <span className="line-through opacity-75">
+                        {studioOriginalPriceLabel}
+                      </span>{" "}
+                      <span className="text-[rgb(10,125,70)] font-semibold no-underline">
+                        {studioUpgradePriceLabel}
+                      </span>
+                    </>
+                  ) : (
+                    "Studio · €24,99"
+                  )}
+                </p>
+              </div>
+              {hasStudioAccess && (
+                <span className="text-[0.65rem] px-2 py-1 rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] uppercase tracking-[0.08em] font-medium">
+                  Activo
+                </span>
+              )}
             </div>
             <h2 className="font-display text-[1.3rem] text-[var(--ink)] tracking-tight mt-2">
               3 portfolios + 3 iteraciones por portfolio
@@ -169,14 +230,33 @@ export default async function DashboardBillingPage({
                 Puedes cambiar cuál se publica en tu subdominio
               </li>
             </ul>
+            {isUpgradeFromPro && !hasStudioAccess && (
+              <p className="mt-3 text-xs text-[rgb(10,125,70)]">
+                Ya pagaste Pro: se descuenta €9,99 en esta mejora.
+              </p>
+            )}
 
-            <CheckoutButton
-              plan="studio"
-              portfolioId={selectedPortfolio.id}
-              className="mt-5 w-full rounded border border-[var(--sand)] bg-white text-[var(--ink)] px-4 py-2.5 text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors"
-            >
-              Activar Studio
-            </CheckoutButton>
+            {hasStudioAccess ? (
+              <button
+                type="button"
+                disabled
+                className="mt-5 w-full rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] px-4 py-2.5 text-sm font-medium cursor-not-allowed"
+              >
+                Plan Studio activo
+              </button>
+            ) : (
+              <CheckoutButton
+                plan="studio"
+                portfolioId={selectedPortfolio.id}
+                className="mt-5 w-full rounded border border-[var(--sand)] bg-white text-[var(--ink)] px-4 py-2.5 text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors"
+              >
+                {isUpgradeFromPro
+                  ? `Mejorar a Studio por ${studioUpgradePriceLabel}`
+                  : hasProAccess
+                    ? "Mejorar a Studio"
+                    : "Activar Studio"}
+              </CheckoutButton>
+            )}
           </article>
         </section>
 

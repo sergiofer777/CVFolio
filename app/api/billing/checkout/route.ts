@@ -2,9 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 import { z } from "zod";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
-import { isPaidPlan, type ProfilePlan } from "@/lib/billing/access";
-import { activatePlanForUser, buildPublicPortfolioUrl } from "@/lib/billing/activation";
+import { isPaidPlan, resolvePlan, type ProfilePlan } from "@/lib/billing/access";
+import { activatePlanForUser } from "@/lib/billing/activation";
 import { isBillingMockPaymentsEnabled } from "@/lib/billing/config";
+import { PRO_PRICE_CENTS } from "@/lib/billing/pricing";
 
 export const runtime = "nodejs";
 
@@ -70,9 +71,16 @@ export async function POST(request: NextRequest) {
     const profile =
       (profileRaw as { username?: string; plan?: ProfilePlan } | null) ?? null;
     const username = profile?.username?.trim().toLowerCase();
-    const currentPlan = profile?.plan ?? "free";
-    const subdomainUrl = username ? buildPublicPortfolioUrl(username) : null;
-    const fallbackPathUrl = username ? `/p/${username}` : "/dashboard";
+    const currentPlan = resolvePlan(profile?.plan ?? "free");
+    const isStudioUpgradeFromPro = plan === "studio" && currentPlan === "premium";
+    const dashboardParams = new URLSearchParams({
+      billing: "success",
+      plan,
+    });
+    if (requestedPortfolioId) {
+      dashboardParams.set("portfolioId", requestedPortfolioId);
+    }
+    const successDashboardUrl = `/dashboard?${dashboardParams.toString()}`;
 
     if (!username) {
       return NextResponse.json(
@@ -86,8 +94,8 @@ export async function POST(request: NextRequest) {
       (plan === "studio" && currentPlan === "studio");
     if (alreadyPaidOnRequestedPlan) {
       return NextResponse.json({
-        checkoutUrl: subdomainUrl ?? fallbackPathUrl,
-        fallbackUrl: fallbackPathUrl,
+        checkoutUrl: successDashboardUrl,
+        fallbackUrl: successDashboardUrl,
         mode: "already-active",
         alreadyActive: true,
       });
@@ -139,30 +147,18 @@ export async function POST(request: NextRequest) {
         portfolioId: selectedPortfolioId,
       });
 
-      const successDashboardUrl = `/dashboard?billing=success&plan=${plan}`;
-      const checkoutUrl =
-        activation.publishedPortfolioId
-          ? subdomainUrl ?? fallbackPathUrl
-          : successDashboardUrl;
-      const fallbackUrl = activation.publishedPortfolioId
-        ? fallbackPathUrl
-        : `/dashboard?billing=success&plan=${plan}`;
-
       return NextResponse.json({
-        checkoutUrl,
+        checkoutUrl: successDashboardUrl,
         mode: "mock",
         publishedPortfolioId: activation.publishedPortfolioId,
-        fallbackUrl,
+        fallbackUrl: successDashboardUrl,
       });
     }
 
     const stripe = getStripeClient();
     const mode = plan === "publish" ? "payment" : "subscription";
     const price = getPriceId(plan);
-    const successParams = new URLSearchParams({
-      billing: "success",
-      plan,
-    });
+    const successParams = new URLSearchParams({ billing: "success", plan });
     if (selectedPortfolioId) {
       successParams.set("portfolioId", selectedPortfolioId);
     }
@@ -175,10 +171,33 @@ export async function POST(request: NextRequest) {
       cancelParams.set("portfolioId", selectedPortfolioId);
     }
 
+    let discounts: Stripe.Checkout.SessionCreateParams.Discount[] | undefined;
+    if (isStudioUpgradeFromPro) {
+      const configuredCouponId = process.env.STRIPE_COUPON_UPGRADE_PRO_TO_STUDIO;
+      if (configuredCouponId) {
+        discounts = [{ coupon: configuredCouponId }];
+      } else {
+        const coupon = await stripe.coupons.create({
+          amount_off: PRO_PRICE_CENTS,
+          currency: "eur",
+          duration: "once",
+          name: "Upgrade Pro a Studio",
+          metadata: {
+            userId: user.id,
+            plan: "studio",
+            upgradeFrom: "premium",
+          },
+        });
+        discounts = [{ coupon: coupon.id }];
+      }
+    }
+
+    const successUrl = `${appUrl}/dashboard?${successParams.toString()}&session_id={CHECKOUT_SESSION_ID}`;
+
     const session = await stripe.checkout.sessions.create({
       mode,
       line_items: [{ price, quantity: 1 }],
-      success_url: `${appUrl}/dashboard?${successParams.toString()}`,
+      success_url: successUrl,
       cancel_url: `${appUrl}/dashboard?${cancelParams.toString()}`,
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
@@ -191,24 +210,28 @@ export async function POST(request: NextRequest) {
       subscription_data:
         plan === "studio"
           ? {
-            metadata: {
-              userId: user.id,
-              plan,
-              username,
-              portfolioId: selectedPortfolioId ?? "",
-            },
-          }
+              metadata: {
+                userId: user.id,
+                plan,
+                username,
+                portfolioId: selectedPortfolioId ?? "",
+              },
+            }
           : undefined,
-      allow_promotion_codes: true,
+      allow_promotion_codes: !isStudioUpgradeFromPro,
+      discounts,
     });
 
     return NextResponse.json({ checkoutUrl: session.url });
   } catch (error) {
     console.error("[billing/checkout] error:", error);
+    const errorMessage =
+      error instanceof Error
+        ? error.message
+        : "No se pudo crear el checkout. Revisa Stripe y las variables de entorno.";
     return NextResponse.json(
       {
-        error:
-          "No se pudo crear el checkout. Revisa Stripe y las variables de entorno.",
+        error: errorMessage,
       },
       { status: 500 }
     );

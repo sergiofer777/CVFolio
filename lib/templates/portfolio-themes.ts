@@ -29,10 +29,10 @@ export const PORTFOLIO_THEME_OPTIONS: PortfolioThemeOption[] = [
   },
   {
     id: "bold",
-    name: "Template 3 Creative",
-    tagline: "Modo Awwwards",
+    name: "Template Maria",
+    tagline: "Medical Premium",
     description:
-      "Generacion avanzada con prompt creativo dedicado, enfocada en impacto visual premium.",
+      "Plantilla visual premium basada en maria.html, con bloques inmersivos y look high-end.",
     accentClass: "bg-gradient-to-r from-orange-600 to-amber-500",
   },
 ];

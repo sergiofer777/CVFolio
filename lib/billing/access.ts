@@ -59,12 +59,28 @@ const PLAN_LIMITS: Record<ProfilePlan, PlanLimits> = {
   },
 };
 
-export function resolvePlan(plan: ProfilePlan | null | undefined): ProfilePlan {
-  if (plan === "premium" || plan === "studio") return plan;
+export function resolvePlan(
+  plan: ProfilePlan | string | null | undefined
+): ProfilePlan {
+  if (!plan) return "free";
+  const normalized = String(plan).trim().toLowerCase();
+
+  if (normalized === "studio") return "studio";
+  if (
+    normalized === "premium" ||
+    normalized === "pro" ||
+    normalized === "publish" ||
+    normalized === "paid"
+  ) {
+    return "premium";
+  }
+
   return "free";
 }
 
-export function isPaidPlan(plan: ProfilePlan | null | undefined): boolean {
+export function isPaidPlan(
+  plan: ProfilePlan | string | null | undefined
+): boolean {
   const resolvedPlan = resolvePlan(plan);
   return resolvedPlan === "premium" || resolvedPlan === "studio";
 }
