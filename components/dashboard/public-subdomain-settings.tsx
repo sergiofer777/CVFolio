@@ -25,6 +25,7 @@ export function PublicSubdomainSettings({
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const MAX_SLUG_LENGTH = 25;
 
   const saveSlug = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -68,21 +69,31 @@ export function PublicSubdomainSettings({
       <p className="text-xs uppercase tracking-[0.1em] text-[var(--rust)] font-medium mb-2">
         Subdominio público
       </p>
-      <p className="text-sm text-[var(--muted-color)] mb-4">
-        URL actual: <code>{publicUrl}</code>
-      </p>
+      <div className="mb-4">
+        <p className="text-sm text-[var(--muted-color)] mb-2">URL actual:</p>
+        <a
+          href={publicUrl}
+          target="_blank"
+          rel="noreferrer"
+          className="block rounded-lg border border-[rgba(10,125,70,0.18)] bg-[rgba(10,125,70,0.06)] px-3 py-2.5 text-sm text-[rgb(10,125,70)] no-underline break-all hover:border-[rgba(10,125,70,0.28)]"
+        >
+          <code className="break-all">{publicUrl}</code>
+        </a>
+      </div>
 
-      <div className="flex flex-col sm:flex-row gap-2.5">
+      <div className="flex flex-col lg:flex-row gap-2.5">
         <div className="relative flex-1">
           <Globe2 className="w-4 h-4 text-[var(--muted-color)] absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={slug}
-            onChange={(event) => setSlug(event.target.value.toLowerCase())}
+            onChange={(event) =>
+              setSlug(event.target.value.toLowerCase().slice(0, MAX_SLUG_LENGTH))
+            }
             placeholder="tu-subdominio"
             required
             minLength={3}
-            maxLength={32}
+            maxLength={MAX_SLUG_LENGTH}
             pattern="[a-z0-9-]+"
             className="w-full h-11 rounded border border-[var(--sand)] bg-white pl-9 pr-3 text-sm text-[var(--ink)] outline-none focus:border-[var(--ink)]"
           />
@@ -90,12 +101,16 @@ export function PublicSubdomainSettings({
         <button
           type="submit"
           disabled={isSaving}
-          className="h-11 px-4 rounded bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--rust)] transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+          className="h-11 px-4 rounded bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--rust)] transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 sm:w-auto w-full"
         >
           {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
           Guardar subdominio
         </button>
       </div>
+
+      <p className="mt-2 text-[0.72rem] text-[var(--muted-color)]">
+        Máximo {MAX_SLUG_LENGTH} caracteres.
+      </p>
 
       {message && <p className="mt-3 text-xs text-[rgb(10,125,70)]">{message}</p>}
       {error && <p className="mt-3 text-xs text-[var(--rust)]">{error}</p>}
