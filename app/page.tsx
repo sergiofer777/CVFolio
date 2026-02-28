@@ -201,6 +201,12 @@ export default function LandingPage() {
             Precios
           </a>
           <Link
+            href="/ayuda"
+            className="inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
+          >
+            Ayuda
+          </Link>
+          <Link
             href="/signup"
             className="bg-[var(--ink)] text-[var(--paper)] px-5 py-2.5 rounded text-sm font-medium hover:bg-[var(--rust)] hover:text-white transition-colors no-underline"
           >

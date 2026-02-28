@@ -15,6 +15,7 @@ import {
   Lock,
   Clock3,
   Download,
+  CircleHelp,
 } from "lucide-react";
 import type { CVData, PortfolioTheme } from "@/types/cv-data";
 import {
@@ -249,6 +250,14 @@ export default async function DashboardPage({
                 className="inline-flex shrink-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-xs sm:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all"
               />
             )}
+
+            <Link
+              href="/ayuda"
+              className="inline-flex shrink-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-xs sm:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
+            >
+              <CircleHelp className="w-3.5 h-3.5" />
+              Ayuda
+            </Link>
 
             <Link
               href="/upload"
