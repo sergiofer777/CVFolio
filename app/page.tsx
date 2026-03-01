@@ -202,8 +202,8 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const counter1 = useCounter(4820, "");
-  const counter2 = useCounter(12, "s", 800);
+  const counter1 = useCounter(267, "");
+  const counter2 = useCounter(60, "s", 800);
   const counter3 = useCounter(98, "%");
   const templatePreviewCopy = isEn ? TEMPLATE_PREVIEW_COPY_EN : TEMPLATE_PREVIEW_COPY_ES;
   const freeFeatures = isEn ? FREE_FEATURES_EN : FREE_FEATURES_ES;
@@ -216,19 +216,19 @@ export default function LandingPage() {
 
       {/* ─── NAV ─── */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-6 md:px-12 py-5 transition-all duration-500 ${
+        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 py-3 sm:px-6 md:px-12 md:py-5 transition-all duration-500 bg-[rgba(245,242,235,0.96)] backdrop-blur-xl border-b border-[var(--sand)] ${
           navScrolled
-            ? "bg-[rgba(245,242,235,0.85)] backdrop-blur-xl border-b border-[var(--sand)]"
-            : "bg-transparent"
+            ? "md:bg-[rgba(245,242,235,0.85)] md:backdrop-blur-xl md:border-b md:border-[var(--sand)]"
+            : "md:bg-transparent md:backdrop-blur-0 md:border-b md:border-transparent"
         }`}
       >
         <Link
           href="/"
-          className="font-display text-2xl font-semibold text-[var(--ink)] tracking-tight no-underline"
+          className="shrink-0 font-display text-[1.7rem] font-semibold leading-none text-[var(--ink)] tracking-tight no-underline sm:text-2xl"
         >
           web<span className="text-[var(--rust)]">iculum</span>
         </Link>
-        <div className="flex items-center gap-6 md:gap-9">
+        <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3 md:gap-6">
           <a
             href="#how"
             className="hidden md:inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
@@ -249,22 +249,26 @@ export default function LandingPage() {
           </a>
           <Link
             href="/ayuda"
-            className="inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
+            className="hidden md:inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
           >
             {isEn ? "Help" : "Ayuda"}
           </Link>
-          <LocaleToggle locale={locale} />
+          <LocaleToggle
+            locale={locale}
+            className="inline-flex shrink-0 items-center rounded-2xl border border-[var(--sand)] bg-white p-0.5 sm:p-1"
+          />
           <Link
             href="/signup"
-            className="bg-[var(--ink)] text-[var(--paper)] px-5 py-2.5 rounded text-sm font-medium hover:bg-[var(--rust)] hover:text-white transition-colors no-underline"
+            className="inline-flex shrink-0 items-center rounded-xl bg-[var(--ink)] px-3 py-2 text-xs font-medium text-[var(--paper)] transition-colors hover:bg-[var(--rust)] hover:text-white no-underline sm:rounded sm:px-5 sm:py-2.5 sm:text-sm"
           >
-            {isEn ? "Start free" : "Empezar gratis"}
+            <span className="sm:hidden">{isEn ? "Start" : "Empieza"}</span>
+            <span className="hidden sm:inline">{isEn ? "Start free" : "Empezar gratis"}</span>
           </Link>
         </div>
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 md:px-12 pt-28 pb-20 relative overflow-hidden text-center">
+      <section className="min-h-screen flex flex-col items-center justify-center px-6 md:px-12 pt-40 sm:pt-36 md:pt-28 pb-20 relative overflow-hidden text-center">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(192,68,10,0.07)_0%,transparent_70%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_60%_at_10%_80%,rgba(192,68,10,0.04)_0%,transparent_60%)]" />
@@ -278,25 +282,19 @@ export default function LandingPage() {
           </div>
 
           <h1 className="font-display text-[clamp(3rem,5.5vw,5.5rem)] font-light leading-[1.05] tracking-tight text-[var(--ink)] mb-7 animate-fade-up delay-1">
-            {isEn ? "From CV" : "De currículum"}
+            {isEn ? "Turn your CV into a" : "Convierte tu CV en una"}
             <span className="block">
-              {isEn ? (
-                <>
-                  to <em className="italic text-[var(--rust)]">portfolio</em>
-                </>
-              ) : (
-                <>
-                  a <em className="italic text-[var(--rust)]">portafolio</em>
-                </>
-              )}
+              <em className="italic text-[var(--rust)]">
+                {isEn ? "professional website." : "web profesional."}
+              </em>
             </span>
-            <span className="block">{isEn ? "in seconds." : "en segundos."}</span>
+            <span className="block">{isEn ? "In seconds." : "En segundos."}</span>
           </h1>
 
           <p className="text-[1.05rem] leading-[1.7] text-[var(--muted-color)] max-w-[480px] mx-auto mb-11 font-light animate-fade-up delay-2">
             {isEn
-              ? "Drop your PDF. AI extracts, structures and designs your professional personal page — ready to share in seconds."
-              : "Arrastra tu PDF. La IA extrae, estructura y diseña tu página personal profesional — lista para compartir en segundos."}
+              ? "Drop your PDF. AI extracts, structures and designs your professional website — ready to share in seconds."
+              : "Arrastra tu PDF. La IA extrae, estructura y diseña tu web profesional — lista para compartir en segundos."}
           </p>
 
           <div className="flex items-center justify-center gap-5 flex-wrap animate-fade-up delay-3">
@@ -590,10 +588,10 @@ export default function LandingPage() {
               {isEn ? "Pro plan" : "Plan Pro"}
             </div>
             <div className="font-display text-[3rem] font-light tracking-tighter leading-none mb-1.5 text-[var(--paper)]">
-              €9,99
+              9,99 €
             </div>
             <div className="text-[0.82rem] text-[var(--sand)] font-light mb-8">
-              {isEn ? "one-time / site" : "pago único / web"}
+              {isEn ? "per year" : "al año"}
             </div>
             <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
               {proFeatures.map((f) => (
@@ -620,10 +618,10 @@ export default function LandingPage() {
               {isEn ? "Studio plan" : "Plan Studio"}
             </div>
             <div className="font-display text-[3rem] font-light tracking-tighter leading-none mb-1.5 text-[var(--ink)]">
-              €25
+              24,99 €
             </div>
             <div className="text-[0.82rem] text-[var(--muted-color)] font-light mb-8">
-              {isEn ? "/ year" : "/ año"}
+              {isEn ? "per year" : "al año"}
             </div>
             <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
               {studioFeatures.map((f) => (
@@ -652,9 +650,12 @@ export default function LandingPage() {
         <h2 className="font-display text-[clamp(2.5rem,4.5vw,4.5rem)] font-light tracking-tighter text-[var(--ink)] leading-[1.1] mb-5 max-w-[700px] mx-auto">
           {isEn ? "Could your next role" : "¿Tu próximo empleo"}
           <br />
-          {isEn ? "start with a" : "empieza con un"}
+          {isEn ? "start with a" : "empieza con una"}
           <br />
-          <em className="italic text-[var(--rust)]">{isEn ? "strong portfolio" : "buen portafolio"}</em>?
+          <em className="italic text-[var(--rust)]">
+            {isEn ? "professional website" : "web profesional"}
+          </em>
+          ?
         </h2>
         <p className="text-base text-[var(--muted-color)] mb-11 font-light">
           {isEn
@@ -666,7 +667,7 @@ export default function LandingPage() {
           className="inline-flex items-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] px-10 py-[18px] rounded text-base font-medium hover:bg-[var(--rust)] hover:-translate-y-0.5 transition-all no-underline"
         >
           <UploadCloudIcon className="w-5 h-5" />
-          {isEn ? "Create my portfolio — It’s free" : "Crear mi portafolio — Es gratis"}
+          {isEn ? "Create my website — It’s free" : "Crear mi web profesional — Es gratis"}
         </Link>
       </section>
 

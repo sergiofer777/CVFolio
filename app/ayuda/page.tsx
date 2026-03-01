@@ -31,7 +31,7 @@ const HELP_FAQS = [
   {
     question: "¿Puedo editar la web después de generarla?",
     answer:
-      "Sí. Desde el dashboard puedes seleccionar tu portfolio, cambiar plantilla, ajustar el subdominio y, en planes compatibles, iterar cambios mediante el chat.",
+      "Sí, pero no con el plan gratuito. Solo con Studio puedes iterar cambios usando el chat de IA desde el dashboard, y solo con un plan de pago (Pro o Studio) puedes personalizar el subdominio vinculado a tu web dentro de Webiculum.",
   },
   {
     question: "¿Qué diferencia hay entre la vista previa y la publicación?",
@@ -74,7 +74,7 @@ const HELP_FAQS_EN = [
   {
     question: "Can I edit the site after it is generated?",
     answer:
-      "Yes. From the dashboard you can select your portfolio, change template, adjust the subdomain and, on compatible plans, refine it through chat iterations.",
+      "Yes, but not on the free plan. Only Studio lets you refine the site through the AI chat from the dashboard, and only a paid plan (Pro or Studio) lets you customize the subdomain linked to your site inside Webiculum.",
   },
   {
     question: "What is the difference between preview and publishing?",
