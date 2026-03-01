@@ -7,21 +7,28 @@ import { ProjectsSection } from "./sections/projects-section";
 import { CertificationsSection } from "./sections/certifications-section";
 import { cn } from "@/lib/utils";
 import { buildRenderableGeneratedHtml } from "@/lib/portfolio/generated-html";
+import type { Locale } from "@/lib/locale";
 
 interface PortfolioRendererProps {
   cvData: CVData;
   showBranding?: boolean;
   interactiveGeneratedLanding?: boolean;
+  locale?: Locale;
 }
 
 export function PortfolioRenderer({
   cvData,
   showBranding = true,
   interactiveGeneratedLanding = true,
+  locale = "es",
 }: PortfolioRendererProps) {
+  const isEn = locale === "en";
   const generatedHtml = buildRenderableGeneratedHtml(cvData);
 
   if (generatedHtml) {
+    const previewHintText = isEn
+      ? "Links are blocked in this preview. Use 'Full view' to navigate."
+      : "En esta vista previa los enlaces están bloqueados. Usa 'Vista completa' para navegar.";
     const previewGuardScript = `<script data-webiculum-preview-guard>(function(){
   var handled = false;
   if (window.__webiculumPreviewGuardApplied) return;
@@ -37,7 +44,7 @@ export function PortfolioRenderer({
     if (!handled) {
       handled = true;
       var hint = document.createElement("div");
-      hint.textContent = "En esta vista previa los enlaces estan bloqueados. Usa 'Vista completa' para navegar.";
+      hint.textContent = ${JSON.stringify(previewHintText)};
       hint.style.cssText = "position:fixed;bottom:16px;left:16px;right:16px;max-width:640px;background:rgba(9,9,11,0.9);color:#fff;padding:10px 12px;border-radius:10px;font:500 12px/1.4 system-ui;z-index:2147483647;";
       document.body.appendChild(hint);
       setTimeout(function(){ hint.remove(); }, 2200);
@@ -62,7 +69,11 @@ export function PortfolioRenderer({
     return (
       <div className="relative min-h-screen bg-black">
         <iframe
-          title={`Landing generada de ${cvData.personal.name}`}
+          title={
+            isEn
+              ? `Generated landing for ${cvData.personal.name}`
+              : `Landing generada de ${cvData.personal.name}`
+          }
           srcDoc={
             interactiveGeneratedLanding ? generatedHtml : guardedPreviewHtml
           }
@@ -75,7 +86,7 @@ export function PortfolioRenderer({
 
         {!interactiveGeneratedLanding && (
           <div className="absolute top-3 right-3 rounded bg-black/70 text-white text-xs px-2.5 py-1.5 pointer-events-none">
-            Vista previa no interactiva
+            {isEn ? "Non-interactive preview" : "Vista previa no interactiva"}
           </div>
         )}
       </div>
@@ -114,7 +125,7 @@ export function PortfolioRenderer({
             rel="noopener noreferrer"
             className="inline-flex items-center gap-1.5 text-xs text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors no-underline"
           >
-            Creado con{" "}
+            {isEn ? "Built with" : "Creado con"}{" "}
             <span className="font-display font-semibold">
               web<span className="text-[var(--rust)]">iculum</span>
             </span>

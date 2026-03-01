@@ -3,6 +3,8 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { LocaleToggle } from "@/components/locale-toggle";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 type CheckoutPlan = "publish" | "studio";
 
@@ -12,6 +14,8 @@ interface CheckoutRedirectProps {
 }
 
 export function CheckoutRedirect({ plan, portfolioId }: CheckoutRedirectProps) {
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const startedRef = useRef(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,7 +42,7 @@ export function CheckoutRedirect({ plan, portfolioId }: CheckoutRedirectProps) {
           error?: string;
         };
         if (!response.ok || !data.checkoutUrl) {
-          throw new Error(data.error ?? "No se pudo abrir el checkout.");
+          throw new Error(data.error ?? (isEn ? "Could not open checkout." : "No se pudo abrir el checkout."));
         }
 
         const isLocalHost =
@@ -54,40 +58,45 @@ export function CheckoutRedirect({ plan, portfolioId }: CheckoutRedirectProps) {
         setError(
           checkoutError instanceof Error
             ? checkoutError.message
-            : "No se pudo iniciar el checkout."
+            : isEn
+              ? "Could not start checkout."
+              : "No se pudo iniciar el checkout."
         );
       }
     };
 
     void startCheckout();
-  }, [plan, portfolioId]);
+  }, [isEn, plan, portfolioId]);
 
   return (
     <main className="min-h-screen bg-[var(--paper)] flex items-center justify-center px-6">
       <div className="w-full max-w-lg rounded-xl border border-[var(--sand)] bg-white p-6 text-center">
+        <div className="mb-4 flex justify-end">
+          <LocaleToggle locale={locale} />
+        </div>
         {!error ? (
           <>
             <div className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-[var(--cream)]">
               <Loader2 className="w-5 h-5 text-[var(--rust)] animate-spin" />
             </div>
             <h1 className="mt-4 font-display text-[1.5rem] text-[var(--ink)] tracking-tight">
-              Iniciando pago
+              {isEn ? "Starting payment" : "Iniciando pago"}
             </h1>
             <p className="mt-2 text-sm text-[var(--muted-color)]">
-              Te estamos redirigiendo a la pantalla de pago.
+              {isEn ? "We are redirecting you to the payment screen." : "Te estamos redirigiendo a la pantalla de pago."}
             </p>
           </>
         ) : (
           <>
             <h1 className="font-display text-[1.5rem] text-[var(--ink)] tracking-tight">
-              No se pudo iniciar el pago
+              {isEn ? "Could not start payment" : "No se pudo iniciar el pago"}
             </h1>
             <p className="mt-2 text-sm text-[var(--rust)]">{error}</p>
             <Link
               href="/dashboard/billing"
               className="mt-5 inline-flex items-center justify-center px-4 py-2 rounded bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--rust)] transition-colors no-underline"
             >
-              Volver a planes
+              {isEn ? "Back to plans" : "Volver a planes"}
             </Link>
           </>
         )}

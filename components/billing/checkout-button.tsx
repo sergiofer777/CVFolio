@@ -2,6 +2,7 @@
 
 import { type ReactNode, useState } from "react";
 import { Loader2 } from "lucide-react";
+import { useClientLocale } from "@/hooks/use-client-locale";
 import { cn } from "@/lib/utils";
 
 type CheckoutPlan = "publish" | "studio";
@@ -19,6 +20,8 @@ export function CheckoutButton({
   className,
   children,
 }: CheckoutButtonProps) {
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -44,7 +47,9 @@ export function CheckoutButton({
         error?: string;
       };
       if (!res.ok || !data.checkoutUrl) {
-        throw new Error(data.error ?? "No se pudo abrir el pago.");
+        throw new Error(
+          data.error ?? (isEn ? "Could not open checkout." : "No se pudo abrir el pago.")
+        );
       }
 
       const isLocalHost =
@@ -57,7 +62,13 @@ export function CheckoutButton({
 
       window.location.href = data.checkoutUrl;
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Error al iniciar checkout.");
+      setError(
+        err instanceof Error
+          ? err.message
+          : isEn
+            ? "Could not start checkout."
+            : "Error al iniciar checkout."
+      );
     } finally {
       setIsLoading(false);
     }

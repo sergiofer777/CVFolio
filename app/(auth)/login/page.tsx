@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { LocaleToggle } from "@/components/locale-toggle";
 import { createClient } from "@/lib/supabase/client";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 function GoogleIcon() {
   return (
@@ -17,6 +19,8 @@ function GoogleIcon() {
 }
 
 export default function LoginPage() {
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -40,7 +44,11 @@ export default function LoginPage() {
       },
     });
     if (authError) {
-      setError("Error al conectar con Google. Inténtalo de nuevo.");
+      setError(
+        isEn
+          ? "Could not connect to Google. Please try again."
+          : "Error al conectar con Google. Inténtalo de nuevo."
+      );
       setLoading(false);
     }
   };
@@ -48,6 +56,9 @@ export default function LoginPage() {
   return (
     <div className="min-h-screen bg-[var(--paper)] flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
+        <div className="flex justify-end">
+          <LocaleToggle locale={locale} />
+        </div>
         {/* Logo */}
         <div className="text-center">
           <Link
@@ -57,10 +68,10 @@ export default function LoginPage() {
             web<span className="text-[var(--rust)]">iculum</span>
           </Link>
           <h1 className="font-display text-[2rem] font-light tracking-tight text-[var(--ink)]">
-            Bienvenido de nuevo
+            {isEn ? "Welcome back" : "Bienvenido de nuevo"}
           </h1>
           <p className="text-[var(--muted-color)] text-sm mt-2 font-light">
-            Inicia sesión con tu cuenta de Google
+            {isEn ? "Sign in with your Google account" : "Inicia sesión con tu cuenta de Google"}
           </p>
         </div>
 
@@ -77,13 +88,13 @@ export default function LoginPage() {
           className="w-full flex items-center justify-center gap-3 py-3.5 rounded bg-white border border-[var(--sand)] text-[var(--ink)] text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all disabled:opacity-50 shadow-sm"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
-          {loading ? "Redirigiendo..." : "Continuar con Google"}
+          {loading ? (isEn ? "Redirecting..." : "Redirigiendo...") : isEn ? "Continue with Google" : "Continuar con Google"}
         </button>
 
         <p className="text-center text-sm text-[var(--muted-color)]">
-          ¿No tienes cuenta?{" "}
+          {isEn ? "Don’t have an account?" : "¿No tienes cuenta?"}{" "}
           <Link href="/signup" className="text-[var(--rust)] font-medium hover:underline no-underline">
-            Regístrate gratis
+            {isEn ? "Sign up free" : "Regístrate gratis"}
           </Link>
         </p>
       </div>

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Link2, Loader2 } from "lucide-react";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 interface LinkSubdomainButtonProps {
   canAccessPublic: boolean;
@@ -27,6 +28,8 @@ export function LinkSubdomainButton({
   className,
 }: LinkSubdomainButtonProps) {
   const router = useRouter();
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -50,17 +53,23 @@ export function LinkSubdomainButton({
       const data = (await response.json()) as PublishResponse;
 
       if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo enlazar el subdominio.");
+        throw new Error(data.error ?? (isEn ? "Could not link the subdomain." : "No se pudo enlazar el subdominio."));
       }
 
       const linkedUrl = data.subdomainUrl ?? data.publicUrl ?? publicUrl;
-      setMessage(`Subdominio enlazado al portfolio seleccionado: ${linkedUrl}`);
+      setMessage(
+        isEn
+          ? `Subdomain linked to the selected portfolio: ${linkedUrl}`
+          : `Subdominio enlazado al portfolio seleccionado: ${linkedUrl}`
+      );
       router.refresh();
     } catch (linkError) {
       setError(
         linkError instanceof Error
           ? linkError.message
-          : "No se pudo enlazar el subdominio."
+          : isEn
+            ? "Could not link the subdomain."
+            : "No se pudo enlazar el subdominio."
       );
     } finally {
       setIsLoading(false);
@@ -70,10 +79,12 @@ export function LinkSubdomainButton({
   return (
     <div className="border border-[var(--sand)] rounded-xl bg-white px-4 py-4 md:px-5 md:py-5">
       <p className="text-xs uppercase tracking-[0.1em] text-[var(--rust)] font-medium mb-2">
-        Publicación en subdominio
+        {isEn ? "Subdomain publishing" : "Publicación en subdominio"}
       </p>
       <p className="text-sm text-[var(--muted-color)] mb-4">
-        Aplica el portfolio seleccionado a tu subdominio personalizado.
+        {isEn
+          ? "Apply the selected portfolio to your custom subdomain."
+          : "Aplica el portfolio seleccionado a tu subdominio personalizado."}
       </p>
 
       <button
@@ -90,7 +101,13 @@ export function LinkSubdomainButton({
         ) : (
           <Link2 className="w-4 h-4" />
         )}
-        {canAccessPublic ? "Enlazar al subdominio" : "Activar plan para enlazar"}
+        {canAccessPublic
+          ? isEn
+            ? "Link to subdomain"
+            : "Enlazar al subdominio"
+          : isEn
+            ? "Activate plan to link"
+            : "Activar plan para enlazar"}
       </button>
 
       {message && <p className="mt-3 text-xs text-[rgb(10,125,70)]">{message}</p>}

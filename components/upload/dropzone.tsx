@@ -4,6 +4,7 @@ import { useCallback, useState, useRef, useEffect } from "react";
 import { useDropzone } from "react-dropzone";
 import { Upload, FileText, ImageIcon, X, CheckCircle2, ExternalLink } from "lucide-react";
 import { cn, formatFileSize } from "@/lib/utils";
+import { useClientLocale } from "@/hooks/use-client-locale";
 import { MinigameCanvas } from "./minigame-canvas";
 import type { PortfolioTheme } from "@/types/cv-data";
 
@@ -21,13 +22,6 @@ interface FilePreview {
   preview: string;
 }
 
-const STEP_LABELS = [
-  "Subiendo archivo a la nube",
-  "Extrayendo texto con IA",
-  "Estructurando información",
-  "Generando portafolio",
-];
-
 const TOTAL_DURATION = 20_000; // 20 seconds
 
 export function Dropzone({
@@ -35,6 +29,8 @@ export function Dropzone({
   onError,
   selectedTemplate,
 }: DropzoneProps) {
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [status, setStatus] = useState<UploadStatus>("idle");
   const [filePreview, setFilePreview] = useState<FilePreview | null>(null);
   const [progress, setProgress] = useState(0);
@@ -42,6 +38,19 @@ export function Dropzone({
   const [showMinigame, setShowMinigame] = useState(false);
   const [viewMode, setViewMode] = useState<ViewMode>("upload");
   const [portfolioId, setPortfolioId] = useState<string | null>(null);
+  const stepLabels = isEn
+    ? [
+        "Uploading file to the cloud",
+        "Extracting text with AI",
+        "Structuring information",
+        "Generating portfolio",
+      ]
+    : [
+        "Subiendo archivo a la nube",
+        "Extrayendo texto con IA",
+        "Estructurando información",
+        "Generando portafolio",
+      ];
 
   // Refs for timers so we can clean them up
   const timerRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -119,7 +128,7 @@ export function Dropzone({
         const result = await response.json();
 
         if (!response.ok || !result.success) {
-          throw new Error(result.error ?? "Error desconocido");
+          throw new Error(result.error ?? (isEn ? "Unknown error" : "Error desconocido"));
         }
 
         // Mark API as done
@@ -136,10 +145,16 @@ export function Dropzone({
         if (timerRef.current) clearInterval(timerRef.current);
         setShowMinigame(false);
         setStatus("error");
-        onError(err instanceof Error ? err.message : "Error al procesar el archivo");
+        onError(
+          err instanceof Error
+            ? err.message
+            : isEn
+              ? "There was an error processing the file."
+              : "Error al procesar el archivo"
+        );
       }
     },
-    [onError, startProgressTimer, finishUpload, selectedTemplate]
+    [finishUpload, isEn, onError, selectedTemplate, startProgressTimer]
   );
 
   const onDrop = useCallback(
@@ -251,7 +266,7 @@ export function Dropzone({
               </div>
 
               <div className="flex flex-col gap-3 mb-4">
-                {STEP_LABELS.map((label, i) => {
+                {stepLabels.map((label, i) => {
                   const isDone = i < activeStep;
                   const isActive = i === activeStep;
                   return (
@@ -290,7 +305,7 @@ export function Dropzone({
               {showMinigame && (
                 <div className="pt-4 border-t border-[var(--sand)]">
                   <p className="text-[0.72rem] tracking-[0.08em] uppercase text-[var(--muted-color)] font-medium mb-3 text-center">
-                    Mientras esperas...
+                    {isEn ? "While you wait..." : "Mientras esperas..."}
                   </p>
                   <div className="max-w-4xl mx-auto">
                     <MinigameCanvas />
@@ -306,7 +321,7 @@ export function Dropzone({
               <div className="flex items-center gap-2 text-sm text-[var(--rust)]">
                 <CheckCircle2 className="w-4 h-4" />
                 <span className="font-medium">
-                  ¡Portafolio generado con éxito!
+                  {isEn ? "Portfolio generated successfully!" : "¡Portafolio generado con éxito!"}
                 </span>
               </div>
 
@@ -315,14 +330,14 @@ export function Dropzone({
                 className="w-full flex items-center justify-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] py-3.5 rounded-lg hover:bg-[var(--rust)] transition-all hover:-translate-y-0.5 font-medium text-[0.9rem]"
               >
                 <ExternalLink className="w-4 h-4" />
-                Ver portafolio
+                {isEn ? "View portfolio" : "Ver portafolio"}
               </button>
 
               <button
                 onClick={handleKeepPlaying}
                 className="w-full flex items-center justify-center gap-2 bg-transparent text-[var(--muted-color)] py-3 rounded-lg border border-[var(--sand)] hover:border-[var(--ink)] hover:text-[var(--ink)] hover:bg-[var(--cream)] transition-all text-[0.85rem] font-medium"
               >
-                Seguir jugando 🎮
+                {isEn ? "Keep playing 🎮" : "Seguir jugando 🎮"}
               </button>
             </div>
           )}
@@ -331,13 +346,13 @@ export function Dropzone({
           {status === "error" && (
             <div className="space-y-3">
               <p className="text-sm text-[var(--rust)]">
-                Hubo un error al procesar el archivo.
+                {isEn ? "There was an error processing the file." : "Hubo un error al procesar el archivo."}
               </p>
               <button
                 onClick={reset}
                 className="px-4 py-2 rounded bg-[var(--paper)] text-[var(--ink)] border border-[var(--sand)] text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all"
               >
-                Intentar de nuevo
+                {isEn ? "Try again" : "Intentar de nuevo"}
               </button>
             </div>
           )}
@@ -388,21 +403,21 @@ export function Dropzone({
         <div className="space-y-1.5">
           {isDragReject ? (
             <p className="font-display font-medium text-red-500">
-              Formato no soportado
+              {isEn ? "Unsupported format" : "Formato no soportado"}
             </p>
           ) : isDragActive ? (
             <p className="font-display font-medium text-[var(--rust)]">
-              Suelta el archivo aquí
+              {isEn ? "Drop the file here" : "Suelta el archivo aquí"}
             </p>
           ) : (
             <>
               <p className="font-display text-lg text-[var(--ink)] tracking-tight">
-                Arrastra tu CV aquí
+                {isEn ? "Drop your CV here" : "Arrastra tu CV aquí"}
               </p>
               <p className="text-[0.82rem] text-[var(--muted-color)]">
-                o{" "}
+                {isEn ? "or " : "o "}
                 <span className="text-[var(--rust)] font-medium underline underline-offset-2">
-                  haz clic para seleccionar
+                  {isEn ? "click to select" : "haz clic para seleccionar"}
                 </span>
               </p>
             </>

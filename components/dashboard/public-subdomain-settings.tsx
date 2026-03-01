@@ -3,6 +3,7 @@
 import { useState, type FormEvent } from "react";
 import { Globe2, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 interface PublicSubdomainSettingsProps {
   currentSlug: string;
@@ -21,6 +22,8 @@ export function PublicSubdomainSettings({
   publicUrl,
 }: PublicSubdomainSettingsProps) {
   const router = useRouter();
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [slug, setSlug] = useState(currentSlug);
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -42,11 +45,11 @@ export function PublicSubdomainSettings({
       const data = (await response.json()) as SlugResponse;
 
       if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo guardar el subdominio.");
+        throw new Error(data.error ?? (isEn ? "Could not save the subdomain." : "No se pudo guardar el subdominio."));
       }
 
       const nextUrl = data.publicUrl ?? publicUrl;
-      setMessage(`Subdominio actualizado: ${nextUrl}`);
+      setMessage(isEn ? `Subdomain updated: ${nextUrl}` : `Subdominio actualizado: ${nextUrl}`);
       if (data.slug) setSlug(data.slug);
 
       router.refresh();
@@ -54,7 +57,9 @@ export function PublicSubdomainSettings({
       setError(
         saveError instanceof Error
           ? saveError.message
-          : "No se pudo guardar el subdominio."
+          : isEn
+            ? "Could not save the subdomain."
+            : "No se pudo guardar el subdominio."
       );
     } finally {
       setIsSaving(false);
@@ -67,10 +72,12 @@ export function PublicSubdomainSettings({
       className="border border-[var(--sand)] rounded-xl bg-white px-4 py-4 md:px-5 md:py-5"
     >
       <p className="text-xs uppercase tracking-[0.1em] text-[var(--rust)] font-medium mb-2">
-        Subdominio público
+        {isEn ? "Public subdomain" : "Subdominio público"}
       </p>
       <div className="mb-4">
-        <p className="text-sm text-[var(--muted-color)] mb-2">URL actual:</p>
+        <p className="text-sm text-[var(--muted-color)] mb-2">
+          {isEn ? "Current URL:" : "URL actual:"}
+        </p>
         <a
           href={publicUrl}
           target="_blank"
@@ -90,7 +97,7 @@ export function PublicSubdomainSettings({
             onChange={(event) =>
               setSlug(event.target.value.toLowerCase().slice(0, MAX_SLUG_LENGTH))
             }
-            placeholder="tu-subdominio"
+            placeholder={isEn ? "your-subdomain" : "tu-subdominio"}
             required
             minLength={3}
             maxLength={MAX_SLUG_LENGTH}
@@ -104,12 +111,12 @@ export function PublicSubdomainSettings({
           className="h-11 px-4 rounded bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--rust)] transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2 sm:w-auto w-full"
         >
           {isSaving && <Loader2 className="w-4 h-4 animate-spin" />}
-          Guardar subdominio
+          {isEn ? "Save subdomain" : "Guardar subdominio"}
         </button>
       </div>
 
       <p className="mt-2 text-[0.72rem] text-[var(--muted-color)]">
-        Máximo {MAX_SLUG_LENGTH} caracteres.
+        {isEn ? `Maximum ${MAX_SLUG_LENGTH} characters.` : `Máximo ${MAX_SLUG_LENGTH} caracteres.`}
       </p>
 
       {message && <p className="mt-3 text-xs text-[rgb(10,125,70)]">{message}</p>}

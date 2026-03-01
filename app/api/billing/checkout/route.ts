@@ -6,6 +6,7 @@ import { isPaidPlan, resolvePlan, type ProfilePlan } from "@/lib/billing/access"
 import { activatePlanForUser } from "@/lib/billing/activation";
 import { isBillingMockPaymentsEnabled } from "@/lib/billing/config";
 import { PRO_PRICE_CENTS } from "@/lib/billing/pricing";
+import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
 export const runtime = "nodejs";
 
@@ -34,20 +35,28 @@ function getPriceId(plan: "publish" | "studio"): string {
 
 export async function POST(request: NextRequest) {
   try {
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json(
+        { error: isEn ? "Unauthorized" : "No autorizado" },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
     const parsed = checkoutSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Payload inválido", details: parsed.error.flatten() },
+        {
+          error: isEn ? "Invalid payload" : "Payload inválido",
+          details: parsed.error.flatten(),
+        },
         { status: 400 }
       );
     }
@@ -63,7 +72,11 @@ export async function POST(request: NextRequest) {
       .single();
     if (profileError) {
       return NextResponse.json(
-        { error: "No se pudo obtener tu perfil." },
+        {
+          error: isEn
+            ? "Your profile could not be loaded."
+            : "No se pudo obtener tu perfil.",
+        },
         { status: 500 }
       );
     }
@@ -84,7 +97,11 @@ export async function POST(request: NextRequest) {
 
     if (!username) {
       return NextResponse.json(
-        { error: "Tu usuario no tiene username público configurado." },
+        {
+          error: isEn
+            ? "Your account does not have a public username configured."
+            : "Tu usuario no tiene username público configurado.",
+        },
         { status: 400 }
       );
     }
@@ -111,7 +128,11 @@ export async function POST(request: NextRequest) {
         .maybeSingle();
       if (!selected) {
         return NextResponse.json(
-          { error: "El portfolio seleccionado no pertenece a tu cuenta." },
+          {
+            error: isEn
+              ? "The selected portfolio does not belong to your account."
+              : "El portfolio seleccionado no pertenece a tu cuenta.",
+          },
           { status: 404 }
         );
       }
@@ -181,7 +202,7 @@ export async function POST(request: NextRequest) {
           amount_off: PRO_PRICE_CENTS,
           currency: "eur",
           duration: "once",
-          name: "Upgrade Pro a Studio",
+          name: isEn ? "Upgrade Pro to Studio" : "Upgrade Pro a Studio",
           metadata: {
             userId: user.id,
             plan: "studio",
@@ -225,10 +246,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ checkoutUrl: session.url });
   } catch (error) {
     console.error("[billing/checkout] error:", error);
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     const errorMessage =
       error instanceof Error
         ? error.message
-        : "No se pudo crear el checkout. Revisa Stripe y las variables de entorno.";
+        : isEn
+          ? "The checkout session could not be created. Check Stripe and your environment variables."
+          : "No se pudo crear el checkout. Revisa Stripe y las variables de entorno.";
     return NextResponse.json(
       {
         error: errorMessage,

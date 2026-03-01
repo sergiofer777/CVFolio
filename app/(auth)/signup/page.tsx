@@ -3,7 +3,9 @@
 import { useState } from "react";
 import Link from "next/link";
 import { Loader2 } from "lucide-react";
+import { LocaleToggle } from "@/components/locale-toggle";
 import { createClient } from "@/lib/supabase/client";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 function GoogleIcon() {
   return (
@@ -17,6 +19,8 @@ function GoogleIcon() {
 }
 
 export default function SignupPage() {
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,7 +42,11 @@ export default function SignupPage() {
       },
     });
     if (authError) {
-      setError("Error al conectar con Google. Inténtalo de nuevo.");
+      setError(
+        isEn
+          ? "Could not connect to Google. Please try again."
+          : "Error al conectar con Google. Inténtalo de nuevo."
+      );
       setLoading(false);
     }
   };
@@ -46,6 +54,9 @@ export default function SignupPage() {
   return (
     <div className="min-h-screen bg-[var(--paper)] flex flex-col items-center justify-center px-4">
       <div className="w-full max-w-sm space-y-8">
+        <div className="flex justify-end">
+          <LocaleToggle locale={locale} />
+        </div>
         {/* Logo */}
         <div className="text-center">
           <Link
@@ -55,10 +66,12 @@ export default function SignupPage() {
             web<span className="text-[var(--rust)]">iculum</span>
           </Link>
           <h1 className="font-display text-[2rem] font-light tracking-tight text-[var(--ink)]">
-            Crea tu cuenta
+            {isEn ? "Create your account" : "Crea tu cuenta"}
           </h1>
           <p className="text-[var(--muted-color)] text-sm mt-2 font-light">
-            Empieza gratis con preview de 24h. Sin tarjeta de crédito.
+            {isEn
+              ? "Start free with a 24h preview. No credit card required."
+              : "Empieza gratis con preview de 24h. Sin tarjeta de crédito."}
           </p>
         </div>
 
@@ -75,20 +88,24 @@ export default function SignupPage() {
           className="w-full flex items-center justify-center gap-3 py-3.5 rounded bg-white border border-[var(--sand)] text-[var(--ink)] text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all disabled:opacity-50 shadow-sm"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <GoogleIcon />}
-          {loading ? "Redirigiendo..." : "Continuar con Google"}
+          {loading ? (isEn ? "Redirecting..." : "Redirigiendo...") : isEn ? "Continue with Google" : "Continuar con Google"}
         </button>
 
         <p className="text-center text-xs text-[var(--muted-color)] font-light leading-relaxed">
-          Al continuar aceptas nuestros{" "}
-          <a href="#" className="underline hover:text-[var(--ink)] transition-colors">Términos de uso</a>
-          {" "}y{" "}
-          <a href="#" className="underline hover:text-[var(--ink)] transition-colors">Política de privacidad</a>.
+          {isEn ? "By continuing you accept our " : "Al continuar aceptas nuestros "}
+          <a href="#" className="underline hover:text-[var(--ink)] transition-colors">
+            {isEn ? "Terms of use" : "Términos de uso"}
+          </a>
+          {isEn ? " and " : " y "}
+          <a href="#" className="underline hover:text-[var(--ink)] transition-colors">
+            {isEn ? "Privacy policy" : "Política de privacidad"}
+          </a>.
         </p>
 
         <p className="text-center text-sm text-[var(--muted-color)]">
-          ¿Ya tienes cuenta?{" "}
+          {isEn ? "Already have an account?" : "¿Ya tienes cuenta?"}{" "}
           <Link href="/login" className="text-[var(--rust)] font-medium hover:underline no-underline">
-            Inicia sesión
+            {isEn ? "Log in" : "Inicia sesión"}
           </Link>
         </p>
       </div>

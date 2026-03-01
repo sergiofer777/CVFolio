@@ -3,8 +3,10 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { LocaleToggle } from "@/components/locale-toggle";
 import { Dropzone } from "@/components/upload/dropzone";
 import { LogoutButton } from "@/components/auth/logout-button";
+import { useClientLocale } from "@/hooks/use-client-locale";
 import {
   DEFAULT_PORTFOLIO_THEME,
   PORTFOLIO_THEME_OPTIONS,
@@ -12,8 +14,25 @@ import {
 } from "@/lib/templates/portfolio-themes";
 import type { PortfolioTheme } from "@/types/cv-data";
 
+const TEMPLATE_TAGLINES_EN: Record<PortfolioTheme, string> = {
+  minimal: "Custom foundation",
+  modern: "Web3 & Growth",
+  bold: "Medical Premium",
+};
+
+const TEMPLATE_DESCRIPTIONS_EN: Record<PortfolioTheme, string> = {
+  minimal:
+    "Base template uploaded by Sergio with an editorial style and modular sections.",
+  modern:
+    "Immersive template based on index-ivan, designed for growth, fintech and blockchain profiles.",
+  bold:
+    "Premium visual template based on maria.html, with immersive blocks and a high-end look.",
+};
+
 export function UploadPageClient() {
   const router = useRouter();
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [error, setError] = useState<string | null>(null);
   const [selectedTemplate, setSelectedTemplate] =
     useState<PortfolioTheme>(DEFAULT_PORTFOLIO_THEME);
@@ -40,7 +59,10 @@ export function UploadPageClient() {
           >
             web<span className="text-[var(--rust)]">iculum</span>
           </Link>
-          <LogoutButton label="Salir" />
+          <div className="flex items-center gap-3">
+            <LocaleToggle locale={locale} />
+            <LogoutButton label={isEn ? "Log out" : "Salir"} />
+          </div>
         </div>
       </header>
 
@@ -50,27 +72,30 @@ export function UploadPageClient() {
             <div className="text-center lg:text-left space-y-4">
               <div className="flex items-center justify-center lg:justify-start gap-2 text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium">
                 <span className="w-6 h-[1.5px] bg-[var(--rust)]" />
-                Powered by Gemini 2.5 Pro
+                {isEn ? "AI-powered generation" : "Generación potenciada por IA"}
                 <span className="w-6 h-[1.5px] bg-[var(--rust)]" />
               </div>
               <h1 className="font-display text-[clamp(2.2rem,4vw,3.7rem)] font-light tracking-tight text-[var(--ink)] leading-[1.1]">
-                Sube tu CV,
+                {isEn ? "Upload your CV," : "Sube tu CV,"}
                 <br />
-                <em className="italic text-[var(--rust)]">obtén tu portafolio</em>
+                <em className="italic text-[var(--rust)]">
+                  {isEn ? "get your portfolio" : "obtén tu portafolio"}
+                </em>
               </h1>
               <p className="text-[var(--muted-color)] text-[1.03rem] max-w-xl mx-auto lg:mx-0 font-light leading-[1.7]">
-                Arrastra tu currículum y en segundos tendrás una página web
-                profesional lista para compartir.
+                {isEn
+                  ? "Drop your resume and in seconds you will have a professional website ready to share."
+                  : "Arrastra tu currículum y en segundos tendrás una página web profesional lista para compartir."}
               </p>
             </div>
 
             <section className="space-y-4">
               <div className="text-center lg:text-left">
                 <p className="text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium">
-                  Elige plantilla
+                  {isEn ? "Choose template" : "Elige plantilla"}
                 </p>
                 <h2 className="font-display text-[1.4rem] text-[var(--ink)] tracking-tight mt-1">
-                  Base visual de tu portafolio
+                  {isEn ? "Visual base for your portfolio" : "Base visual de tu portafolio"}
                 </h2>
               </div>
 
@@ -93,10 +118,12 @@ export function UploadPageClient() {
                         {template.name}
                       </p>
                       <p className="text-[0.72rem] text-[var(--rust)] font-medium mt-1">
-                        {template.tagline}
+                        {isEn ? TEMPLATE_TAGLINES_EN[template.id] : template.tagline}
                       </p>
                       <p className="text-[0.72rem] text-[var(--muted-color)] leading-relaxed mt-2">
-                        {template.description}
+                        {isEn
+                          ? TEMPLATE_DESCRIPTIONS_EN[template.id]
+                          : template.description}
                       </p>
                     </button>
                   );

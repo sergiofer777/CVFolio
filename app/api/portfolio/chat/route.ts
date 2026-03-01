@@ -6,6 +6,7 @@ import type { ProfilePlan } from "@/lib/billing/access";
 import { getPlanLimits } from "@/lib/billing/access";
 import { consumeUsage } from "@/lib/billing/quotas";
 import { isBillingEnforcementEnabled } from "@/lib/billing/config";
+import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
 const MODEL = "gemini-2.5-pro";
 
@@ -113,19 +114,27 @@ ${params.currentHtml}`,
 
 export async function POST(request: NextRequest) {
   try {
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json(
+        { error: isEn ? "Unauthorized" : "No autorizado" },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Payload inválido", details: parsed.error.flatten() },
+        {
+          error: isEn ? "Invalid payload" : "Payload inválido",
+          details: parsed.error.flatten(),
+        },
         { status: 400 }
       );
     }
@@ -159,7 +168,11 @@ export async function POST(request: NextRequest) {
 
     if (!portfolio) {
       return NextResponse.json(
-        { error: "No se encontró ese portfolio en tu cuenta." },
+        {
+          error: isEn
+            ? "That portfolio was not found in your account."
+            : "No se encontró ese portfolio en tu cuenta.",
+        },
         { status: 404 }
       );
     }
@@ -172,14 +185,22 @@ export async function POST(request: NextRequest) {
 
     if (perPortfolioLimit === 0) {
       return NextResponse.json(
-        { error: "Tu plan actual no incluye iteraciones con IA. Activa Studio." },
+        {
+          error: isEn
+            ? "Your current plan does not include AI iterations. Activate Studio."
+            : "Tu plan actual no incluye iteraciones con IA. Activa Studio.",
+        },
         { status: 402 }
       );
     }
 
     if (perPortfolioLimit !== null && iterationsUsed >= perPortfolioLimit) {
       return NextResponse.json(
-        { error: `Límite de ${perPortfolioLimit} iteraciones para este portfolio.` },
+        {
+          error: isEn
+            ? `Limit of ${perPortfolioLimit} iterations for this portfolio.`
+            : `Límite de ${perPortfolioLimit} iteraciones para este portfolio.`,
+        },
         { status: 402 }
       );
     }
@@ -193,7 +214,11 @@ export async function POST(request: NextRequest) {
       });
       if (!usage.allowed) {
         return NextResponse.json(
-          { error: usage.reason ?? "Límite de iteraciones alcanzado." },
+          {
+            error: isEn
+              ? "Iteration limit reached."
+              : usage.reason ?? "Límite de iteraciones alcanzado.",
+          },
           { status: 402 }
         );
       }
@@ -205,7 +230,9 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "Este portfolio no tiene HTML generado para iterar por chat todavía.",
+            isEn
+              ? "This portfolio does not have generated HTML for chat iterations yet."
+              : "Este portfolio no tiene HTML generado para iterar por chat todavía.",
         },
         { status: 422 }
       );
@@ -247,15 +274,23 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({
       ok: true,
-      message: "Cambios aplicados al portfolio.",
+      message: isEn
+        ? "Changes applied to the portfolio."
+        : "Cambios aplicados al portfolio.",
       iterationsUsed: iterationsUsed + 1,
       iterationsLimit: perPortfolioLimit,
       billingEnforced,
     });
   } catch (error) {
     console.error("[portfolio/chat] error:", error);
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     return NextResponse.json(
-      { error: "No se pudo aplicar la iteración de chat al portfolio." },
+      {
+        error: isEn
+          ? "The chat iteration could not be applied to the portfolio."
+          : "No se pudo aplicar la iteración de chat al portfolio.",
+      },
       { status: 500 }
     );
   }

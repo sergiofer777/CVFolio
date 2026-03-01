@@ -14,6 +14,7 @@ import {
   DEFAULT_PORTFOLIO_THEME,
   isPortfolioTheme,
 } from "@/lib/templates/portfolio-themes";
+import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
 // Extrae texto de PDF usando pdf-parse
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
@@ -24,6 +25,8 @@ async function extractTextFromPDF(buffer: Buffer): Promise<string> {
 
 export async function POST(request: NextRequest): Promise<NextResponse<ParseCVResponse>> {
   try {
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     // 1. Verificar autenticación
     const supabase = await createClient();
     const {
@@ -33,7 +36,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
 
     if (authError || !user) {
       return NextResponse.json(
-        { success: false, error: "No autorizado" },
+        {
+          success: false,
+          error: isEn ? "Unauthorized" : "No autorizado",
+        },
         { status: 401 }
       );
     }
@@ -49,7 +55,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
 
     if (!file) {
       return NextResponse.json(
-        { success: false, error: "No se recibió ningún archivo" },
+        {
+          success: false,
+          error: isEn ? "No file was received." : "No se recibió ningún archivo",
+        },
         { status: 400 }
       );
     }
@@ -57,7 +66,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     const maxSize = 10 * 1024 * 1024; // 10MB
     if (file.size > maxSize) {
       return NextResponse.json(
-        { success: false, error: "El archivo supera el límite de 10MB" },
+        {
+          success: false,
+          error: isEn
+            ? "The file exceeds the 10MB limit."
+            : "El archivo supera el límite de 10MB",
+        },
         { status: 400 }
       );
     }
@@ -65,7 +79,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
     if (!allowedTypes.includes(file.type)) {
       return NextResponse.json(
-        { success: false, error: "Formato no soportado. Usa PDF, JPG o PNG" },
+        {
+          success: false,
+          error: isEn
+            ? "Unsupported format. Use PDF, JPG or PNG."
+            : "Formato no soportado. Usa PDF, JPG o PNG",
+        },
         { status: 400 }
       );
     }
@@ -102,8 +121,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
                 success: false,
                 error:
                   plan === "studio"
-                    ? "Has alcanzado el máximo de 3 portfolios para Studio."
-                    : "Has alcanzado el límite de portfolios para tu plan.",
+                    ? isEn
+                      ? "You have reached the maximum of 3 portfolios for Studio."
+                      : "Has alcanzado el máximo de 3 portfolios para Studio."
+                    : isEn
+                      ? "You have reached the portfolio limit for your plan."
+                      : "Has alcanzado el límite de portfolios para tu plan.",
               },
               { status: 402 }
             );
@@ -116,8 +139,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
         const used = usageResult.generationUsed;
         const message =
           plan === "studio"
-            ? `Has alcanzado tu límite mensual de ${limit} generaciones (${used}/${limit}).`
-            : "Tu prueba gratuita ya se consumió. Activa el plan de €9,99 para publicar y conservar tu web.";
+            ? isEn
+              ? `You have reached your monthly limit of ${limit} generations (${used}/${limit}).`
+              : `Has alcanzado tu límite mensual de ${limit} generaciones (${used}/${limit}).`
+            : isEn
+              ? "Your free trial has already been used. Activate the €9.99 plan to publish and keep your site."
+              : "Tu prueba gratuita ya se consumió. Activa el plan de €9,99 para publicar y conservar tu web.";
 
         return NextResponse.json(
           {
@@ -144,7 +171,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     if (uploadError) {
       console.error("Storage upload error:", uploadError);
       return NextResponse.json(
-        { success: false, error: "Error al subir el archivo" },
+        {
+          success: false,
+          error: isEn
+            ? "There was an error uploading the file."
+            : "Error al subir el archivo",
+        },
         { status: 500 }
       );
     }
@@ -178,7 +210,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
         return NextResponse.json(
           {
             success: false,
-            error: "No se pudo extraer texto del PDF. Prueba con una imagen.",
+            error: isEn
+              ? "Text could not be extracted from the PDF. Try an image instead."
+              : "No se pudo extraer texto del PDF. Prueba con una imagen.",
           },
           { status: 422 }
         );
@@ -250,7 +284,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
 
     if (portfolioError || !newPortfolio) {
       return NextResponse.json(
-        { success: false, error: "Error al guardar el portafolio" },
+        {
+          success: false,
+          error: isEn
+            ? "There was an error saving the portfolio."
+            : "Error al guardar el portafolio",
+        },
         { status: 500 }
       );
     }
@@ -263,10 +302,16 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     });
   } catch (error) {
     console.error("parse-cv error:", error);
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     const message =
       error instanceof SyntaxError
-        ? "La IA no devolvió un JSON válido. Intenta de nuevo."
-        : "Error interno del servidor";
+        ? isEn
+          ? "The AI did not return valid JSON. Please try again."
+          : "La IA no devolvió un JSON válido. Intenta de nuevo."
+        : isEn
+          ? "Internal server error"
+          : "Error interno del servidor";
 
     return NextResponse.json({ success: false, error: message }, { status: 500 });
   }

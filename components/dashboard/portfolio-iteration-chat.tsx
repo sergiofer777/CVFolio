@@ -3,6 +3,7 @@
 import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Send } from "lucide-react";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 interface PortfolioIterationChatProps {
   portfolioId: string;
@@ -28,6 +29,8 @@ export function PortfolioIterationChat({
   billingEnforced,
 }: PortfolioIterationChatProps) {
   const router = useRouter();
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [prompt, setPrompt] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [localUsed, setLocalUsed] = useState(iterationsUsed);
@@ -60,7 +63,12 @@ export function PortfolioIterationChat({
 
       const data = (await response.json()) as ApiResponse;
       if (!response.ok || !data.ok) {
-        throw new Error(data.error ?? "No se pudo iterar el portfolio.");
+        throw new Error(
+          data.error ??
+            (isEn
+              ? "The portfolio could not be updated."
+              : "No se pudo iterar el portfolio.")
+        );
       }
 
       setPrompt("");
@@ -69,13 +77,20 @@ export function PortfolioIterationChat({
       } else {
         setLocalUsed((current) => current + 1);
       }
-      setMessage(data.message ?? "Iteración aplicada correctamente.");
+      setMessage(
+        data.message ??
+          (isEn
+            ? "Changes were applied successfully."
+            : "Iteración aplicada correctamente.")
+      );
       router.refresh();
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "No se pudo iterar el portfolio."
+          : isEn
+            ? "The portfolio could not be updated."
+            : "No se pudo iterar el portfolio."
       );
     } finally {
       setIsLoading(false);
@@ -83,7 +98,11 @@ export function PortfolioIterationChat({
   };
 
   const limitLabel =
-    iterationsLimit === null ? "Sin límite" : `${localUsed}/${iterationsLimit}`;
+    iterationsLimit === null
+      ? isEn
+        ? "Unlimited"
+        : "Sin límite"
+      : `${localUsed}/${iterationsLimit}`;
   const isLimitReached =
     iterationsLimit !== null && localUsed >= iterationsLimit;
 
@@ -92,27 +111,33 @@ export function PortfolioIterationChat({
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-4">
         <div>
           <p className="text-xs uppercase tracking-[0.1em] text-[var(--rust)] font-medium">
-            Chat de iteración
+            {isEn ? "Iteration chat" : "Chat de iteración"}
           </p>
           <h3 className="font-display text-[1.1rem] text-[var(--ink)] tracking-tight mt-1">
-            Ajusta esta web conversando con la IA
+            {isEn
+              ? "Refine this site by chatting with AI"
+              : "Ajusta esta web conversando con la IA"}
           </h3>
         </div>
         <div className="text-xs text-[var(--muted-color)]">
-          Iteraciones usadas: <strong className="text-[var(--ink)]">{limitLabel}</strong>
+          {isEn ? "Iterations used:" : "Iteraciones usadas:"}{" "}
+          <strong className="text-[var(--ink)]">{limitLabel}</strong>
         </div>
       </div>
 
       {!billingEnforced && (
         <p className="text-xs text-[var(--rust)] bg-[rgba(192,68,10,0.08)] border border-[rgba(192,68,10,0.18)] rounded px-3 py-2 mb-4">
-          Modo beta: el chat está abierto para todas las cuentas, aunque el plan
-          Studio fija 3 iteraciones por portfolio.
+          {isEn
+            ? "Beta mode: chat is currently open to all accounts, although Studio sets a limit of 3 iterations per portfolio."
+            : "Modo beta: el chat está abierto para todas las cuentas, aunque el plan Studio fija 3 iteraciones por portfolio."}
         </p>
       )}
 
       {isLimitReached && (
         <p className="text-xs text-[var(--rust)] bg-[rgba(192,68,10,0.08)] border border-[rgba(192,68,10,0.18)] rounded px-3 py-2 mb-4">
-          Has alcanzado el límite de iteraciones para este portfolio.
+          {isEn
+            ? "You have reached the iteration limit for this portfolio."
+            : "Has alcanzado el límite de iteraciones para este portfolio."}
         </p>
       )}
 
@@ -120,7 +145,11 @@ export function PortfolioIterationChat({
         <textarea
           value={prompt}
           onChange={(event) => setPrompt(event.target.value)}
-          placeholder="Ejemplo: cambia el hero para destacar SAP BW y reduce el bloque de certificaciones."
+          placeholder={
+            isEn
+              ? "Example: change the hero to highlight SAP BW and reduce the certifications block."
+              : "Ejemplo: cambia el hero para destacar SAP BW y reduce el bloque de certificaciones."
+          }
           rows={4}
           maxLength={CHAT_PROMPT_MAX_LENGTH}
           disabled={isLoading || isLimitReached}
@@ -128,7 +157,9 @@ export function PortfolioIterationChat({
         />
         <div className="flex items-center justify-between gap-3">
           <p className="text-xs text-[var(--muted-color)]">
-            Describe cambios concretos de contenido, orden o foco visual.
+            {isEn
+              ? "Describe specific content, layout or visual-focus changes."
+              : "Describe cambios concretos de contenido, orden o foco visual."}
             <span
               className={`ml-2 ${
                 prompt.length >= CHAT_PROMPT_MAX_LENGTH
@@ -145,7 +176,7 @@ export function PortfolioIterationChat({
             className="inline-flex items-center gap-2 rounded bg-[var(--ink)] text-[var(--paper)] px-4 py-2 text-sm font-medium hover:bg-[var(--rust)] transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
           >
             {isLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
-            Aplicar cambios
+            {isEn ? "Apply changes" : "Aplicar cambios"}
           </button>
         </div>
       </form>

@@ -2,6 +2,7 @@
 
 import { type FormEvent, useState } from "react";
 import { Globe2, Loader2 } from "lucide-react";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 interface DomainRequestResponse {
   request?: { requested_domain?: string; status?: string };
@@ -9,6 +10,8 @@ interface DomainRequestResponse {
 }
 
 export function CustomDomainRequest() {
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [domain, setDomain] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -29,18 +32,27 @@ export function CustomDomainRequest() {
       const data = (await response.json()) as DomainRequestResponse;
 
       if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo registrar la solicitud.");
+        throw new Error(
+          data.error ??
+            (isEn
+              ? "The request could not be submitted."
+              : "No se pudo registrar la solicitud.")
+        );
       }
 
       setMessage(
-        `Solicitud recibida para ${data.request?.requested_domain ?? domain}.`
+        isEn
+          ? `Request received for ${data.request?.requested_domain ?? domain}.`
+          : `Solicitud recibida para ${data.request?.requested_domain ?? domain}.`
       );
       setDomain("");
     } catch (submitError) {
       setError(
         submitError instanceof Error
           ? submitError.message
-          : "No se pudo registrar la solicitud."
+          : isEn
+            ? "The request could not be submitted."
+            : "No se pudo registrar la solicitud."
       );
     } finally {
       setIsSubmitting(false);
@@ -53,10 +65,18 @@ export function CustomDomainRequest() {
       className="border border-[var(--sand)] rounded-xl bg-white px-4 py-4 md:px-5 md:py-5"
     >
       <p className="text-xs uppercase tracking-[0.1em] text-[var(--rust)] font-medium mb-2">
-        Dominio personalizado
+        {isEn ? "Custom domain" : "Dominio personalizado"}
       </p>
       <p className="text-sm text-[var(--muted-color)] mb-4">
-        Solicita compra desde la API. Ejemplo: <code>miweb.com</code>
+        {isEn ? (
+          <>
+            Request domain purchase via API. Example: <code>mybrand.com</code>
+          </>
+        ) : (
+          <>
+            Solicita compra desde la API. Ejemplo: <code>miweb.com</code>
+          </>
+        )}
       </p>
 
       <div className="flex flex-col sm:flex-row gap-2.5">
@@ -66,7 +86,7 @@ export function CustomDomainRequest() {
             type="text"
             value={domain}
             onChange={(event) => setDomain(event.target.value)}
-            placeholder="tumarca.com"
+            placeholder={isEn ? "yourbrand.com" : "tumarca.com"}
             required
             className="w-full h-11 rounded border border-[var(--sand)] bg-white pl-9 pr-3 text-sm text-[var(--ink)] outline-none focus:border-[var(--ink)]"
           />
@@ -77,7 +97,7 @@ export function CustomDomainRequest() {
           className="h-11 px-4 rounded bg-[var(--ink)] text-[var(--paper)] text-sm font-medium hover:bg-[var(--rust)] transition-colors disabled:opacity-70 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
         >
           {isSubmitting && <Loader2 className="w-4 h-4 animate-spin" />}
-          Solicitar dominio
+          {isEn ? "Request domain" : "Solicitar dominio"}
         </button>
       </div>
 

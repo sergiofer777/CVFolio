@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useCallback, useState } from "react";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 /* ═══════════════════════════════════════════════════════════════
    MinigameCanvas – 3 random mini-games on a single <canvas>
@@ -10,18 +11,32 @@ import { useEffect, useRef, useCallback, useState } from "react";
 const GAMES = ["snake", "runner", "skills", "flappy"] as const;
 type GameType = (typeof GAMES)[number];
 
-const GAME_NAMES: Record<GameType, string> = {
+const GAME_NAMES_ES: Record<GameType, string> = {
   snake: "Snake",
   runner: "Carrera al Trabajo",
   skills: "Atrapa los Skills",
   flappy: "Flappy Bird",
 };
 
-const GAME_HINTS: Record<GameType, string> = {
+const GAME_NAMES_EN: Record<GameType, string> = {
+  snake: "Snake",
+  runner: "Commute Runner",
+  skills: "Catch the Skills",
+  flappy: "Flappy Bird",
+};
+
+const GAME_HINTS_ES: Record<GameType, string> = {
   snake: "Flechas del teclado para moverse",
   runner: "Espacio o clic para saltar",
   skills: "Clic en las palabras antes de que caigan",
   flappy: "Clic o Espacio para volar",
+};
+
+const GAME_HINTS_EN: Record<GameType, string> = {
+  snake: "Use the arrow keys to move",
+  runner: "Press Space or click to jump",
+  skills: "Click the words before they fall",
+  flappy: "Click or press Space to fly",
 };
 
 interface MinigameCanvasProps {
@@ -151,6 +166,10 @@ function randFood(
 }
 
 export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCanvasProps) {
+  const locale = useClientLocale();
+  const isEn = locale === "en";
+  const gameNames = isEn ? GAME_NAMES_EN : GAME_NAMES_ES;
+  const gameHints = isEn ? GAME_HINTS_EN : GAME_HINTS_ES;
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const stateRef = useRef<GameState | null>(null);
   const [availableGames, setAvailableGames] = useState<GameType[]>(() => [...GAMES]);
@@ -506,12 +525,12 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     ctx.fillStyle = "#fff";
     ctx.font = "bold 22px 'DM Sans', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(`${s.score} puntos`, CW / 2, CH / 2 - 10);
+    ctx.fillText(`${s.score} ${isEn ? "points" : "puntos"}`, CW / 2, CH / 2 - 10);
 
     ctx.font = "13px 'DM Sans', sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.75)";
-    ctx.fillText("Clic para reintentar", CW / 2, CH / 2 + 18);
-  }, [CW, CH]);
+    ctx.fillText(isEn ? "Click to retry" : "Clic para reintentar", CW / 2, CH / 2 + 18);
+  }, [CW, CH, isEn]);
 
   /* ══════════════════════════════════
      GAME LOOP
@@ -565,16 +584,16 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     ctx.fillStyle = "#0d0d0d";
     ctx.font = "bold 18px 'DM Sans', sans-serif";
     ctx.textAlign = "center";
-    ctx.fillText(GAME_NAMES[gameType], CW / 2, CH / 2 - 20);
+    ctx.fillText(gameNames[gameType], CW / 2, CH / 2 - 20);
 
     ctx.font = "13px 'DM Sans', sans-serif";
     ctx.fillStyle = "#888";
-    ctx.fillText("Clic para jugar", CW / 2, CH / 2 + 8);
+    ctx.fillText(isEn ? "Click to play" : "Clic para jugar", CW / 2, CH / 2 + 8);
 
     ctx.font = "11px 'DM Sans', sans-serif";
     ctx.fillStyle = "#aaa";
-    ctx.fillText(GAME_HINTS[gameType], CW / 2, CH / 2 + 30);
-  }, [gameType, getCtx, CW, CH]);
+    ctx.fillText(gameHints[gameType], CW / 2, CH / 2 + 30);
+  }, [gameHints, gameNames, gameType, getCtx, CW, CH, isEn]);
 
   /* ── Start ── */
   const startGame = useCallback(() => {
@@ -680,13 +699,13 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     <div className="w-full">
       <div className="flex items-center justify-between mb-2">
         <span className="text-[0.72rem] tracking-[0.08em] uppercase text-[var(--muted-color)] font-medium">
-          {GAME_NAMES[gameType]}
+          {gameNames[gameType]}
         </span>
         <button
           onClick={randomGame}
           className="text-[0.72rem] text-[var(--rust)] hover:text-[var(--ink)] transition-colors font-medium"
         >
-          Otro juego &rarr;
+          {isEn ? "Another game" : "Otro juego"} &rarr;
         </button>
       </div>
 
@@ -705,7 +724,7 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
             onClick={onBackToCV}
             className="text-[0.78rem] text-[var(--muted-color)] font-medium px-4 py-2 rounded-md border border-[var(--sand)] hover:border-[var(--ink)] hover:text-[var(--ink)] hover:bg-[var(--cream)] transition-all"
           >
-            ← Volver al CV
+            ← {isEn ? "Back to CV" : "Volver al CV"}
           </button>
         </div>
       )}

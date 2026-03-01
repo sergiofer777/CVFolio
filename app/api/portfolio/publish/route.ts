@@ -4,6 +4,7 @@ import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isPaidPlan, type ProfilePlan } from "@/lib/billing/access";
 import { buildPublicPortfolioUrl, publishSelectedPortfolio } from "@/lib/billing/activation";
 import { upsertCloudflareSubdomainRecord } from "@/lib/cloudflare/dns";
+import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
 const schema = z.object({
   portfolioId: z.string().uuid().optional(),
@@ -11,19 +12,27 @@ const schema = z.object({
 
 export async function POST(request: NextRequest) {
   try {
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json(
+        { error: isEn ? "Unauthorized" : "No autorizado" },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
     const parsed = schema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Payload inválido", details: parsed.error.flatten() },
+        {
+          error: isEn ? "Invalid payload" : "Payload inválido",
+          details: parsed.error.flatten(),
+        },
         { status: 400 }
       );
     }
@@ -42,7 +51,9 @@ export async function POST(request: NextRequest) {
     if (!isPaidPlan(plan)) {
       return NextResponse.json(
         {
-          error: "Necesitas activar un plan para publicar en subdominio.",
+          error: isEn
+            ? "You need to activate a plan to publish on a subdomain."
+            : "Necesitas activar un plan para publicar en subdominio.",
           billingUrl: `/dashboard/billing${
             parsed.data.portfolioId ? `?portfolioId=${parsed.data.portfolioId}` : ""
           }`,
@@ -59,7 +70,11 @@ export async function POST(request: NextRequest) {
 
     if (!publishedPortfolioId) {
       return NextResponse.json(
-        { error: "No se encontró un portfolio para publicar." },
+        {
+          error: isEn
+            ? "No portfolio was found to publish."
+            : "No se encontró un portfolio para publicar.",
+        },
         { status: 404 }
       );
     }
@@ -85,8 +100,14 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error("[portfolio/publish] error:", error);
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     return NextResponse.json(
-      { error: "No se pudo publicar este portfolio." },
+      {
+        error: isEn
+          ? "This portfolio could not be published."
+          : "No se pudo publicar este portfolio.",
+      },
       { status: 500 }
     );
   }

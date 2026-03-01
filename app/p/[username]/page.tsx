@@ -2,6 +2,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { createAdminClient } from "@/lib/supabase/server";
 import { PortfolioRenderer } from "@/components/portfolio/portfolio-renderer";
+import { getServerLocale } from "@/lib/locale-server";
 import type { CVData } from "@/types/cv-data";
 import {
   getPublicationAccess,
@@ -78,16 +79,18 @@ async function loadPublicPortfolioByUsername(
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
+  const locale = await getServerLocale();
+  const isEn = locale === "en";
   const billingEnforced = isBillingEnforcementEnabled();
 
   const { profile, portfolio } = await loadPublicPortfolioByUsername(username);
 
   if (!profile) {
-    return { title: "Portafolio no encontrado" };
+    return { title: isEn ? "Portfolio not found" : "Portafolio no encontrado" };
   }
 
   if (billingEnforced && !isPaidPlan(profile.plan ?? "free")) {
-    return { title: "Portafolio no disponible" };
+    return { title: isEn ? "Portfolio unavailable" : "Portafolio no disponible" };
   }
 
   if (portfolio) {
@@ -96,7 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       publishedAt: portfolio.published_at,
     });
     if (publicationAccess.isExpired) {
-      return { title: "Portafolio no disponible" };
+      return { title: isEn ? "Portfolio unavailable" : "Portafolio no disponible" };
     }
   }
 
@@ -105,13 +108,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = cvData?.personal?.title ?? "";
 
   return {
-    title: portfolio?.meta_title ?? `${name} — Portafolio profesional`,
+    title: portfolio?.meta_title ?? `${name} — ${isEn ? "Professional portfolio" : "Portafolio profesional"}`,
     description:
       portfolio?.meta_description ??
-      `${title ? `${title}. ` : ""}Portafolio profesional de ${name} generado con webiculum.`,
+      `${
+        title ? `${title}. ` : ""
+      }${
+        isEn
+          ? `Professional portfolio for ${name} generated with webiculum.`
+          : `Portafolio profesional de ${name} generado con webiculum.`
+      }`,
     openGraph: {
       title: `${name} | webiculum`,
-      description: `Portafolio de ${name}`,
+      description: isEn ? `${name}'s portfolio` : `Portafolio de ${name}`,
       type: "profile",
     },
   };
@@ -119,6 +128,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
 
 export default async function PublicPortfolioPage({ params }: PageProps) {
   const { username } = await params;
+  const locale = await getServerLocale();
   const billingEnforced = isBillingEnforcementEnabled();
   const { profile, portfolio } = await loadPublicPortfolioByUsername(username);
 
@@ -136,6 +146,7 @@ export default async function PublicPortfolioPage({ params }: PageProps) {
     <PortfolioRenderer
       cvData={portfolio.cv_data as CVData}
       showBranding={true}
+      locale={locale}
     />
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ExternalLink, Loader2 } from "lucide-react";
+import { useClientLocale } from "@/hooks/use-client-locale";
 
 interface PublicPortfolioButtonProps {
   canAccessPublic: boolean;
@@ -20,13 +21,19 @@ export function PublicPortfolioButton({
   className,
 }: PublicPortfolioButtonProps) {
   const router = useRouter();
+  const locale = useClientLocale();
+  const isEn = locale === "en";
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [freeMessage, setFreeMessage] = useState<string | null>(null);
 
   if (!canAccessPublic) {
     const handleFreeClick = () => {
-      setFreeMessage("Debes activar un plan de pago para publicar tu portfolio.");
+      setFreeMessage(
+        isEn
+          ? "You need a paid plan to publish your portfolio."
+          : "Debes activar un plan de pago para publicar tu portfolio."
+      );
       window.setTimeout(() => {
         router.push(billingHref);
       }, 900);
@@ -43,7 +50,7 @@ export function PublicPortfolioButton({
           }
         >
           <ExternalLink className="w-3.5 h-3.5" />
-          Ver portfolio público
+          {isEn ? "View public portfolio" : "Ver portfolio público"}
         </button>
         {freeMessage && <p className="text-xs text-[var(--rust)]">{freeMessage}</p>}
       </div>
@@ -68,7 +75,7 @@ export function PublicPortfolioButton({
       };
 
       if (!response.ok) {
-        throw new Error(data.error ?? "No se pudo publicar este portfolio.");
+        throw new Error(data.error ?? (isEn ? "Could not publish this portfolio." : "No se pudo publicar este portfolio."));
       }
 
       const isLocalHost =
@@ -84,7 +91,9 @@ export function PublicPortfolioButton({
       setError(
         publishError instanceof Error
           ? publishError.message
-          : "No se pudo publicar este portfolio."
+          : isEn
+            ? "Could not publish this portfolio."
+            : "No se pudo publicar este portfolio."
       );
     } finally {
       setIsLoading(false);
@@ -107,7 +116,7 @@ export function PublicPortfolioButton({
         ) : (
           <ExternalLink className="w-3.5 h-3.5" />
         )}
-        Ver portfolio público
+        {isEn ? "View public portfolio" : "Ver portfolio público"}
       </button>
       {error && <p className="text-xs text-[var(--rust)]">{error}</p>}
     </div>

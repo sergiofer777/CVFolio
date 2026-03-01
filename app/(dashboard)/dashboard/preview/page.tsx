@@ -1,8 +1,10 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
+import { LocaleToggle } from "@/components/locale-toggle";
 import { createClient } from "@/lib/supabase/server";
 import { PortfolioRenderer } from "@/components/portfolio/portfolio-renderer";
+import { getServerLocale } from "@/lib/locale-server";
 import type { CVData } from "@/types/cv-data";
 import {
   getFreePreviewAccess,
@@ -17,6 +19,8 @@ export default async function DashboardPreviewPage({
   searchParams: Promise<{ portfolioId?: string }>;
 }) {
   const supabase = await createClient();
+  const locale = await getServerLocale();
+  const isEn = locale === "en";
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -75,11 +79,17 @@ export default async function DashboardPreviewPage({
             className="inline-flex items-center gap-2 text-sm text-white/85 hover:text-white transition-colors no-underline"
           >
             <ArrowLeft className="w-4 h-4" />
-            Volver al dashboard
+            {isEn ? "Back to dashboard" : "Volver al dashboard"}
           </Link>
-          <p className="text-xs text-white/70">
-            Vista completa interactiva
-          </p>
+          <div className="flex items-center gap-3">
+            <LocaleToggle
+              locale={locale}
+              className="inline-flex items-center rounded-2xl border border-white/10 bg-white/5 p-1"
+            />
+            <p className="text-xs text-white/70">
+              {isEn ? "Interactive full view" : "Vista completa interactiva"}
+            </p>
+          </div>
         </div>
       </header>
 
@@ -87,6 +97,7 @@ export default async function DashboardPreviewPage({
         cvData={portfolioRecord.cv_data as CVData}
         showBranding={false}
         interactiveGeneratedLanding={true}
+        locale={locale}
       />
     </main>
   );

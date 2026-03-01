@@ -4,6 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CustomCursor } from "@/components/custom-cursor";
+import { LocaleToggle } from "@/components/locale-toggle";
+import { useClientLocale } from "@/hooks/use-client-locale";
 import { PORTFOLIO_THEME_OPTIONS } from "@/lib/templates/portfolio-themes";
 
 /* ── SVG Icons inline ── */
@@ -90,13 +92,31 @@ function useCounter(target: number, suffix: string = "", duration: number = 1800
   return { ref, value };
 }
 
-const TEMPLATE_PREVIEW_COPY: Record<
+const TEMPLATE_PREVIEW_COPY_ES: Record<
   (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
   string[]
 > = {
   minimal: ["Hero con foto", "Secciones modulares", "Modo dark/light"],
   modern: ["Aesthetic Web3", "Animaciones avanzadas", "Storytelling premium"],
   bold: ["Concepto creativo", "Motion elegante", "Nivel Awwwards"],
+};
+
+const TEMPLATE_PREVIEW_COPY_EN: Record<
+  (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
+  string[]
+> = {
+  minimal: ["Photo hero", "Modular sections", "Dark/light mode"],
+  modern: ["Aesthetic Web3", "Advanced animations", "Premium storytelling"],
+  bold: ["Creative concept", "Elegant motion", "Awwwards-level"],
+};
+
+const TEMPLATE_TAGLINES_EN: Record<
+  (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
+  string
+> = {
+  minimal: "Custom foundation",
+  modern: "Web3 & Growth",
+  bold: "Medical Premium",
 };
 
 const TEMPLATE_DEMO_PATHS: Record<
@@ -127,31 +147,54 @@ const TEMPLATE_PREVIEW_OBJECT_POSITIONS: Record<
 };
 
 /* ── Pricing ── */
-const FREE_FEATURES = [
+const FREE_FEATURES_ES = [
   "Vista previa no interactiva",
   "Caduca en 24 horas",
   "Sin publicación pública",
   "Sin subdominio",
   "1 generación de prueba",
 ];
-const PRO_FEATURES = [
+const FREE_FEATURES_EN = [
+  "Non-interactive preview",
+  "Expires in 24 hours",
+  "No public publishing",
+  "No subdomain",
+  "1 trial generation",
+];
+const PRO_FEATURES_ES = [
   "Subdominio usuario.webiculum.com",
   "Publicación durante 1 año",
   "Editable desde dashboard",
   "Sin límites de visualización",
   "Pago único por web",
 ];
-const STUDIO_FEATURES = [
+const PRO_FEATURES_EN = [
+  "user.webiculum.com subdomain",
+  "Published for 1 year",
+  "Editable from the dashboard",
+  "Unlimited views",
+  "One-time payment per site",
+];
+const STUDIO_FEATURES_ES = [
   "Hasta 3 webs al mes",
   "Hasta 3 iteraciones por web con chat",
   "Prioridad de generación",
   "Configuración de subdominio desde dashboard",
   "Soporte premium",
 ];
+const STUDIO_FEATURES_EN = [
+  "Up to 3 sites per month",
+  "Up to 3 chat iterations per site",
+  "Priority generation",
+  "Subdomain settings from the dashboard",
+  "Premium support",
+];
 
 /* ═════════ MAIN PAGE ═════════ */
 export default function LandingPage() {
   const [navScrolled, setNavScrolled] = useState(false);
+  const locale = useClientLocale();
+  const isEn = locale === "en";
 
   useEffect(() => {
     const onScroll = () => setNavScrolled(window.scrollY > 40);
@@ -162,6 +205,10 @@ export default function LandingPage() {
   const counter1 = useCounter(4820, "");
   const counter2 = useCounter(12, "s", 800);
   const counter3 = useCounter(98, "%");
+  const templatePreviewCopy = isEn ? TEMPLATE_PREVIEW_COPY_EN : TEMPLATE_PREVIEW_COPY_ES;
+  const freeFeatures = isEn ? FREE_FEATURES_EN : FREE_FEATURES_ES;
+  const proFeatures = isEn ? PRO_FEATURES_EN : PRO_FEATURES_ES;
+  const studioFeatures = isEn ? STUDIO_FEATURES_EN : STUDIO_FEATURES_ES;
 
   return (
     <div className="cursor-custom">
@@ -186,31 +233,32 @@ export default function LandingPage() {
             href="#how"
             className="hidden md:inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
           >
-            Cómo funciona
+            {isEn ? "How it works" : "Cómo funciona"}
           </a>
           <a
             href="#ejemplos"
             className="hidden md:inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
           >
-            Ejemplos
+            {isEn ? "Examples" : "Ejemplos"}
           </a>
           <a
             href="#precios"
             className="hidden md:inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
           >
-            Precios
+            {isEn ? "Pricing" : "Precios"}
           </a>
           <Link
             href="/ayuda"
             className="inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
           >
-            Ayuda
+            {isEn ? "Help" : "Ayuda"}
           </Link>
+          <LocaleToggle locale={locale} />
           <Link
             href="/signup"
             className="bg-[var(--ink)] text-[var(--paper)] px-5 py-2.5 rounded text-sm font-medium hover:bg-[var(--rust)] hover:text-white transition-colors no-underline"
           >
-            Empezar gratis
+            {isEn ? "Start free" : "Empezar gratis"}
           </Link>
         </div>
       </nav>
@@ -225,21 +273,30 @@ export default function LandingPage() {
         <div className="relative z-10 max-w-[700px]">
           <div className="flex items-center justify-center gap-2 text-xs tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-7 animate-fade-up">
             <span className="w-8 h-[1.5px] bg-[var(--rust)]" />
-            Tu CV, reinventado
+            {isEn ? "Your CV, reinvented" : "Tu CV, reinventado"}
             <span className="w-8 h-[1.5px] bg-[var(--rust)]" />
           </div>
 
           <h1 className="font-display text-[clamp(3rem,5.5vw,5.5rem)] font-light leading-[1.05] tracking-tight text-[var(--ink)] mb-7 animate-fade-up delay-1">
-            De currículum
+            {isEn ? "From CV" : "De currículum"}
             <span className="block">
-              a <em className="italic text-[var(--rust)]">portafolio</em>
+              {isEn ? (
+                <>
+                  to <em className="italic text-[var(--rust)]">portfolio</em>
+                </>
+              ) : (
+                <>
+                  a <em className="italic text-[var(--rust)]">portafolio</em>
+                </>
+              )}
             </span>
-            <span className="block">en segundos.</span>
+            <span className="block">{isEn ? "in seconds." : "en segundos."}</span>
           </h1>
 
           <p className="text-[1.05rem] leading-[1.7] text-[var(--muted-color)] max-w-[480px] mx-auto mb-11 font-light animate-fade-up delay-2">
-            Arrastra tu PDF. La IA extrae, estructura y diseña tu página personal
-            profesional — lista para compartir en segundos.
+            {isEn
+              ? "Drop your PDF. AI extracts, structures and designs your professional personal page — ready to share in seconds."
+              : "Arrastra tu PDF. La IA extrae, estructura y diseña tu página personal profesional — lista para compartir en segundos."}
           </p>
 
           <div className="flex items-center justify-center gap-5 flex-wrap animate-fade-up delay-3">
@@ -248,14 +305,14 @@ export default function LandingPage() {
               className="inline-flex items-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] px-8 py-4 rounded text-[0.95rem] font-medium hover:bg-[var(--rust)] hover:-translate-y-0.5 transition-all no-underline tracking-wide"
             >
               <UploadCloudIcon className="w-[18px] h-[18px]" />
-              Subir mi CV
+              {isEn ? "Upload my CV" : "Subir mi CV"}
             </Link>
             <Link
               href="/login"
               className="inline-flex items-center gap-2 text-[var(--muted-color)] text-[0.9rem] hover:text-[var(--ink)] transition-colors no-underline py-4 px-2"
             >
               <PlayIcon className="w-4 h-4" />
-              Iniciar sesión
+              {isEn ? "Log in" : "Iniciar sesión"}
             </Link>
           </div>
 
@@ -269,7 +326,7 @@ export default function LandingPage() {
                 {counter1.value}
               </div>
               <div className="text-[0.78rem] text-[var(--muted-color)] uppercase tracking-[0.08em] mt-1">
-                CVs procesados
+                {isEn ? "CVs processed" : "CVs procesados"}
               </div>
             </div>
             <div>
@@ -280,7 +337,7 @@ export default function LandingPage() {
                 {counter2.value}
               </div>
               <div className="text-[0.78rem] text-[var(--muted-color)] uppercase tracking-[0.08em] mt-1">
-                Tiempo medio
+                {isEn ? "Average time" : "Tiempo medio"}
               </div>
             </div>
             <div>
@@ -291,7 +348,7 @@ export default function LandingPage() {
                 {counter3.value}
               </div>
               <div className="text-[0.78rem] text-[var(--muted-color)] uppercase tracking-[0.08em] mt-1">
-                Satisfacción
+                {isEn ? "Satisfaction" : "Satisfacción"}
               </div>
             </div>
           </div>
@@ -305,16 +362,43 @@ export default function LandingPage() {
         <div className="mb-14 md:mb-16 max-w-[1360px] mx-auto">
           <div className="flex items-center gap-2 text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-5">
             <span className="w-8 h-[1.5px] bg-[var(--rust)]" />
-            Cómo funciona
+            {isEn ? "How it works" : "Cómo funciona"}
           </div>
           <h2 className="font-display text-[clamp(2rem,3.5vw,3.2rem)] font-light tracking-tight text-[var(--ink)] leading-[1.1] max-w-[780px]">
-            Tres pasos. Una presencia
-            <span className="block italic text-[var(--rust)]">que transmite nivel.</span>
+            {isEn ? "Three steps. A presence" : "Tres pasos. Una presencia"}
+            <span className="block italic text-[var(--rust)]">
+              {isEn ? "that feels premium." : "que transmite nivel."}
+            </span>
           </h2>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-[1360px] mx-auto">
-          {[
+          {(
+            isEn
+              ? [
+                  {
+                    num: "01",
+                    icon: <UploadCloudIcon className="w-[18px] h-[18px] text-[var(--rust)]" />,
+                    title: "Upload your CV",
+                    desc: "Drop your file and Webiculum processes it in seconds, even if the original layout is complex.",
+                    tag: "PDF · JPG · PNG",
+                  },
+                  {
+                    num: "02",
+                    icon: <SparkIcon className="w-[18px] h-[18px] text-[var(--rust)]" />,
+                    title: "AI extracts everything",
+                    desc: "AI structures experience, skills and results into a clear, coherent format ready for production.",
+                    tag: "Smart extraction",
+                  },
+                  {
+                    num: "03",
+                    icon: <LayoutIcon className="w-[18px] h-[18px] text-[var(--rust)]" />,
+                    title: "Publish a standout site",
+                    desc: "Choose a template, refine it with chat and share a professional landing page with subdomain or downloadable HTML.",
+                    tag: "Instant launch",
+                  },
+                ]
+              : [
             {
               num: "01",
               icon: <UploadCloudIcon className="w-[18px] h-[18px] text-[var(--rust)]" />,
@@ -336,7 +420,8 @@ export default function LandingPage() {
               desc: "Elige plantilla, ajusta por chat y comparte una landing profesional con subdominio o HTML descargable.",
               tag: "Deploy inmediato",
             },
-          ].map((s) => (
+                ]
+          ).map((s) => (
             <div
               key={s.num}
               className="rounded-[24px] border border-[rgba(13,13,13,0.08)] bg-[rgba(255,255,255,0.72)] backdrop-blur-sm shadow-[0_22px_36px_rgba(13,13,13,0.05)] p-7 md:p-8 relative"
@@ -368,19 +453,20 @@ export default function LandingPage() {
           <div>
             <div className="flex items-center gap-2 text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-4">
               <span className="w-6 h-[1.5px] bg-[var(--rust)]" />
-              Plantillas disponibles
+              {isEn ? "Templates" : "Plantillas disponibles"}
             </div>
             <h2 className="font-display text-[clamp(2rem,3.5vw,3.2rem)] font-light tracking-tight text-[var(--ink)] leading-[1.1]">
-              Elige la
+              {isEn ? "Choose the" : "Elige la"}
               <br />
-              <em className="italic text-[var(--rust)]">base visual</em>
+              <em className="italic text-[var(--rust)]">{isEn ? "visual base" : "base visual"}</em>
               <br />
-              de tu web.
+              {isEn ? "for your site." : "de tu web."}
             </h2>
           </div>
           <p className="text-[0.95rem] text-[var(--muted-color)] leading-[1.7] max-w-[320px] font-light">
-            Todas las webs se generan a partir de una plantilla concreta. Puedes
-            previsualizar y luego subir tu CV con la que mejor encaje contigo.
+            {isEn
+              ? "Every site is generated from a specific template. You can preview them and then upload your CV using the one that fits you best."
+              : "Todas las webs se generan a partir de una plantilla concreta. Puedes previsualizar y luego subir tu CV con la que mejor encaje contigo."}
           </p>
         </div>
 
@@ -393,7 +479,11 @@ export default function LandingPage() {
               <div className="h-40 bg-[var(--cream)] border-b border-[var(--sand)] overflow-hidden">
                 <Image
                   src={TEMPLATE_PREVIEW_IMAGES[template.id]}
-                  alt={`Vista previa de ${template.name}`}
+                  alt={
+                    isEn
+                      ? `Preview of ${template.name}`
+                      : `Vista previa de ${template.name}`
+                  }
                   width={1440}
                   height={520}
                   className="w-full h-full object-cover"
@@ -405,10 +495,10 @@ export default function LandingPage() {
                   {template.name}
                 </div>
                 <div className="text-[0.78rem] text-[var(--rust)] mb-4 font-medium">
-                  {template.tagline}
+                  {isEn ? TEMPLATE_TAGLINES_EN[template.id] : template.tagline}
                 </div>
                 <div className="flex flex-wrap gap-1.5 mb-5 min-h-[72px] content-start">
-                  {TEMPLATE_PREVIEW_COPY[template.id].map((feature) => (
+                  {templatePreviewCopy[template.id].map((feature) => (
                     <span
                       key={feature}
                       className="bg-[var(--cream)] text-[var(--muted-color)] text-[0.7rem] px-2.5 py-1 rounded-full"
@@ -424,14 +514,14 @@ export default function LandingPage() {
                     rel="noopener noreferrer"
                     className="inline-flex items-center gap-2 text-[0.78rem] font-medium text-[var(--muted-color)] hover:text-[var(--ink)] no-underline transition-colors"
                   >
-                    Ver ejemplo
+                    {isEn ? "View example" : "Ver ejemplo"}
                     <span aria-hidden>↗</span>
                   </a>
                   <Link
                     href={`/upload?template=${template.id}`}
                     className="inline-flex items-center gap-2 text-[0.78rem] font-medium text-[var(--ink)] hover:text-[var(--rust)] no-underline transition-colors"
                   >
-                    Usar plantilla
+                    {isEn ? "Use template" : "Usar plantilla"}
                     <span aria-hidden>→</span>
                   </Link>
                 </div>
@@ -448,14 +538,15 @@ export default function LandingPage() {
         <div className="text-center">
           <div className="flex items-center justify-center gap-2 text-[0.72rem] tracking-[0.12em] uppercase text-[var(--rust)] font-medium mb-4">
             <span className="w-6 h-[1.5px] bg-[var(--rust)]" />
-            Precios
+            {isEn ? "Pricing" : "Precios"}
             <span className="w-6 h-[1.5px] bg-[var(--rust)]" />
           </div>
           <h2 className="font-display text-[clamp(2rem,3.5vw,3.2rem)] font-light tracking-tight text-[var(--ink)] leading-[1.1] mb-3">
-            Simple, <em className="italic text-[var(--rust)]">transparente</em>.
+            {isEn ? "Simple, " : "Simple, "}
+            <em className="italic text-[var(--rust)]">{isEn ? "transparent" : "transparente"}</em>.
           </h2>
           <p className="text-[0.95rem] text-[var(--muted-color)] font-light">
-            Sin sorpresas. Empieza gratis hoy mismo.
+            {isEn ? "No surprises. Start free today." : "Sin sorpresas. Empieza gratis hoy mismo."}
           </p>
         </div>
 
@@ -463,16 +554,16 @@ export default function LandingPage() {
           {/* Free */}
           <div className="bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
             <div className="text-[0.7rem] uppercase tracking-[0.1em] text-[var(--muted-color)] mb-6">
-              Plan Gratis
+              {isEn ? "Free plan" : "Plan Gratis"}
             </div>
             <div className="font-display text-[3rem] font-light tracking-tighter leading-none mb-1.5">
               €0
             </div>
             <div className="text-[0.82rem] text-[var(--muted-color)] font-light mb-8">
-              por prueba
+              {isEn ? "trial" : "por prueba"}
             </div>
             <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
-              {FREE_FEATURES.map((f) => (
+              {freeFeatures.map((f) => (
                 <li
                   key={f}
                   className="flex items-center gap-2.5 text-sm text-[var(--muted-color)]"
@@ -486,26 +577,26 @@ export default function LandingPage() {
               href="/signup"
               className="block w-full py-3.5 text-center rounded bg-[var(--paper)] text-[var(--ink)] border-[1.5px] border-[var(--sand)] font-medium text-[0.9rem] hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
             >
-              Probar ahora
+              {isEn ? "Try now" : "Probar ahora"}
             </Link>
           </div>
 
           {/* Pro */}
           <div className="bg-[var(--ink)] text-[var(--paper)] rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all relative overflow-hidden">
             <div className="absolute top-5 -right-7 bg-[var(--rust)] text-white text-[0.65rem] tracking-[0.1em] uppercase font-medium px-10 py-1.5 rotate-45">
-              Popular
+              {isEn ? "Popular" : "Popular"}
             </div>
             <div className="text-[0.7rem] uppercase tracking-[0.1em] text-[var(--sand)] mb-6">
-              Plan Pro
+              {isEn ? "Pro plan" : "Plan Pro"}
             </div>
             <div className="font-display text-[3rem] font-light tracking-tighter leading-none mb-1.5 text-[var(--paper)]">
               €9,99
             </div>
             <div className="text-[0.82rem] text-[var(--sand)] font-light mb-8">
-              pago único / web
+              {isEn ? "one-time / site" : "pago único / web"}
             </div>
             <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
-              {PRO_FEATURES.map((f) => (
+              {proFeatures.map((f) => (
                 <li
                   key={f}
                   className="flex items-center gap-2.5 text-sm text-[rgba(245,242,235,0.8)]"
@@ -519,23 +610,23 @@ export default function LandingPage() {
               href="/checkout?plan=publish"
               className="block w-full py-3.5 text-center rounded bg-[var(--rust)] text-white border-none font-medium text-[0.9rem] hover:bg-[var(--rust-light)] transition-all cursor-pointer no-underline"
             >
-              Comprar publicación
+              {isEn ? "Buy publishing" : "Comprar publicación"}
             </Link>
           </div>
 
           {/* Studio */}
           <div className="bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
             <div className="text-[0.7rem] uppercase tracking-[0.1em] text-[var(--muted-color)] mb-6">
-              Plan Studio
+              {isEn ? "Studio plan" : "Plan Studio"}
             </div>
             <div className="font-display text-[3rem] font-light tracking-tighter leading-none mb-1.5 text-[var(--ink)]">
               €25
             </div>
             <div className="text-[0.82rem] text-[var(--muted-color)] font-light mb-8">
-              / año
+              {isEn ? "/ year" : "/ año"}
             </div>
             <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
-              {STUDIO_FEATURES.map((f) => (
+              {studioFeatures.map((f) => (
                 <li
                   key={f}
                   className="flex items-center gap-2.5 text-sm text-[var(--muted-color)]"
@@ -549,7 +640,7 @@ export default function LandingPage() {
               href="/checkout?plan=studio"
               className="block w-full py-3.5 text-center rounded bg-[var(--ink)] text-[var(--paper)] border-none font-medium text-[0.9rem] hover:bg-[var(--rust)] transition-all no-underline"
             >
-              Activar Studio
+              {isEn ? "Activate Studio" : "Activar Studio"}
             </Link>
           </div>
         </div>
@@ -559,22 +650,23 @@ export default function LandingPage() {
       <section className="py-20 md:py-24 px-6 md:px-12 text-center relative">
         <div className="absolute top-0 left-6 right-6 md:left-12 md:right-12 h-px bg-[var(--sand)]" />
         <h2 className="font-display text-[clamp(2.5rem,4.5vw,4.5rem)] font-light tracking-tighter text-[var(--ink)] leading-[1.1] mb-5 max-w-[700px] mx-auto">
-          ¿Tu próximo empleo
+          {isEn ? "Could your next role" : "¿Tu próximo empleo"}
           <br />
-          empieza con un
+          {isEn ? "start with a" : "empieza con un"}
           <br />
-          <em className="italic text-[var(--rust)]">buen portafolio</em>?
+          <em className="italic text-[var(--rust)]">{isEn ? "strong portfolio" : "buen portafolio"}</em>?
         </h2>
         <p className="text-base text-[var(--muted-color)] mb-11 font-light">
-          Únete a miles de profesionales que ya comparten su trabajo de forma
-          elegante.
+          {isEn
+            ? "Join thousands of professionals already sharing their work in a polished way."
+            : "Únete a miles de profesionales que ya comparten su trabajo de forma elegante."}
         </p>
         <Link
           href="/upload"
           className="inline-flex items-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] px-10 py-[18px] rounded text-base font-medium hover:bg-[var(--rust)] hover:-translate-y-0.5 transition-all no-underline"
         >
           <UploadCloudIcon className="w-5 h-5" />
-          Crear mi portafolio — Es gratis
+          {isEn ? "Create my portfolio — It’s free" : "Crear mi portafolio — Es gratis"}
         </Link>
       </section>
 
@@ -587,7 +679,10 @@ export default function LandingPage() {
           web<span className="text-[var(--rust)]">iculum</span>
         </Link>
         <div className="flex gap-7">
-          {["Privacidad", "Términos", "Blog", "Contacto"].map((link) => (
+          {(isEn
+            ? ["Privacy", "Terms", "Blog", "Contact"]
+            : ["Privacidad", "Términos", "Blog", "Contacto"]
+          ).map((link) => (
             <a
               key={link}
               href="#"
@@ -598,7 +693,7 @@ export default function LandingPage() {
           ))}
         </div>
         <div className="text-[0.78rem] text-[var(--muted-color)]">
-          © {new Date().getFullYear()} webiculum. Hecho con ♥ y IA.
+          © {new Date().getFullYear()} webiculum. {isEn ? "Built with ♥ and AI." : "Hecho con ♥ y IA."}
         </div>
       </footer>
     </div>

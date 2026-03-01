@@ -3,6 +3,7 @@ import { z } from "zod";
 import { createAdminClient, createClient } from "@/lib/supabase/server";
 import { isPaidPlan, type ProfilePlan } from "@/lib/billing/access";
 import { isBillingEnforcementEnabled } from "@/lib/billing/config";
+import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
 export const runtime = "nodejs";
 
@@ -29,15 +30,20 @@ function isMissingRelationError(error: unknown): boolean {
   return /relation .* does not exist|table .* does not exist/i.test(err.message);
 }
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json(
+        { error: isEn ? "Unauthorized" : "No autorizado" },
+        { status: 401 }
+      );
     }
 
     const admin = createAdminClient();
@@ -74,7 +80,12 @@ export async function GET() {
   } catch (error) {
     console.error("[domains/custom][GET] error:", error);
     return NextResponse.json(
-      { error: "No se pudieron cargar las solicitudes de dominio." },
+      {
+        error:
+          normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en"
+            ? "Domain requests could not be loaded."
+            : "No se pudieron cargar las solicitudes de dominio.",
+      },
       { status: 500 }
     );
   }
@@ -82,20 +93,28 @@ export async function GET() {
 
 export async function POST(request: NextRequest) {
   try {
+    const isEn =
+      normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
     const supabase = await createClient();
     const {
       data: { user },
     } = await supabase.auth.getUser();
 
     if (!user) {
-      return NextResponse.json({ error: "No autorizado" }, { status: 401 });
+      return NextResponse.json(
+        { error: isEn ? "Unauthorized" : "No autorizado" },
+        { status: 401 }
+      );
     }
 
     const body = await request.json();
     const parsed = requestDomainSchema.safeParse(body);
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "Payload inválido", details: parsed.error.flatten() },
+        {
+          error: isEn ? "Invalid payload" : "Payload inválido",
+          details: parsed.error.flatten(),
+        },
         { status: 400 }
       );
     }
@@ -113,8 +132,9 @@ export async function POST(request: NextRequest) {
     if (isBillingEnforcementEnabled() && !isPaidPlan(plan)) {
       return NextResponse.json(
         {
-          error:
-            "Necesitas un plan de pago para solicitar compra de dominio personalizado.",
+          error: isEn
+            ? "You need a paid plan to request a custom domain purchase."
+            : "Necesitas un plan de pago para solicitar compra de dominio personalizado.",
         },
         { status: 402 }
       );
@@ -123,7 +143,11 @@ export async function POST(request: NextRequest) {
     const normalizedDomain = normalizeDomain(parsed.data.domain);
     if (!isValidDomain(normalizedDomain)) {
       return NextResponse.json(
-        { error: "Dominio no válido. Ejemplo correcto: miweb.com" },
+        {
+          error: isEn
+            ? "Invalid domain. Correct example: mysite.com"
+            : "Dominio no válido. Ejemplo correcto: miweb.com",
+        },
         { status: 400 }
       );
     }
@@ -161,8 +185,9 @@ export async function POST(request: NextRequest) {
             status: "pending",
           },
           storageReady: false,
-          message:
-            "Solicitud guardada en perfil. Crea la tabla domain_requests para flujo completo.",
+          message: isEn
+            ? "Request saved in the profile. Create the domain_requests table to enable the full flow."
+            : "Solicitud guardada en perfil. Crea la tabla domain_requests para flujo completo.",
         },
         { status: 201 }
       );
@@ -172,7 +197,12 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("[domains/custom][POST] error:", error);
     return NextResponse.json(
-      { error: "No se pudo registrar la solicitud de dominio." },
+      {
+        error:
+          normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en"
+            ? "The domain request could not be submitted."
+            : "No se pudo registrar la solicitud de dominio.",
+      },
       { status: 500 }
     );
   }
