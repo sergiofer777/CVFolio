@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowLeft, CircleHelp, Mail, Send } from "lucide-react";
+import { ArrowLeft, CircleHelp } from "lucide-react";
+import { ContactForm } from "@/components/help/contact-form";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { getServerLocale } from "@/lib/locale-server";
 
@@ -102,21 +103,12 @@ const HELP_FAQS_EN = [
   },
 ];
 
-export default async function HelpCenterPage({
-  searchParams,
-}: {
-  searchParams?: Promise<{ sent?: string }>;
-}) {
+export default async function HelpCenterPage() {
   const locale = await getServerLocale();
   const isEn = locale === "en";
   const web3formsKey =
     process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY ??
-    process.env.WEB3FORMS_ACCESS_KEY ??
-    "";
-  const appUrl = process.env.NEXT_PUBLIC_APP_URL ?? "https://webiculum.com";
-  const redirectUrl = `${appUrl.replace(/\/$/, "")}/ayuda?sent=1`;
-  const params = searchParams ? await searchParams : undefined;
-  const sentFlag = params?.sent === "1";
+    process.env.WEB3FORMS_ACCESS_KEY;
   const faqs = isEn ? HELP_FAQS_EN : HELP_FAQS;
 
   return (
@@ -222,117 +214,7 @@ export default async function HelpCenterPage({
               </div>
 
               <div className="px-5 py-5">
-                {sentFlag && (
-                  <p className="mb-4 rounded-xl border border-[rgba(10,125,70,0.18)] bg-[rgba(10,125,70,0.06)] px-4 py-3 text-sm text-[rgb(10,125,70)]">
-                    {isEn
-                      ? "Message sent. We’ll reply as soon as possible."
-                      : "Mensaje enviado. Te responderemos lo antes posible."}
-                  </p>
-                )}
-
-                {!web3formsKey && (
-                  <p className="mb-4 rounded-xl border border-[rgba(192,68,10,0.18)] bg-[rgba(192,68,10,0.06)] px-4 py-3 text-sm text-[var(--rust)]">
-                    {isEn ? (
-                      <>
-                        Add the variable <code>NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY</code> in
-                        Vercel to enable this form.
-                      </>
-                    ) : (
-                      <>
-                        Añade la variable <code>NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY</code> en
-                        Vercel para activar este formulario.
-                      </>
-                    )}
-                  </p>
-                )}
-
-                <form
-                  action="https://api.web3forms.com/submit"
-                  method="POST"
-                  className="space-y-3"
-                >
-                  <input type="hidden" name="access_key" value={web3formsKey} />
-                  <input
-                    type="hidden"
-                    name="subject"
-                    value={
-                      isEn
-                        ? "New message from the Webiculum help center"
-                        : "Nuevo mensaje desde el centro de ayuda de Webiculum"
-                    }
-                  />
-                  <input
-                    type="hidden"
-                    name="from_name"
-                    value={
-                      isEn
-                        ? "Webiculum help center"
-                        : "Centro de ayuda Webiculum"
-                    }
-                  />
-                  <input type="hidden" name="redirect" value={redirectUrl} />
-
-                  <label className="block">
-                    <span className="mb-2 block text-[0.78rem] font-medium uppercase tracking-[0.08em] text-[var(--muted-color)]">
-                      {isEn ? "Name" : "Nombre"}
-                    </span>
-                    <input
-                      type="text"
-                      name="name"
-                      required
-                      className="h-11 w-full rounded-xl border border-[var(--sand)] bg-white px-4 text-sm text-[var(--ink)] outline-none transition-colors focus:border-[var(--ink)]"
-                      placeholder={isEn ? "Your name" : "Tu nombre"}
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-[0.78rem] font-medium uppercase tracking-[0.08em] text-[var(--muted-color)]">
-                      Email
-                    </span>
-                    <input
-                      type="email"
-                      name="email"
-                      required
-                      className="h-11 w-full rounded-xl border border-[var(--sand)] bg-white px-4 text-sm text-[var(--ink)] outline-none transition-colors focus:border-[var(--ink)]"
-                      placeholder="tu@email.com"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-[0.78rem] font-medium uppercase tracking-[0.08em] text-[var(--muted-color)]">
-                      {isEn ? "Message" : "Mensaje"}
-                    </span>
-                    <textarea
-                      name="message"
-                      required
-                      rows={5}
-                      className="w-full rounded-2xl border border-[var(--sand)] bg-white px-4 py-3 text-sm text-[var(--ink)] outline-none transition-colors focus:border-[var(--ink)]"
-                      placeholder={
-                        isEn
-                          ? "Tell us your question and we will reply."
-                          : "Cuéntanos tu duda y te responderemos."
-                      }
-                    />
-                  </label>
-
-                  <button
-                      type="submit"
-                      disabled={!web3formsKey}
-                      className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--ink)] px-4 py-3 text-sm font-medium text-[var(--paper)] transition-colors hover:bg-[var(--rust)] disabled:cursor-not-allowed disabled:opacity-50"
-                  >
-                    <Send className="h-4 w-4" />
-                    {isEn ? "Send message" : "Enviar mensaje"}
-                  </button>
-                </form>
-
-                <div className="mt-4 rounded-xl bg-[var(--cream)] px-4 py-3 text-sm text-[var(--muted-color)]">
-                  <div className="flex items-center gap-2 text-[var(--ink)]">
-                    <Mail className="h-4 w-4 text-[var(--rust)]" />
-                    {isEn
-                      ? "You can also reach us here when the form is active."
-                      : "También puedes escribirnos cuando el formulario esté activo."}
-                  </div>
-                </div>
+                <ContactForm locale={locale} accessKey={web3formsKey} />
               </div>
             </section>
           </aside>
