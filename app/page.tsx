@@ -716,7 +716,7 @@ export default function LandingPage() {
           </Link>
         </div>
         <div className="text-[0.78rem] text-[var(--muted-color)]">
-          © {new Date().getFullYear()} webiculum. {isEn ? "Built with ♥ and AI." : "Hecho con ♥ y IA."}
+          © {new Date().getFullYear()} webiculum
         </div>
       </footer>
     </div>
