@@ -93,13 +93,19 @@ export default function SignupPage() {
 
         <p className="text-center text-xs text-[var(--muted-color)] font-light leading-relaxed">
           {isEn ? "By continuing you accept our " : "Al continuar aceptas nuestros "}
-          <a href="#" className="underline hover:text-[var(--ink)] transition-colors">
+          <Link
+            href="/terminos"
+            className="underline hover:text-[var(--ink)] transition-colors no-underline"
+          >
             {isEn ? "Terms of use" : "Términos de uso"}
-          </a>
+          </Link>
           {isEn ? " and " : " y "}
-          <a href="#" className="underline hover:text-[var(--ink)] transition-colors">
+          <Link
+            href="/privacidad"
+            className="underline hover:text-[var(--ink)] transition-colors no-underline"
+          >
             {isEn ? "Privacy policy" : "Política de privacidad"}
-          </a>.
+          </Link>.
         </p>
 
         <p className="text-center text-sm text-[var(--muted-color)]">

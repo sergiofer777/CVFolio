@@ -197,7 +197,10 @@ export default async function HelpCenterPage() {
             ))}
           </div>
 
-          <aside className="space-y-5 lg:sticky lg:top-24">
+          <aside
+            id="contacto-formulario"
+            className="space-y-5 scroll-mt-28 lg:sticky lg:top-24"
+          >
             <section className="rounded-2xl border border-[var(--sand)] bg-white shadow-[0_6px_24px_rgba(13,13,13,0.04)]">
               <div className="border-b border-[var(--sand)] px-5 py-5">
                 <p className="text-[0.72rem] font-medium uppercase tracking-[0.12em] text-[var(--rust)]">

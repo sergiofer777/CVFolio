@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
+import { getServerLocale } from "@/lib/locale-server";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -29,13 +30,15 @@ export const metadata: Metadata = {
   },
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const locale = await getServerLocale();
+
   return (
-    <html lang="es" className={dmSans.variable}>
+    <html lang={locale} className={dmSans.variable}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link

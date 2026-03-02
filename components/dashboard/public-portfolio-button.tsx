@@ -26,6 +26,8 @@ export function PublicPortfolioButton({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [freeMessage, setFreeMessage] = useState<string | null>(null);
+  const fullLabel = isEn ? "View public portfolio" : "Ver portfolio público";
+  const compactLabel = isEn ? "Public" : "Público";
 
   if (!canAccessPublic) {
     const handleFreeClick = () => {
@@ -44,13 +46,15 @@ export function PublicPortfolioButton({
         <button
           type="button"
           onClick={handleFreeClick}
+          aria-label={fullLabel}
           className={
             className ??
             "inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-medium bg-white border border-[var(--sand)] text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors"
           }
         >
           <ExternalLink className="w-3.5 h-3.5" />
-          {isEn ? "View public portfolio" : "Ver portfolio público"}
+          <span className="hidden xl:inline">{fullLabel}</span>
+          <span className="hidden sm:inline xl:hidden">{compactLabel}</span>
         </button>
         {freeMessage && <p className="text-xs text-[var(--rust)]">{freeMessage}</p>}
       </div>
@@ -106,6 +110,7 @@ export function PublicPortfolioButton({
         type="button"
         onClick={handleOpenPublished}
         disabled={isLoading}
+        aria-label={fullLabel}
         className={
           className ??
           "inline-flex items-center gap-1.5 px-4 py-2 rounded text-sm font-medium bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--rust)] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
@@ -116,7 +121,8 @@ export function PublicPortfolioButton({
         ) : (
           <ExternalLink className="w-3.5 h-3.5" />
         )}
-        {isEn ? "View public portfolio" : "Ver portfolio público"}
+        <span className="hidden xl:inline">{fullLabel}</span>
+        <span className="hidden sm:inline xl:hidden">{compactLabel}</span>
       </button>
       {error && <p className="text-xs text-[var(--rust)]">{error}</p>}
     </div>

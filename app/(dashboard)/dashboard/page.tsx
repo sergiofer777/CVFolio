@@ -217,41 +217,47 @@ export default async function DashboardPage({
       ? isEn
         ? "€9.99/year"
         : "€9,99/año"
-      : "€0";
+      : isEn
+        ? "€0"
+        : "0 €";
 
   return (
     <div className="min-h-screen bg-[var(--paper)]">
       <header className="border-b border-[var(--sand)] bg-[var(--paper)] sticky top-0 z-50">
-        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-4 flex items-center gap-3 sm:gap-4">
+        <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-3 sm:py-4 flex flex-wrap items-center gap-2.5 sm:gap-4">
           <Link
             href="/"
-            className="self-start font-display text-xl font-semibold text-[var(--ink)] tracking-tight no-underline"
+            className="self-start font-display text-lg sm:text-xl font-semibold text-[var(--ink)] tracking-tight no-underline"
           >
             web<span className="text-[var(--rust)]">iculum</span>
           </Link>
 
-          <div className="ml-auto min-w-0 flex flex-nowrap items-center justify-end gap-1.5 sm:gap-2 overflow-x-auto text-xs sm:text-sm">
+          <div className="flex basis-full sm:basis-auto sm:ml-auto min-w-0 flex-wrap sm:flex-nowrap items-center justify-start sm:justify-end gap-1.5 sm:gap-2 text-xs sm:text-sm">
             {selectedPortfolio && canAccessInteractive && (
               <Link
                 href={`/dashboard/preview?portfolioId=${selectedPortfolio.id}`}
-                className="inline-flex shrink-0 items-center gap-1.5 px-2 py-2 text-[var(--muted-color)] font-medium hover:text-[var(--ink)] transition-colors no-underline"
+                aria-label={isEn ? "Full view" : "Vista completa"}
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl px-2 py-1.5 md:px-2.5 md:py-2 text-[11px] md:text-xs xl:text-sm text-[var(--muted-color)] font-medium hover:bg-white hover:text-[var(--ink)] transition-colors no-underline"
               >
                 <Monitor className="w-3.5 h-3.5" />
-                {isEn ? "Full view" : "Vista completa"}
+                <span className="hidden xl:inline">{isEn ? "Full view" : "Vista completa"}</span>
+                <span className="hidden sm:inline xl:hidden">{isEn ? "View" : "Vista"}</span>
               </Link>
             )}
 
             {selectedPortfolio && canAccessInteractive && (
-              <span className="hidden md:block h-5 w-px bg-[var(--sand)] shrink-0" aria-hidden="true" />
+              <span className="hidden xl:block h-5 w-px bg-[var(--sand)] shrink-0" aria-hidden="true" />
             )}
 
             {selectedPortfolio && canAccessPublic && (
               <a
                 href={`/api/portfolio/download-html?portfolioId=${selectedPortfolio.id}`}
-                className="inline-flex shrink-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-xs sm:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
+                aria-label={isEn ? "Download HTML" : "Descargar HTML"}
+                className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
               >
                 <Download className="w-3.5 h-3.5" />
-                {isEn ? "Download HTML" : "Descargar HTML"}
+                <span className="hidden xl:inline">{isEn ? "Download HTML" : "Descargar HTML"}</span>
+                <span className="hidden sm:inline xl:hidden">HTML</span>
               </a>
             )}
 
@@ -261,26 +267,34 @@ export default async function DashboardPage({
                 portfolioId={selectedPortfolio.id}
                 billingHref={billingHref}
                 publicUrl={publicPortfolioHref}
-                className="inline-flex shrink-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-xs sm:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all"
+                className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all"
               />
             )}
 
-            <LocaleToggle locale={locale} />
+            <LocaleToggle
+              locale={locale}
+              className="inline-flex shrink-0 items-center rounded-xl xl:rounded-2xl border border-[var(--sand)] bg-white p-0.5 xl:p-1"
+            />
 
             <Link
               href="/ayuda"
-              className="inline-flex shrink-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-xs sm:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
+              aria-label={isEn ? "Help" : "Ayuda"}
+              className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
             >
               <CircleHelp className="w-3.5 h-3.5" />
-              {isEn ? "Help" : "Ayuda"}
+              <span className="hidden lg:inline">{isEn ? "Help" : "Ayuda"}</span>
             </Link>
 
             <Link
               href="/upload"
-              className="inline-flex shrink-0 items-center gap-1.5 px-3 sm:px-4 py-2 rounded-2xl bg-[var(--rust)] text-white border border-[var(--rust)] text-xs sm:text-sm font-medium hover:bg-[var(--rust-light)] hover:border-[var(--rust-light)] transition-all no-underline"
+              aria-label={isEn ? "Create new portfolio" : "Crear nuevo portfolio"}
+              className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-[var(--rust)] text-white border border-[var(--rust)] text-[11px] md:text-xs xl:text-sm font-medium hover:bg-[var(--rust-light)] hover:border-[var(--rust-light)] transition-all no-underline"
             >
               <Upload className="w-3.5 h-3.5" />
-              {isEn ? "Create new portfolio" : "Crear nuevo portfolio"}
+              <span className="hidden xl:inline">
+                {isEn ? "Create new portfolio" : "Crear nuevo portfolio"}
+              </span>
+              <span className="hidden sm:inline xl:hidden">{isEn ? "New" : "Nuevo"}</span>
             </Link>
           </div>
         </div>

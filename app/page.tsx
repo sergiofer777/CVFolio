@@ -162,31 +162,33 @@ const FREE_FEATURES_EN = [
   "1 trial generation",
 ];
 const PRO_FEATURES_ES = [
-  "Subdominio usuario.webiculum.com",
-  "Publicación durante 1 año",
-  "Editable desde dashboard",
-  "Sin límites de visualización",
-  "Pago único por web",
+  "Subdominio personalizado",
+  "Diseño profesional",
+  "Visitas ilimitadas",
+  "Publicado en segundos",
+  "Descargable en HTML",
+  "La web que mereces tener",
 ];
 const PRO_FEATURES_EN = [
-  "user.webiculum.com subdomain",
-  "Published for 1 year",
-  "Editable from the dashboard",
-  "Unlimited views",
-  "One-time payment per site",
+  "Custom subdomain",
+  "Professional design",
+  "Unlimited visits",
+  "Published in seconds",
+  "Downloadable as HTML",
+  "The website you deserve",
 ];
 const STUDIO_FEATURES_ES = [
-  "Hasta 3 webs al mes",
-  "Hasta 3 iteraciones por web con chat",
-  "Prioridad de generación",
-  "Configuración de subdominio desde dashboard",
+  "Todo lo del plan Pro, más...",
+  "Genera hasta 3 webs distintas",
+  "Hasta 3 iteraciones por cada web",
+  "Prioridad de generacion",
   "Soporte premium",
 ];
 const STUDIO_FEATURES_EN = [
-  "Up to 3 sites per month",
-  "Up to 3 chat iterations per site",
+  "Everything in the Pro plan, plus...",
+  "Create up to 3 different websites",
+  "Up to 3 iterations per website",
   "Priority generation",
-  "Subdomain settings from the dashboard",
   "Premium support",
 ];
 
@@ -282,19 +284,33 @@ export default function LandingPage() {
           </div>
 
           <h1 className="font-display text-[clamp(3rem,5.5vw,5.5rem)] font-light leading-[1.05] tracking-tight text-[var(--ink)] mb-7 animate-fade-up delay-1">
-            {isEn ? "Turn your CV into a" : "Convierte tu CV en una"}
-            <span className="block">
-              <em className="italic text-[var(--rust)]">
-                {isEn ? "professional website." : "web profesional."}
-              </em>
-            </span>
-            <span className="block">{isEn ? "In seconds." : "En segundos."}</span>
+            {isEn ? (
+              <>
+                Your <span className="text-[var(--rust)]">story</span> deserves
+                <span className="block">
+                  <em className="italic">
+                    something better than a{" "}
+                    <span className="text-[var(--rust)] not-italic">PDF</span>
+                  </em>
+                </span>
+              </>
+            ) : (
+              <>
+                Tu <span className="text-[var(--rust)]">historia</span> merece
+                <span className="block">
+                  <em className="italic">
+                    algo mejor que un{" "}
+                    <span className="text-[var(--rust)] not-italic">PDF</span>
+                  </em>
+                </span>
+              </>
+            )}
           </h1>
 
           <p className="text-[1.05rem] leading-[1.7] text-[var(--muted-color)] max-w-[480px] mx-auto mb-11 font-light animate-fade-up delay-2">
             {isEn
-              ? "Drop your PDF. AI extracts, structures and designs your professional website — ready to share in seconds."
-              : "Arrastra tu PDF. La IA extrae, estructura y diseña tu web profesional — lista para compartir en segundos."}
+              ? "The most professional version of you. One click away."
+              : "La versión más profesional de ti. A un clic."}
           </p>
 
           <div className="flex items-center justify-center gap-5 flex-wrap animate-fade-up delay-3">
@@ -422,7 +438,7 @@ export default function LandingPage() {
           ).map((s) => (
             <div
               key={s.num}
-              className="rounded-[24px] border border-[rgba(13,13,13,0.08)] bg-[rgba(255,255,255,0.72)] backdrop-blur-sm shadow-[0_22px_36px_rgba(13,13,13,0.05)] p-7 md:p-8 relative"
+              className="h-full rounded-[24px] border border-[rgba(13,13,13,0.08)] bg-[rgba(255,255,255,0.72)] backdrop-blur-sm shadow-[0_22px_36px_rgba(13,13,13,0.05)] p-7 md:p-8 relative flex flex-col"
             >
               <div className="absolute top-7 right-7 w-10 h-10 rounded-[12px] border border-[rgba(192,68,10,0.25)] bg-[rgba(192,68,10,0.06)] flex items-center justify-center">
                 {s.icon}
@@ -437,7 +453,7 @@ export default function LandingPage() {
               <p className="text-sm md:text-[0.95rem] text-[var(--muted-color)] leading-[1.75] font-light">
                 {s.desc}
               </p>
-              <span className="inline-block mt-6 text-[0.72rem] uppercase tracking-[0.1em] text-[var(--rust)] font-medium">
+              <span className="inline-block mt-auto pt-6 text-[0.72rem] uppercase tracking-[0.1em] text-[var(--rust)] font-medium">
                 {s.tag}
               </span>
             </div>
@@ -550,17 +566,17 @@ export default function LandingPage() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-[1100px] mx-auto mt-16">
           {/* Free */}
-          <div className="bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
+          <div className="h-full bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all flex flex-col">
             <div className="text-[0.7rem] uppercase tracking-[0.1em] text-[var(--muted-color)] mb-6">
               {isEn ? "Free plan" : "Plan Gratis"}
             </div>
             <div className="font-display text-[3rem] font-light tracking-tighter leading-none mb-1.5">
-              €0
+              0 €
             </div>
             <div className="text-[0.82rem] text-[var(--muted-color)] font-light mb-8">
               {isEn ? "trial" : "por prueba"}
             </div>
-            <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
+            <ul className="flex flex-col gap-3.5 list-none p-0 flex-1">
               {freeFeatures.map((f) => (
                 <li
                   key={f}
@@ -573,14 +589,14 @@ export default function LandingPage() {
             </ul>
             <Link
               href="/signup"
-              className="block w-full py-3.5 text-center rounded bg-[var(--paper)] text-[var(--ink)] border-[1.5px] border-[var(--sand)] font-medium text-[0.9rem] hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
+              className="block w-full mt-9 py-3.5 text-center rounded bg-[var(--paper)] text-[var(--ink)] border-[1.5px] border-[var(--sand)] font-medium text-[0.9rem] hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
             >
               {isEn ? "Try now" : "Probar ahora"}
             </Link>
           </div>
 
           {/* Pro */}
-          <div className="bg-[var(--ink)] text-[var(--paper)] rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all relative overflow-hidden">
+          <div className="h-full bg-[var(--ink)] text-[var(--paper)] rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all relative overflow-hidden flex flex-col">
             <div className="absolute top-5 -right-7 bg-[var(--rust)] text-white text-[0.65rem] tracking-[0.1em] uppercase font-medium px-10 py-1.5 rotate-45">
               {isEn ? "Popular" : "Popular"}
             </div>
@@ -593,7 +609,7 @@ export default function LandingPage() {
             <div className="text-[0.82rem] text-[var(--sand)] font-light mb-8">
               {isEn ? "per year" : "al año"}
             </div>
-            <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
+            <ul className="flex flex-col gap-3.5 list-none p-0 flex-1">
               {proFeatures.map((f) => (
                 <li
                   key={f}
@@ -606,14 +622,14 @@ export default function LandingPage() {
             </ul>
             <Link
               href="/checkout?plan=publish"
-              className="block w-full py-3.5 text-center rounded bg-[var(--rust)] text-white border-none font-medium text-[0.9rem] hover:bg-[var(--rust-light)] transition-all cursor-pointer no-underline"
+              className="block w-full mt-9 py-3.5 text-center rounded bg-[var(--rust)] text-white border-none font-medium text-[0.9rem] hover:bg-[var(--rust-light)] transition-all cursor-pointer no-underline"
             >
               {isEn ? "Buy publishing" : "Comprar publicación"}
             </Link>
           </div>
 
           {/* Studio */}
-          <div className="bg-white rounded-2xl p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_12px_40px_rgba(0,0,0,0.08)] transition-all">
+          <div className="h-full bg-white rounded-2xl border-2 border-[#c9a227] p-10 shadow-[0_2px_12px_rgba(0,0,0,0.05)] hover:-translate-y-1 hover:shadow-[0_16px_44px_rgba(201,162,39,0.22)] transition-all flex flex-col">
             <div className="text-[0.7rem] uppercase tracking-[0.1em] text-[var(--muted-color)] mb-6">
               {isEn ? "Studio plan" : "Plan Studio"}
             </div>
@@ -623,7 +639,7 @@ export default function LandingPage() {
             <div className="text-[0.82rem] text-[var(--muted-color)] font-light mb-8">
               {isEn ? "per year" : "al año"}
             </div>
-            <ul className="flex flex-col gap-3.5 mb-9 list-none p-0">
+            <ul className="flex flex-col gap-3.5 list-none p-0 flex-1">
               {studioFeatures.map((f) => (
                 <li
                   key={f}
@@ -636,7 +652,7 @@ export default function LandingPage() {
             </ul>
             <Link
               href="/checkout?plan=studio"
-              className="block w-full py-3.5 text-center rounded bg-[var(--ink)] text-[var(--paper)] border-none font-medium text-[0.9rem] hover:bg-[var(--rust)] transition-all no-underline"
+              className="block w-full mt-9 py-3.5 text-center rounded bg-[var(--ink)] text-[var(--paper)] border-none font-medium text-[0.9rem] hover:bg-[var(--rust)] transition-all no-underline"
             >
               {isEn ? "Activate Studio" : "Activar Studio"}
             </Link>
@@ -680,18 +696,24 @@ export default function LandingPage() {
           web<span className="text-[var(--rust)]">iculum</span>
         </Link>
         <div className="flex gap-7">
-          {(isEn
-            ? ["Privacy", "Terms", "Blog", "Contact"]
-            : ["Privacidad", "Términos", "Blog", "Contacto"]
-          ).map((link) => (
-            <a
-              key={link}
-              href="#"
-              className="text-[0.78rem] text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors no-underline"
-            >
-              {link}
-            </a>
-          ))}
+          <Link
+            href="/privacidad"
+            className="text-[0.78rem] text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors no-underline"
+          >
+            {isEn ? "Privacy" : "Privacidad"}
+          </Link>
+          <Link
+            href="/terminos"
+            className="text-[0.78rem] text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors no-underline"
+          >
+            {isEn ? "Terms" : "Términos"}
+          </Link>
+          <Link
+            href="/ayuda#contacto-formulario"
+            className="text-[0.78rem] text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors no-underline"
+          >
+            {isEn ? "Contact" : "Contacto"}
+          </Link>
         </div>
         <div className="text-[0.78rem] text-[var(--muted-color)]">
           © {new Date().getFullYear()} webiculum. {isEn ? "Built with ♥ and AI." : "Hecho con ♥ y IA."}
