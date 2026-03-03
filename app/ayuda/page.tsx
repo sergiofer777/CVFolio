@@ -46,7 +46,7 @@ const HELP_FAQS = [
   {
     question: "¿Puedo elegir mi propio subdominio?",
     answer:
-      "Sí. En planes con publicación puedes definir tu subdominio dentro de Webiculum, guardarlo desde el dashboard y enlazar el portfolio que quieras mostrar.",
+      "Sí. En planes con publicación puedes definir tu subdominio dentro de Webiculum, guardarlo desde el dashboard y enlazar el portfolio que quieras mostrar. Por seguridad y estabilidad, solo puedes cambiarlo una vez cada 7 días.",
   },
   {
     question: "¿Qué incluye el plan Pro y cuándo necesito Studio?",
@@ -89,7 +89,7 @@ const HELP_FAQS_EN = [
   {
     question: "Can I choose my own subdomain?",
     answer:
-      "Yes. On plans with publishing enabled, you can define your subdomain inside Webiculum, save it from the dashboard and link the portfolio you want to show.",
+      "Yes. On plans with publishing enabled, you can define your subdomain inside Webiculum, save it from the dashboard and link the portfolio you want to show. For security and stability, you can only change it once every 7 days.",
   },
   {
     question: "What does Pro include and when do I need Studio?",

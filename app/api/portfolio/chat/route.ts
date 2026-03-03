@@ -36,6 +36,79 @@ function getCurrentHtml(cvData: CVData): string | undefined {
   return undefined;
 }
 
+function buildCvIterationContext(cvData: CVData): string {
+  const { generatedLanding: _generatedLanding, ...structuredCv } = cvData;
+  return JSON.stringify(structuredCv);
+}
+
+async function recoverIterationHtml(params: {
+  previousOutput: string;
+  currentHtml: string;
+  userMessage: string;
+}): Promise<string | undefined> {
+  const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  if (!apiKey) {
+    throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+  }
+
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
+  const response = await fetch(url, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      system_instruction: {
+        parts: [
+          {
+            text:
+              "Eres un desarrollador frontend senior. Convierte la salida anterior en un único documento HTML final, limpio y utilizable. Devuelve solo HTML completo.",
+          },
+        ],
+      },
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              text: `La iteración anterior no ha devuelto HTML utilizable. Corrígela.
+
+REGLAS:
+1. Devuelve solo un documento HTML completo.
+2. Debe empezar con <!doctype html> y terminar con </html>.
+3. Mantén el estilo y la estructura base de la web actual.
+4. Respeta la solicitud del usuario.
+
+SOLICITUD DEL USUARIO:
+${params.userMessage}
+
+HTML ACTUAL:
+${params.currentHtml}
+
+SALIDA ANTERIOR:
+${params.previousOutput}`,
+            },
+          ],
+        },
+      ],
+      generationConfig: {
+        temperature: 0.2,
+        maxOutputTokens: 16384,
+      },
+    }),
+  });
+
+  if (!response.ok) {
+    const rawError = await response.text();
+    const compactError = rawError.replace(/\s+/g, " ").trim().slice(0, 280);
+    throw new Error(`Gemini recovery error ${response.status}: ${compactError}`);
+  }
+
+  const data = (await response.json()) as {
+    candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
+  };
+  const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  return extractHtmlFromText(text);
+}
+
 async function rewriteLandingHtml(params: {
   currentHtml: string;
   cvData: CVData;
@@ -78,8 +151,8 @@ REGLAS:
 SOLICITUD DEL USUARIO:
 ${params.userMessage}
 
-CONTEXTO CV:
-${JSON.stringify(params.cvData, null, 2)}
+CONTEXTO CV COMPLETO:
+${buildCvIterationContext(params.cvData)}
 
 TEMA:
 ${params.theme ?? "minimal"}
@@ -98,14 +171,22 @@ ${params.currentHtml}`,
   });
 
   if (!response.ok) {
-    throw new Error(`Gemini API error ${response.status}: ${await response.text()}`);
+    const rawError = await response.text();
+    const compactError = rawError.replace(/\s+/g, " ").trim().slice(0, 280);
+    throw new Error(`Gemini API error ${response.status}: ${compactError}`);
   }
 
   const data = (await response.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ text?: string }> } }>;
   };
   const text = data.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
-  const html = extractHtmlFromText(text);
+  const html =
+    extractHtmlFromText(text) ??
+    (await recoverIterationHtml({
+      previousOutput: text,
+      currentHtml: params.currentHtml,
+      userMessage: params.userMessage,
+    }));
   if (!html) {
     throw new Error("La IA no devolvió HTML utilizable para la iteración.");
   }
@@ -285,12 +366,14 @@ export async function POST(request: NextRequest) {
     console.error("[portfolio/chat] error:", error);
     const isEn =
       normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
-    return NextResponse.json(
-      {
-        error: isEn
+    const message =
+      error instanceof Error
+        ? error.message
+        : isEn
           ? "The chat iteration could not be applied to the portfolio."
-          : "No se pudo aplicar la iteración de chat al portfolio.",
-      },
+          : "No se pudo aplicar la iteración de chat al portfolio.";
+    return NextResponse.json(
+      { error: message },
       { status: 500 }
     );
   }

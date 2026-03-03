@@ -4,6 +4,7 @@ import { type FormEvent, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Loader2, Send } from "lucide-react";
 import { useClientLocale } from "@/hooks/use-client-locale";
+import { MinigameCanvas } from "@/components/upload/minigame-canvas";
 
 interface PortfolioIterationChatProps {
   portfolioId: string;
@@ -181,8 +182,44 @@ export function PortfolioIterationChat({
         </div>
       </form>
 
-      {message && <p className="mt-3 text-xs text-[rgb(10,125,70)]">{message}</p>}
-      {error && <p className="mt-3 text-xs text-[var(--rust)]">{error}</p>}
+      {isLoading && (
+        <div className="mt-5 border-t border-[var(--sand)] pt-4">
+          <div className="flex flex-col gap-4">
+            <div className="text-center">
+              <div className="inline-flex items-center gap-2 rounded-full bg-[var(--cream)] px-3 py-1.5 text-[0.72rem] font-medium uppercase tracking-[0.1em] text-[var(--rust)]">
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[var(--rust)] animate-[pulseDot_1.2s_ease-in-out_infinite]"
+                />
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[var(--rust)] animate-[pulseDot_1.2s_ease-in-out_infinite]"
+                  style={{ animationDelay: "0.15s" }}
+                />
+                <span
+                  className="h-1.5 w-1.5 rounded-full bg-[var(--rust)] animate-[pulseDot_1.2s_ease-in-out_infinite]"
+                  style={{ animationDelay: "0.3s" }}
+                />
+                {isEn ? "Applying changes" : "Aplicando cambios"}
+              </div>
+              <p className="mt-3 text-sm text-[var(--muted-color)]">
+                {isEn
+                  ? "We are rewriting the selected portfolio based on your request."
+                  : "Estamos rehaciendo el portfolio seleccionado según tu petición."}
+              </p>
+            </div>
+
+            <div className="max-w-4xl mx-auto w-full">
+              <MinigameCanvas />
+            </div>
+          </div>
+        </div>
+      )}
+
+      {!isLoading && message && (
+        <p className="mt-3 text-xs text-[rgb(10,125,70)]">{message}</p>
+      )}
+      {!isLoading && error && (
+        <p className="mt-3 text-xs text-[var(--rust)]">{error}</p>
+      )}
     </section>
   );
 }

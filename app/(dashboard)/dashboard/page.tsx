@@ -6,6 +6,8 @@ import { PortfolioIterationChat } from "@/components/dashboard/portfolio-iterati
 import { PublicPortfolioButton } from "@/components/dashboard/public-portfolio-button";
 import { PublicSubdomainSettings } from "@/components/dashboard/public-subdomain-settings";
 import { LinkSubdomainButton } from "@/components/dashboard/link-subdomain-button";
+import { DowngradeToProButton } from "@/components/billing/downgrade-to-pro-button";
+import { ManageSubscriptionButton } from "@/components/billing/manage-subscription-button";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { LogoutButton } from "@/components/auth/logout-button";
 import { FreePreviewCountdown } from "@/components/dashboard/free-preview-countdown";
@@ -32,13 +34,20 @@ import {
   STUDIO_UPGRADE_FROM_PRO_EUR,
   formatEuro,
 } from "@/lib/billing/pricing";
-import { isBillingEnforcementEnabled } from "@/lib/billing/config";
+import {
+  isBillingEnforcementEnabled,
+  isBillingMockPaymentsEnabled,
+} from "@/lib/billing/config";
 import { PORTFOLIO_THEME_OPTIONS } from "@/lib/templates/portfolio-themes";
 import { buildPublicPortfolioUrl } from "@/lib/billing/activation";
 import {
   confirmLatestStripeCheckoutForUser,
   confirmStripeCheckoutForUser,
 } from "@/lib/billing/stripe-confirmation";
+import {
+  formatBillingDateTime,
+  getUserBillingSubscriptionStatus,
+} from "@/lib/billing/subscription-status";
 
 interface DashboardPortfolioRow {
   id: string;
@@ -154,6 +163,7 @@ export default async function DashboardPage({
     "usuario";
 
   const billingEnforced = isBillingEnforcementEnabled();
+  const billingMockEnabled = isBillingMockPaymentsEnabled();
   const selectedAccess = getFreePreviewAccess({
     plan: profilePlan,
     portfolioUpdatedAt: selectedPortfolio?.updated_at ?? null,
@@ -184,6 +194,27 @@ export default async function DashboardPage({
   const canUseIterationChat = chatIterationsPerPortfolio > 0;
   const hasProAccess = profilePlan === "premium" || profilePlan === "studio";
   const hasStudioAccess = profilePlan === "studio";
+  const isFreePlan = profilePlan === "free";
+  const subscriptionStatus =
+    !isFreePlan && !billingMockEnabled
+      ? await getUserBillingSubscriptionStatus(user.id)
+      : null;
+  const hasScheduledCancellation = Boolean(
+    subscriptionStatus?.cancelAtPeriodEnd && subscriptionStatus.currentPeriodEnd
+  );
+  const subscriptionEndsAtLabel = formatBillingDateTime(
+    subscriptionStatus?.currentPeriodEnd ?? null,
+    locale
+  );
+  const hasScheduledDowngradeToPro = Boolean(
+    hasStudioAccess &&
+      subscriptionStatus?.scheduledPlan === "premium" &&
+      subscriptionStatus.scheduledChangeAt
+  );
+  const scheduledDowngradeAtLabel = formatBillingDateTime(
+    subscriptionStatus?.scheduledChangeAt ?? null,
+    locale
+  );
   const billingApplied =
     expectedPlanFromBilling === "studio"
       ? hasStudioAccess
@@ -191,12 +222,11 @@ export default async function DashboardPage({
         ? hasProAccess
         : false;
   const isUpgradeFromPro = profilePlan === "premium";
-  const isFreePlan = profilePlan === "free";
   const studioBillingHref = selectedPortfolio
     ? `/dashboard/billing?portfolioId=${selectedPortfolio.id}&plan=studio`
     : "/dashboard/billing?plan=studio";
-  const studioUpgradePriceLabel = formatEuro(STUDIO_UPGRADE_FROM_PRO_EUR);
-  const studioOriginalPriceLabel = formatEuro(STUDIO_PRICE_EUR);
+  const studioUpgradePriceLabel = formatEuro(STUDIO_UPGRADE_FROM_PRO_EUR, locale);
+  const studioOriginalPriceLabel = formatEuro(STUDIO_PRICE_EUR, locale);
   const currentPlanLabel = hasStudioAccess ? "Studio" : hasProAccess ? "Pro" : isEn ? "Free" : "Gratis";
   const currentPlanDescription = hasStudioAccess
     ? isEn
@@ -211,12 +241,12 @@ export default async function DashboardPage({
         : "1 portfolio en preview durante 24h. Sin subdominio público.";
   const currentPlanPriceLabel = hasStudioAccess
     ? isEn
-      ? "€24.99/year"
-      : "€24,99/año"
+      ? "24.99 €/year"
+      : "24,99 €/año"
     : hasProAccess
       ? isEn
-        ? "€9.99/year"
-        : "€9,99/año"
+        ? "9.99 €/year"
+        : "9,99 €/año"
       : isEn
         ? "€0"
         : "0 €";
@@ -343,7 +373,7 @@ export default async function DashboardPage({
                 ? "You already have 3 portfolios."
                 : "Ya tienes 3 portfolios."
               : isEn
-                ? "To create more, you need to activate Studio (€24.99)."
+                ? "To create more, you need to activate Studio (24.99 €)."
                 : "Para crear más necesitas activar Studio (€24,99)."}
           </div>
         )}
@@ -488,7 +518,7 @@ export default async function DashboardPage({
                     </p>
                     <p className="text-xs text-[var(--muted-color)] mt-1">
                       {isEn
-                        ? "Available in Studio (€24.99) with up to 3 iterations per portfolio."
+                        ? "Available in Studio (24.99 €) with up to 3 iterations per portfolio."
                         : "Disponible en Studio (€24,99) con hasta 3 iteraciones por portfolio."}
                     </p>
                     <div className="mt-4">
@@ -514,8 +544,20 @@ export default async function DashboardPage({
                         {currentPlanLabel}
                       </h2>
                     </div>
-                    <span className="inline-flex rounded-lg px-3 py-1.5 text-xs font-medium bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)]">
-                      {isEn ? "Active" : "Activo"}
+                    <span
+                      className={`inline-flex rounded-lg px-3 py-1.5 text-xs font-medium ${
+                        hasScheduledCancellation
+                          ? "bg-[rgba(192,68,10,0.12)] text-[var(--rust)]"
+                          : "bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)]"
+                      }`}
+                    >
+                      {hasScheduledCancellation
+                        ? isEn
+                          ? "Cancels"
+                          : "Cancelada"
+                        : isEn
+                          ? "Active"
+                          : "Activo"}
                     </span>
                   </div>
 
@@ -545,6 +587,43 @@ export default async function DashboardPage({
                         </Link>
                       </div>
                     </div>
+                  )}
+
+                  {!isFreePlan && !billingMockEnabled && (
+                    <div className="mt-4">
+                      <ManageSubscriptionButton className="inline-flex w-full items-center justify-center rounded-lg border border-[var(--sand)] bg-white px-3 py-2 text-xs font-medium text-[var(--ink)] hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors">
+                        {isEn ? "Manage subscription" : "Gestionar suscripción"}
+                      </ManageSubscriptionButton>
+                      {hasStudioAccess && (
+                        <>
+                          <DowngradeToProButton className="mt-3 inline-flex w-full items-center justify-center rounded-lg border border-[var(--sand)] bg-[var(--cream)] px-3 py-2 text-xs font-medium text-[var(--ink)] hover:border-[var(--ink)] hover:bg-white transition-colors">
+                            {isEn
+                              ? "Downgrade to Pro at renewal"
+                              : "Bajar a Pro en la renovación"}
+                          </DowngradeToProButton>
+                          <p className="mt-3 text-xs leading-5 text-[var(--muted-color)]">
+                            {isEn
+                              ? "Use this when you already have the site you want and only need to keep one public site active each year."
+                              : "Úsalo si ya tienes la web que quieres y solo necesitas mantener una única web pública activa cada año."}
+                          </p>
+                        </>
+                      )}
+                    </div>
+                  )}
+
+                  {hasScheduledCancellation && subscriptionEndsAtLabel && (
+                    <p className="mt-3 text-xs leading-5 text-[var(--rust)]">
+                      {isEn
+                        ? `This subscription is set to end on ${subscriptionEndsAtLabel}. Your public domain will stop being active on that date unless the subscription is resumed before then.`
+                        : `Esta suscripción terminará el ${subscriptionEndsAtLabel}. Tu dominio público dejará de estar activo en esa fecha si no se reactiva antes.`}
+                    </p>
+                  )}
+                  {hasScheduledDowngradeToPro && scheduledDowngradeAtLabel && (
+                    <p className="mt-3 text-xs leading-5 text-[var(--rust)]">
+                      {isEn
+                        ? `Studio stays active until ${scheduledDowngradeAtLabel}. From that date your plan will continue as Pro, and the site currently linked to your domain will remain as the published site.`
+                        : `Studio seguirá activo hasta el ${scheduledDowngradeAtLabel}. A partir de esa fecha tu plan pasará a Pro y la web que esté enlazada en ese momento a tu dominio se mantendrá como web publicada.`}
+                    </p>
                   )}
                 </section>
 
@@ -629,7 +708,7 @@ export default async function DashboardPage({
                     className="inline-flex items-center gap-2 bg-[var(--ink)] text-[var(--paper)] px-6 py-3 rounded text-sm font-medium hover:bg-[var(--rust)] transition-colors no-underline"
                   >
                     <Lock className="w-4 h-4" />
-                    {isEn ? "Activate plan (€9.99)" : "Activar plan (€9,99)"}
+                    {isEn ? "Activate plan (9.99 €)" : "Activar plan (€9,99)"}
                   </Link>
                 </div>
               </div>

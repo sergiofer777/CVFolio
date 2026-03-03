@@ -6,6 +6,7 @@ import { isPaidPlan, resolvePlan, type ProfilePlan } from "@/lib/billing/access"
 import { activatePlanForUser } from "@/lib/billing/activation";
 import { isBillingMockPaymentsEnabled } from "@/lib/billing/config";
 import { PRO_PRICE_CENTS } from "@/lib/billing/pricing";
+import { createStripeServerClient } from "@/lib/billing/stripe-server";
 import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
 export const runtime = "nodejs";
@@ -20,7 +21,7 @@ function getStripeClient(): Stripe {
   if (!key) {
     throw new Error("Missing STRIPE_SECRET_KEY");
   }
-  return new Stripe(key);
+  return createStripeServerClient(key);
 }
 
 function getPriceId(plan: "publish" | "studio"): string {
@@ -94,6 +95,7 @@ export async function POST(request: NextRequest) {
       dashboardParams.set("portfolioId", requestedPortfolioId);
     }
     const successDashboardUrl = `/dashboard?${dashboardParams.toString()}`;
+    const successRedirectUrl = `${appUrl}${successDashboardUrl}`;
 
     if (!username) {
       return NextResponse.json(
@@ -177,19 +179,11 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = getStripeClient();
-    const mode = plan === "publish" ? "payment" : "subscription";
+    const mode: Stripe.Checkout.SessionCreateParams.Mode = "subscription";
     const price = getPriceId(plan);
     const successParams = new URLSearchParams({ billing: "success", plan });
     if (selectedPortfolioId) {
       successParams.set("portfolioId", selectedPortfolioId);
-    }
-
-    const cancelParams = new URLSearchParams({
-      billing: "cancelled",
-      plan,
-    });
-    if (selectedPortfolioId) {
-      cancelParams.set("portfolioId", selectedPortfolioId);
     }
 
     let discounts: Stripe.Checkout.SessionCreateParams.Discount[] | undefined;
@@ -213,13 +207,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    const successUrl = `${appUrl}/dashboard?${successParams.toString()}&session_id={CHECKOUT_SESSION_ID}`;
-
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams: Stripe.Checkout.SessionCreateParams = {
       mode,
+      ui_mode: "embedded",
+      redirect_on_completion: "if_required",
       line_items: [{ price, quantity: 1 }],
-      success_url: successUrl,
-      cancel_url: `${appUrl}/dashboard?${cancelParams.toString()}`,
+      payment_method_types: ["card"],
+      return_url: `${appUrl}/dashboard?${successParams.toString()}`,
       customer_email: user.email ?? undefined,
       client_reference_id: user.id,
       metadata: {
@@ -228,22 +222,32 @@ export async function POST(request: NextRequest) {
         username,
         portfolioId: selectedPortfolioId ?? "",
       },
-      subscription_data:
-        plan === "studio"
-          ? {
-              metadata: {
-                userId: user.id,
-                plan,
-                username,
-                portfolioId: selectedPortfolioId ?? "",
-              },
-            }
-          : undefined,
-      allow_promotion_codes: !isStudioUpgradeFromPro,
+      subscription_data: {
+        metadata: {
+          userId: user.id,
+          plan,
+          username,
+          portfolioId: selectedPortfolioId ?? "",
+        },
+      },
       discounts,
-    });
+    };
 
-    return NextResponse.json({ checkoutUrl: session.url });
+    if (!discounts) {
+      sessionParams.allow_promotion_codes = true;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
+
+    if (!session.client_secret) {
+      throw new Error("Stripe did not return a client secret for the embedded checkout session.");
+    }
+
+    return NextResponse.json({
+      clientSecret: session.client_secret,
+      checkoutSessionId: session.id,
+      successRedirectUrl,
+    });
   } catch (error) {
     console.error("[billing/checkout] error:", error);
     const isEn =

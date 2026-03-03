@@ -29,6 +29,7 @@ export function PublicSubdomainSettings({
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const MAX_SLUG_LENGTH = 25;
+  const CHANGE_COOLDOWN_DAYS = 7;
 
   const saveSlug = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -117,6 +118,11 @@ export function PublicSubdomainSettings({
 
       <p className="mt-2 text-[0.72rem] text-[var(--muted-color)]">
         {isEn ? `Maximum ${MAX_SLUG_LENGTH} characters.` : `Máximo ${MAX_SLUG_LENGTH} caracteres.`}
+      </p>
+      <p className="mt-1 text-[0.72rem] text-[var(--muted-color)]">
+        {isEn
+          ? `You can change your custom subdomain once every ${CHANGE_COOLDOWN_DAYS} days.`
+          : `Puedes cambiar tu subdominio personalizado una vez cada ${CHANGE_COOLDOWN_DAYS} días.`}
       </p>
 
       {message && <p className="mt-3 text-xs text-[rgb(10,125,70)]">{message}</p>}

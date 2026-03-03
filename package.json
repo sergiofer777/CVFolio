@@ -11,6 +11,8 @@
   "dependencies": {
     "@ai-sdk/anthropic": "^0.0.56",
     "@ai-sdk/google": "^3.0.29",
+    "@stripe/react-stripe-js": "^5.6.0",
+    "@stripe/stripe-js": "^8.8.0",
     "@supabase/ssr": "^0.5.1",
     "@supabase/supabase-js": "^2.45.4",
     "ai": "^6.0.91",

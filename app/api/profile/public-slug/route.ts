@@ -8,6 +8,8 @@ import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
 export const runtime = "nodejs";
 
+const SUBDOMAIN_CHANGE_COOLDOWN_DAYS = 7;
+
 const payloadSchema = z.object({
   slug: z.string().min(3).max(32),
 });
@@ -62,6 +64,24 @@ function validateSlug(slug: string, isEn: boolean): string | null {
       : "Ese subdominio está reservado. Elige otro.";
   }
   return null;
+}
+
+function isMissingRelationError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const err = error as { code?: string; message?: string };
+  if (err.code === "42P01" || err.code === "PGRST205") return true;
+  if (!err.message) return false;
+  return /relation .* does not exist|table .* does not exist/i.test(err.message);
+}
+
+function formatCooldownDate(date: Date, locale: "es" | "en"): string {
+  return new Intl.DateTimeFormat(locale === "en" ? "en-GB" : "es-ES", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  }).format(date);
 }
 
 export async function PATCH(request: NextRequest) {
@@ -130,6 +150,42 @@ export async function PATCH(request: NextRequest) {
       });
     }
 
+    const { data: lastChangeRaw, error: lastChangeError } = await admin
+      .from("profile_slug_changes")
+      .select("changed_at")
+      .eq("user_id", user.id)
+      .order("changed_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (lastChangeError && !isMissingRelationError(lastChangeError)) {
+      throw lastChangeError;
+    }
+
+    const lastChangedAtValue =
+      (lastChangeRaw as { changed_at?: string | null } | null)?.changed_at ?? null;
+    if (lastChangedAtValue) {
+      const lastChangedAt = new Date(lastChangedAtValue);
+      if (!Number.isNaN(lastChangedAt.getTime())) {
+        const nextAllowedAt = new Date(
+          lastChangedAt.getTime() +
+            SUBDOMAIN_CHANGE_COOLDOWN_DAYS * 24 * 60 * 60 * 1000
+        );
+
+        if (Date.now() < nextAllowedAt.getTime()) {
+          const nextAllowedLabel = formatCooldownDate(nextAllowedAt, isEn ? "en" : "es");
+          return NextResponse.json(
+            {
+              error: isEn
+                ? `You can only change your subdomain once every ${SUBDOMAIN_CHANGE_COOLDOWN_DAYS} days. You can change it again on ${nextAllowedLabel}.`
+                : `Solo puedes cambiar el subdominio una vez cada ${SUBDOMAIN_CHANGE_COOLDOWN_DAYS} días. Podrás volver a cambiarlo el ${nextAllowedLabel}.`,
+            },
+            { status: 429 }
+          );
+        }
+      }
+    }
+
     const { data: conflictProfile, error: conflictError } = await admin
       .from("profiles")
       .select("id")
@@ -154,6 +210,18 @@ export async function PATCH(request: NextRequest) {
       .update({ username: nextSlug })
       .eq("id", user.id);
     if (updateError) throw updateError;
+
+    const { error: historyInsertError } = await admin
+      .from("profile_slug_changes")
+      .insert({
+        user_id: user.id,
+        previous_slug: currentSlug,
+        next_slug: nextSlug,
+      });
+
+    if (historyInsertError && !isMissingRelationError(historyInsertError)) {
+      throw historyInsertError;
+    }
 
     try {
       await upsertCloudflareSubdomainRecord(nextSlug);

@@ -45,6 +45,12 @@ interface MinigameCanvasProps {
   onBackToCV?: () => void;
 }
 
+interface LeaderboardEntry {
+  rank: number;
+  displayName: string;
+  score: number;
+}
+
 /* ── Shared state structure ── */
 interface Pipe {
   x: number;
@@ -176,6 +182,15 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
   const [gameType, setGameType] = useState<GameType>("runner");
   const [started, setStarted] = useState(false);
   const [gameOver, setGameOver] = useState(false);
+  const [consentChoice, setConsentChoice] = useState<boolean | null>(null);
+  const [consentLoaded, setConsentLoaded] = useState(false);
+  const [preferenceEnabled, setPreferenceEnabled] = useState(true);
+  const [lastScore, setLastScore] = useState<number | null>(null);
+  const [leaderboardEntries, setLeaderboardEntries] = useState<LeaderboardEntry[]>([]);
+  const [leaderboardEnabled, setLeaderboardEnabled] = useState(true);
+  const [leaderboardLoading, setLeaderboardLoading] = useState(false);
+  const [leaderboardError, setLeaderboardError] = useState<string | null>(null);
+  const [scoreSaved, setScoreSaved] = useState<boolean | null>(null);
   const mountedRef = useRef(true);
 
   const CW = 560;
@@ -188,6 +203,54 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
       if (stateRef.current) cancelAnimationFrame(stateRef.current.frameId);
     };
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    const loadPreference = async () => {
+      try {
+        const response = await fetch("/api/minigame/preferences", {
+          method: "GET",
+        });
+
+        const data = (await response.json()) as {
+          preferenceEnabled?: boolean;
+          consentChoice?: boolean | null;
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ??
+              (isEn
+                ? "Could not load game preference."
+                : "No se pudo cargar la preferencia del juego.")
+          );
+        }
+
+        if (cancelled) return;
+
+        setPreferenceEnabled(data.preferenceEnabled !== false);
+        setConsentChoice(
+          typeof data.consentChoice === "boolean" ? data.consentChoice : null
+        );
+      } catch {
+        if (cancelled) return;
+        setPreferenceEnabled(false);
+        setConsentChoice(null);
+      } finally {
+        if (!cancelled) {
+          setConsentLoaded(true);
+        }
+      }
+    };
+
+    void loadPreference();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [isEn]);
 
   useEffect(() => {
     const handleViewportChange = () => {
@@ -207,6 +270,15 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     const c = canvasRef.current;
     return c ? c.getContext("2d") : null;
   }, []);
+
+  const idlePrompt =
+    consentChoice === null
+      ? isEn
+        ? "Choose below to start"
+        : "Elige abajo para empezar"
+      : isEn
+        ? "Click to play"
+        : "Clic para jugar";
 
   /* ══════════════════════════════════
      SNAKE
@@ -529,7 +601,11 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
 
     ctx.font = "13px 'DM Sans', sans-serif";
     ctx.fillStyle = "rgba(255,255,255,0.75)";
-    ctx.fillText(isEn ? "Click to retry" : "Clic para reintentar", CW / 2, CH / 2 + 18);
+    ctx.fillText(
+      isEn ? "See the ranking below" : "Mira el ranking abajo",
+      CW / 2,
+      CH / 2 + 18
+    );
   }, [CW, CH, isEn]);
 
   /* ══════════════════════════════════
@@ -555,7 +631,10 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
 
     if (s.over) {
       drawGameOver(s, ctx);
-      if (mountedRef.current) { setGameOver(true); }
+      if (mountedRef.current) {
+        setLastScore(s.score);
+        setGameOver(true);
+      }
       return;
     }
 
@@ -572,6 +651,12 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     stateRef.current = s;
     setStarted(false);
     setGameOver(false);
+    setLastScore(null);
+    setLeaderboardEntries([]);
+    setLeaderboardEnabled(true);
+    setLeaderboardLoading(false);
+    setLeaderboardError(null);
+    setScoreSaved(null);
 
     // Idle screen
     if (gameType === "flappy") {
@@ -588,51 +673,133 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
 
     ctx.font = "13px 'DM Sans', sans-serif";
     ctx.fillStyle = "#888";
-    ctx.fillText(isEn ? "Click to play" : "Clic para jugar", CW / 2, CH / 2 + 8);
+    ctx.fillText(idlePrompt, CW / 2, CH / 2 + 8);
 
     ctx.font = "11px 'DM Sans', sans-serif";
     ctx.fillStyle = "#aaa";
     ctx.fillText(gameHints[gameType], CW / 2, CH / 2 + 30);
-  }, [gameHints, gameNames, gameType, getCtx, CW, CH, isEn]);
+  }, [gameHints, gameNames, gameType, getCtx, CW, CH, idlePrompt]);
 
   /* ── Start ── */
   const startGame = useCallback(() => {
     const s = stateRef.current;
-    if (!s || s.started) return;
+    if (!s || s.started || consentChoice === null) return;
     s.started = true;
     setStarted(true);
     setGameOver(false);
     s.frameId = requestAnimationFrame(loop);
-  }, [loop]);
+  }, [consentChoice, loop]);
 
-  /* ── Restart ── */
-  const restart = useCallback(() => {
+  const saveConsentChoice = useCallback(
+    async (shareScores: boolean) => {
+      const response = await fetch("/api/minigame/preferences", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ shareScores }),
+      });
+
+      const data = (await response.json()) as {
+        preferenceEnabled?: boolean;
+        consentChoice?: boolean | null;
+        error?: string;
+      };
+
+      if (!response.ok) {
+        throw new Error(
+          data.error ??
+            (isEn
+              ? "Could not save game preference."
+              : "No se pudo guardar la preferencia del juego.")
+        );
+      }
+
+      setPreferenceEnabled(data.preferenceEnabled !== false);
+      setConsentChoice(
+        typeof data.consentChoice === "boolean" ? data.consentChoice : shareScores
+      );
+    },
+    [isEn]
+  );
+
+  const handleConsentSelection = useCallback(
+    async (shareScores: boolean) => {
+      setLeaderboardError(null);
+
+      try {
+        await saveConsentChoice(shareScores);
+      } catch (error) {
+        setLeaderboardError(
+          error instanceof Error
+            ? error.message
+            : isEn
+              ? "Could not save game preference."
+              : "No se pudo guardar la preferencia del juego."
+        );
+        return;
+      }
+    },
+    [isEn, saveConsentChoice]
+  );
+
+  /* ── Restart to idle ── */
+  const restartToIdle = useCallback(() => {
     if (stateRef.current) cancelAnimationFrame(stateRef.current.frameId);
     const s = createInitState(gameType, CW, CH);
-    s.started = true;
     stateRef.current = s;
-    setStarted(true);
+    setStarted(false);
     setGameOver(false);
-    s.frameId = requestAnimationFrame(loop);
-  }, [gameType, loop, CW, CH]);
+    setLastScore(null);
+    setLeaderboardEntries([]);
+    setLeaderboardEnabled(true);
+    setLeaderboardLoading(false);
+    setLeaderboardError(null);
+    setScoreSaved(null);
+
+    const ctx = getCtx();
+    if (!ctx) return;
+
+    if (gameType === "flappy") {
+      ctx.fillStyle = "#e8f4f8";
+    } else {
+      ctx.fillStyle = "#f5f2eb";
+    }
+    ctx.fillRect(0, 0, CW, CH);
+
+    ctx.fillStyle = "#0d0d0d";
+    ctx.font = "bold 18px 'DM Sans', sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText(gameNames[gameType], CW / 2, CH / 2 - 20);
+
+    ctx.font = "13px 'DM Sans', sans-serif";
+    ctx.fillStyle = "#888";
+    ctx.fillText(idlePrompt, CW / 2, CH / 2 + 8);
+
+    ctx.font = "11px 'DM Sans', sans-serif";
+    ctx.fillStyle = "#aaa";
+    ctx.fillText(gameHints[gameType], CW / 2, CH / 2 + 30);
+  }, [gameHints, gameNames, gameType, getCtx, CW, CH, idlePrompt]);
 
   /* ── Flap / jump action ── */
   const doAction = useCallback(() => {
     const s = stateRef.current;
     if (!s) return;
-    if (!s.started) { startGame(); return; }
-    if (s.over) { restart(); return; }
+    if (!s.started || s.over) return;
     if (s.type === "flappy") { s.birdVel = -4.7; }
     if (s.type === "runner" && s.runnerOnGround) { s.runnerVel = -10; s.runnerOnGround = false; }
-  }, [startGame, restart]);
+  }, []);
 
   /* ── Canvas click ── */
   const handleCanvasClick = useCallback(
     (e: React.MouseEvent<HTMLCanvasElement>) => {
       const s = stateRef.current;
       if (!s) return;
-      if (!s.started) { startGame(); return; }
-      if (s.over) { restart(); return; }
+      if (!s.started) {
+        if (consentChoice !== null) {
+          startGame();
+        }
+        return;
+      }
+      if (s.over) return;
 
       if (s.type === "flappy") { s.birdVel = -4.7; return; }
       if (s.type === "runner" && s.runnerOnGround) { s.runnerVel = -10; s.runnerOnGround = false; return; }
@@ -653,7 +820,7 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
         }
       }
     },
-    [startGame, restart, CW, CH]
+    [CW, CH, consentChoice, startGame]
   );
 
   /* ── Keyboard ── */
@@ -662,10 +829,14 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
       const s = stateRef.current;
       if (!s) return;
 
-      if (!s.started || s.over) {
-        if (e.code === "Space") { doAction(); e.preventDefault(); }
+      if (!s.started) {
+        if (e.code === "Space" && consentChoice !== null) {
+          startGame();
+          e.preventDefault();
+        }
         return;
       }
+      if (s.over) return;
 
       if (s.type === "snake") {
         const dir = s.snakeDir!;
@@ -683,7 +854,70 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
     };
     window.addEventListener("keydown", handler);
     return () => window.removeEventListener("keydown", handler);
-  }, [doAction]);
+  }, [consentChoice, doAction, startGame]);
+
+  useEffect(() => {
+    if (!gameOver || lastScore === null) return;
+
+    let cancelled = false;
+
+    const syncLeaderboard = async () => {
+      setLeaderboardLoading(true);
+      setLeaderboardError(null);
+
+      try {
+        const response = await fetch("/api/minigame/leaderboard", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            gameType,
+            score: lastScore,
+          }),
+        });
+
+        const data = (await response.json()) as {
+          entries?: LeaderboardEntry[];
+          leaderboardEnabled?: boolean;
+          saved?: boolean;
+          error?: string;
+        };
+
+        if (!response.ok) {
+          throw new Error(
+            data.error ??
+              (isEn
+                ? "Could not load the ranking."
+                : "No se pudo cargar el ranking.")
+          );
+        }
+
+        if (cancelled) return;
+
+        setLeaderboardEntries(data.entries ?? []);
+        setLeaderboardEnabled(data.leaderboardEnabled !== false);
+        setScoreSaved(data.saved ?? false);
+      } catch (error) {
+        if (cancelled) return;
+        setLeaderboardError(
+          error instanceof Error
+            ? error.message
+            : isEn
+              ? "Could not load the ranking."
+              : "No se pudo cargar el ranking."
+        );
+      } finally {
+        if (!cancelled) {
+          setLeaderboardLoading(false);
+        }
+      }
+    };
+
+    void syncLeaderboard();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [consentChoice, gameOver, gameType, isEn, lastScore]);
 
   /* ── Switch game (sequential) ── */
   const randomGame = useCallback(() => {
@@ -717,6 +951,152 @@ export function MinigameCanvas({ onTimeUp, standalone, onBackToCV }: MinigameCan
         className="w-full rounded-lg border border-[var(--sand)] cursor-pointer"
         style={{ imageRendering: "auto", aspectRatio: `${CW}/${CH}` }}
       />
+
+      {!started && !gameOver && consentChoice === null && (
+        <div className="mt-3 rounded-lg border border-[var(--sand)] bg-white px-4 py-3">
+          {!consentLoaded ? (
+            <p className="text-[0.78rem] leading-5 text-[var(--muted-color)]">
+              {isEn
+                ? "Loading your game preference..."
+                : "Cargando tu preferencia de juego..."}
+            </p>
+          ) : consentChoice === null ? (
+            <>
+              <p className="text-[0.78rem] leading-5 text-[var(--muted-color)]">
+                {isEn
+                  ? "Choose once whether your scores should appear in the rankings. This applies to all minigames from now on."
+                  : "Elige una sola vez si tus puntuaciones deben aparecer en los rankings. Esto se aplicará a todos los minijuegos a partir de ahora."}
+              </p>
+              <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                <button
+                  type="button"
+                  onClick={() => void handleConsentSelection(true)}
+                  className="inline-flex items-center justify-center rounded-md bg-[var(--ink)] px-3 py-2 text-[0.78rem] font-medium text-[var(--paper)] hover:bg-[var(--rust)] transition-colors"
+                >
+                  {isEn ? "Appear in rankings" : "Aparecer en rankings"}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => void handleConsentSelection(false)}
+                  className="inline-flex items-center justify-center rounded-md border border-[var(--sand)] bg-[var(--cream)] px-3 py-2 text-[0.78rem] font-medium text-[var(--ink)] hover:border-[var(--ink)] hover:bg-white transition-colors"
+                >
+                  {isEn ? "Keep scores private" : "Mantener puntuaciones privadas"}
+                </button>
+              </div>
+            </>
+          ) : (
+            <>
+              <p className="text-[0.78rem] leading-5 text-[var(--muted-color)]">
+                {consentChoice
+                  ? isEn
+                    ? "Your best scores can appear in the ranking for every minigame."
+                    : "Tus mejores puntuaciones pueden aparecer en el ranking de cada minijuego."
+                  : isEn
+                    ? "You chose private mode, so your scores stay out of every ranking."
+                    : "Elegiste modo privado, así que tus puntuaciones quedan fuera de todos los rankings."}
+              </p>
+              {!preferenceEnabled && (
+                <p className="mt-2 text-[0.78rem] leading-5 text-[var(--muted-color)]">
+                  {isEn
+                    ? "The preference table is not enabled yet, so this choice is only being respected in the current session."
+                    : "La tabla de preferencias aún no está activa, así que esta elección solo se está respetando en la sesión actual."}
+                </p>
+              )}
+              <div className="mt-3">
+                <button
+                  type="button"
+                  onClick={startGame}
+                  className="inline-flex items-center justify-center rounded-md bg-[var(--ink)] px-3 py-2 text-[0.78rem] font-medium text-[var(--paper)] hover:bg-[var(--rust)] transition-colors"
+                >
+                  {isEn ? "Start playing" : "Empezar a jugar"}
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {gameOver && (
+        <div className="mt-3 rounded-lg border border-[var(--sand)] bg-white px-4 py-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <p className="text-[0.72rem] uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
+                {isEn ? "Final score" : "Puntuación final"}
+              </p>
+              <p className="mt-1 font-display text-[1.4rem] text-[var(--ink)]">
+                {lastScore ?? 0} {isEn ? "points" : "puntos"}
+              </p>
+              {consentChoice === true && scoreSaved && (
+                <p className="mt-2 text-[0.78rem] leading-5 text-[rgb(10,125,70)]">
+                  {isEn
+                    ? "Your best score for this game has been saved in the ranking."
+                    : "Tu mejor puntuación de este juego se ha guardado en el ranking."}
+                </p>
+              )}
+              {consentChoice === false && (
+                <p className="mt-2 text-[0.78rem] leading-5 text-[var(--muted-color)]">
+                  {isEn
+                    ? "You played in private mode, so this score was not published."
+                    : "Has jugado en modo privado, así que esta puntuación no se ha publicado."}
+                </p>
+              )}
+            </div>
+
+            <button
+              type="button"
+              onClick={restartToIdle}
+              className="inline-flex items-center justify-center rounded-md border border-[var(--sand)] bg-[var(--cream)] px-3 py-2 text-[0.78rem] font-medium text-[var(--ink)] hover:border-[var(--ink)] hover:bg-white transition-colors"
+            >
+              {isEn ? "Play again" : "Jugar otra vez"}
+            </button>
+          </div>
+
+          <div className="mt-4 border-t border-[var(--sand)] pt-4">
+            <p className="text-[0.72rem] uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
+              {isEn ? "Ranking" : "Ranking"}
+            </p>
+
+            {leaderboardLoading ? (
+              <p className="mt-2 text-[0.78rem] text-[var(--muted-color)]">
+                {isEn ? "Loading ranking..." : "Cargando ranking..."}
+              </p>
+            ) : leaderboardError ? (
+              <p className="mt-2 text-[0.78rem] text-[var(--rust)]">
+                {leaderboardError}
+              </p>
+            ) : !leaderboardEnabled ? (
+              <p className="mt-2 text-[0.78rem] text-[var(--muted-color)]">
+                {isEn
+                  ? "The ranking will be available once the leaderboard table is enabled."
+                  : "El ranking estará disponible cuando se active la tabla del leaderboard."}
+              </p>
+            ) : leaderboardEntries.length === 0 ? (
+              <p className="mt-2 text-[0.78rem] text-[var(--muted-color)]">
+                {isEn
+                  ? "No scores yet for this game."
+                  : "Todavía no hay puntuaciones para este juego."}
+              </p>
+            ) : (
+              <div className="mt-3 space-y-2">
+                {leaderboardEntries.map((entry) => (
+                  <div
+                    key={`${entry.rank}-${entry.displayName}-${entry.score}`}
+                    className="flex items-center justify-between rounded-md bg-[var(--cream)] px-3 py-2 text-[0.78rem]"
+                  >
+                    <div className="flex items-center gap-3 text-[var(--ink)]">
+                      <span className="inline-flex h-6 min-w-6 items-center justify-center rounded-full bg-white px-1.5 text-[0.68rem] font-medium">
+                        #{entry.rank}
+                      </span>
+                      <span className="font-medium">{entry.displayName}</span>
+                    </div>
+                    <span className="text-[var(--muted-color)]">{entry.score}</span>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {standalone && onBackToCV && (
         <div className="flex justify-center mt-3">

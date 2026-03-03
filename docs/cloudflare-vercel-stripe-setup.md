@@ -2,8 +2,8 @@
 
 ## 1. Arquitectura final
 - `free`: genera preview local (dashboard), no publicación pública, caduca en 24h.
-- `premium` (`€9,99` pago único): 1 portfolio publicado en `usuario.webiculum.com` durante 1 año.
-- `studio` (`€25/mes`): hasta 3 portfolios + 3 iteraciones de chat por portfolio.
+- `premium` (`€9,99/año` suscripción): 1 portfolio publicado en `usuario.webiculum.com` durante 1 año.
+- `studio` (`€24,99/año` suscripción): hasta 3 portfolios + 3 iteraciones de chat por portfolio.
 
 Flujo:
 1. Usuario sube CV.
@@ -33,8 +33,8 @@ En el proyecto de Vercel:
 
 ## 4. Stripe (checkout + webhook)
 Productos recomendados:
-- `Publish Pro` (one-time): `€9,99`
-- `Studio` (subscription): `€25,00 / mes`
+- `Publish Pro` (subscription, yearly): `€9,99 / año`
+- `Studio` (subscription, yearly): `€24,99 / año`
 
 Webhook en Stripe:
 - Endpoint: `https://webiculum.com/api/billing/webhook`

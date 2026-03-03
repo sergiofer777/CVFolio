@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { CheckoutRedirect } from "@/components/billing/checkout-redirect";
+import { EmbeddedCheckoutScreen } from "@/components/billing/embedded-checkout";
 
 interface CheckoutPageProps {
   searchParams: Promise<{ plan?: string; portfolioId?: string }>;
@@ -29,5 +29,5 @@ export default async function CheckoutPage({ searchParams }: CheckoutPageProps) 
     redirect(`/login?redirectTo=${encodeURIComponent(next)}`);
   }
 
-  return <CheckoutRedirect plan={plan} portfolioId={portfolioId} />;
+  return <EmbeddedCheckoutScreen plan={plan} portfolioId={portfolioId} />;
 }

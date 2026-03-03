@@ -4,6 +4,8 @@ import { ArrowLeft, Check, Crown, Sparkles } from "lucide-react";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { createClient } from "@/lib/supabase/server";
 import { CheckoutButton } from "@/components/billing/checkout-button";
+import { DowngradeToProButton } from "@/components/billing/downgrade-to-pro-button";
+import { ManageSubscriptionButton } from "@/components/billing/manage-subscription-button";
 import { getServerLocale } from "@/lib/locale-server";
 import {
   isPaidPlan,
@@ -15,7 +17,12 @@ import {
   STUDIO_UPGRADE_FROM_PRO_EUR,
   formatEuro,
 } from "@/lib/billing/pricing";
+import { isBillingMockPaymentsEnabled } from "@/lib/billing/config";
 import { buildPublicPortfolioUrl } from "@/lib/billing/activation";
+import {
+  formatBillingDateTime,
+  getUserBillingSubscriptionStatus,
+} from "@/lib/billing/subscription-status";
 import type { CVData } from "@/types/cv-data";
 
 interface BillingPortfolioRow {
@@ -72,11 +79,32 @@ export default async function DashboardBillingPage({
   const hasProAccess = plan === "premium" || plan === "studio";
   const hasStudioAccess = plan === "studio";
   const isUpgradeFromPro = plan === "premium";
+  const billingMockEnabled = isBillingMockPaymentsEnabled();
+  const subscriptionStatus =
+    isPaid && !billingMockEnabled
+      ? await getUserBillingSubscriptionStatus(user.id)
+      : null;
+  const hasScheduledCancellation = Boolean(
+    subscriptionStatus?.cancelAtPeriodEnd && subscriptionStatus.currentPeriodEnd
+  );
+  const subscriptionEndsAtLabel = formatBillingDateTime(
+    subscriptionStatus?.currentPeriodEnd ?? null,
+    locale
+  );
+  const hasScheduledDowngradeToPro = Boolean(
+    hasStudioAccess &&
+      subscriptionStatus?.scheduledPlan === "premium" &&
+      subscriptionStatus.scheduledChangeAt
+  );
+  const scheduledDowngradeAtLabel = formatBillingDateTime(
+    subscriptionStatus?.scheduledChangeAt ?? null,
+    locale
+  );
   const activePlanLabel = hasStudioAccess ? "Studio" : hasProAccess ? "Pro" : null;
   const isProHighlighted = requestedPlan === "publish";
   const isStudioHighlighted = requestedPlan === "studio";
-  const studioUpgradePriceLabel = formatEuro(STUDIO_UPGRADE_FROM_PRO_EUR);
-  const studioOriginalPriceLabel = formatEuro(STUDIO_PRICE_EUR);
+  const studioUpgradePriceLabel = formatEuro(STUDIO_UPGRADE_FROM_PRO_EUR, locale);
+  const studioOriginalPriceLabel = formatEuro(STUDIO_PRICE_EUR, locale);
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
@@ -121,19 +149,44 @@ export default async function DashboardBillingPage({
         </section>
 
         {isPaid && publicUrl && (
-          <section className="rounded-xl border border-[rgba(10,125,70,0.22)] bg-[rgba(10,125,70,0.08)] p-4 text-sm text-[rgb(10,125,70)]">
-            {isEn
-              ? `You already have the ${activePlanLabel} plan active. You can open your public portfolio now at `
-              : `Ya tienes el plan ${activePlanLabel} activo. Puedes abrir ahora tu portfolio público en `}
-            <a
-              href={publicUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="font-medium text-[rgb(10,125,70)] underline underline-offset-2"
-            >
-              {publicUrl}
-            </a>
-            .
+          <section
+            className={`rounded-xl border p-4 text-sm ${
+              hasScheduledCancellation
+                ? "border-[rgba(192,68,10,0.2)] bg-[rgba(192,68,10,0.06)] text-[var(--rust)]"
+                : "border-[rgba(10,125,70,0.22)] bg-[rgba(10,125,70,0.08)] text-[rgb(10,125,70)]"
+            }`}
+          >
+            {hasScheduledCancellation && subscriptionEndsAtLabel ? (
+              <>
+                <strong>
+                  {isEn
+                    ? `${activePlanLabel} will end on ${subscriptionEndsAtLabel}.`
+                    : `${activePlanLabel} terminará el ${subscriptionEndsAtLabel}.`}
+                </strong>{" "}
+                {isEn
+                  ? "Your public domain will stop being active on that date unless the subscription is resumed before then."
+                  : "Tu dominio público dejará de estar activo en esa fecha si la suscripción no se reactiva antes."}
+              </>
+            ) : (
+              <>
+                {isEn
+                  ? `You already have the ${activePlanLabel} plan active. You can open your public portfolio now at `
+                  : `Ya tienes el plan ${activePlanLabel} activo. Puedes abrir ahora tu portfolio público en `}
+                <a
+                  href={publicUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className={`font-medium underline underline-offset-2 ${
+                    hasScheduledCancellation
+                      ? "text-[var(--rust)]"
+                      : "text-[rgb(10,125,70)]"
+                  }`}
+                >
+                  {publicUrl}
+                </a>
+                .
+              </>
+            )}
           </section>
         )}
 
@@ -148,12 +201,28 @@ export default async function DashboardBillingPage({
               <div className="flex items-center gap-2">
                 <Crown className="w-4 h-4 text-[var(--rust)]" />
                 <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
-                  Pro · €9,99
+                  {isEn ? "Pro · 9.99 €/year" : "Pro · 9,99 €/año"}
                 </p>
               </div>
               {hasProAccess && (
-                <span className="text-[0.65rem] px-2 py-1 rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] uppercase tracking-[0.08em] font-medium">
-                  {isEn ? (hasStudioAccess ? "Included" : "Active") : hasStudioAccess ? "Incluido" : "Activo"}
+                <span
+                  className={`text-[0.65rem] px-2 py-1 rounded uppercase tracking-[0.08em] font-medium ${
+                    !hasStudioAccess && hasScheduledCancellation
+                      ? "bg-[rgba(192,68,10,0.12)] text-[var(--rust)]"
+                      : "bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)]"
+                  }`}
+                >
+                  {isEn
+                    ? hasStudioAccess
+                      ? "Included"
+                      : hasScheduledCancellation
+                        ? "Cancels"
+                        : "Active"
+                    : hasStudioAccess
+                      ? "Incluido"
+                      : hasScheduledCancellation
+                        ? "Cancelada"
+                        : "Activo"}
                 </span>
               )}
             </div>
@@ -176,19 +245,33 @@ export default async function DashboardBillingPage({
             </ul>
 
             {hasProAccess ? (
-              <button
-                type="button"
-                disabled
-                className="mt-5 w-full rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] px-4 py-2.5 text-sm font-medium cursor-not-allowed"
-              >
-                {isEn
-                  ? hasStudioAccess
-                    ? "Included in Studio"
-                    : "Pro plan active"
-                  : hasStudioAccess
-                    ? "Incluido en Studio"
-                    : "Plan Pro activo"}
-              </button>
+              <>
+                <button
+                  type="button"
+                  disabled
+                  className="mt-5 w-full rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] px-4 py-2.5 text-sm font-medium cursor-not-allowed"
+                >
+                  {isEn
+                    ? hasStudioAccess
+                      ? "Included in Studio"
+                      : "Pro plan active"
+                    : hasStudioAccess
+                      ? "Incluido en Studio"
+                      : "Plan Pro activo"}
+                </button>
+                {!hasStudioAccess && !billingMockEnabled && (
+                  <ManageSubscriptionButton className="mt-3 w-full rounded border border-[var(--sand)] bg-white text-[var(--ink)] px-4 py-2.5 text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors">
+                    {isEn ? "Manage subscription" : "Gestionar suscripción"}
+                  </ManageSubscriptionButton>
+                )}
+                {!hasStudioAccess && hasScheduledCancellation && subscriptionEndsAtLabel && (
+                  <p className="mt-3 text-xs leading-5 text-[var(--rust)]">
+                    {isEn
+                      ? `Your public domain will stop being active on ${subscriptionEndsAtLabel} unless the subscription is resumed before then.`
+                      : `Tu dominio público dejará de estar activo el ${subscriptionEndsAtLabel} si la suscripción no se reactiva antes.`}
+                  </p>
+                )}
+              </>
             ) : (
               <CheckoutButton
                 plan="publish"
@@ -221,13 +304,25 @@ export default async function DashboardBillingPage({
                       </span>
                     </>
                   ) : (
-                    "Studio · €24,99"
+                    isEn ? "Studio · 24.99 €/year" : "Studio · 24,99 €/año"
                   )}
                 </p>
               </div>
               {hasStudioAccess && (
-                <span className="text-[0.65rem] px-2 py-1 rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] uppercase tracking-[0.08em] font-medium">
-                  {isEn ? "Active" : "Activo"}
+                <span
+                  className={`text-[0.65rem] px-2 py-1 rounded uppercase tracking-[0.08em] font-medium ${
+                    hasScheduledCancellation
+                      ? "bg-[rgba(192,68,10,0.12)] text-[var(--rust)]"
+                      : "bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)]"
+                  }`}
+                >
+                  {hasScheduledCancellation
+                    ? isEn
+                      ? "Cancels"
+                      : "Cancelada"
+                    : isEn
+                      ? "Active"
+                      : "Activo"}
                 </span>
               )}
             </div>
@@ -259,19 +354,52 @@ export default async function DashboardBillingPage({
             {isUpgradeFromPro && !hasStudioAccess && (
               <p className="mt-3 text-xs text-[rgb(10,125,70)]">
                 {isEn
-                  ? "You already paid for Pro: €9.99 is discounted from this upgrade."
-                  : "Ya pagaste Pro: se descuenta €9,99 en esta mejora."}
+                    ? "You already paid for Pro: 9.99 € is discounted from this upgrade."
+                    : "Ya pagaste Pro: se descuenta €9,99 en esta mejora."}
               </p>
             )}
 
             {hasStudioAccess ? (
-              <button
-                type="button"
-                disabled
-                className="mt-5 w-full rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] px-4 py-2.5 text-sm font-medium cursor-not-allowed"
-              >
-                {isEn ? "Studio plan active" : "Plan Studio activo"}
-              </button>
+              <>
+                <button
+                  type="button"
+                  disabled
+                  className="mt-5 w-full rounded bg-[rgba(10,125,70,0.12)] text-[rgb(10,125,70)] px-4 py-2.5 text-sm font-medium cursor-not-allowed"
+                >
+                  {isEn ? "Studio plan active" : "Plan Studio activo"}
+                </button>
+                {!billingMockEnabled && (
+                  <>
+                    <ManageSubscriptionButton className="mt-3 w-full rounded border border-[var(--sand)] bg-white text-[var(--ink)] px-4 py-2.5 text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-colors">
+                      {isEn ? "Manage subscription" : "Gestionar suscripción"}
+                    </ManageSubscriptionButton>
+                    <DowngradeToProButton className="mt-3 w-full rounded border border-[var(--sand)] bg-[var(--cream)] text-[var(--ink)] px-4 py-2.5 text-sm font-medium hover:border-[var(--ink)] hover:bg-white transition-colors">
+                      {isEn
+                        ? "Downgrade to Pro at renewal"
+                        : "Bajar a Pro en la renovación"}
+                    </DowngradeToProButton>
+                    <p className="mt-3 text-xs leading-5 text-[var(--muted-color)]">
+                      {isEn
+                        ? "Useful if you already have the site you want and only need to keep one public site active year after year."
+                        : "Útil si ya tienes la web que quieres y solo necesitas mantener una única web pública activa año tras año."}
+                    </p>
+                  </>
+                )}
+                {hasScheduledCancellation && subscriptionEndsAtLabel && (
+                  <p className="mt-3 text-xs leading-5 text-[var(--rust)]">
+                    {isEn
+                      ? `Your public domain will stop being active on ${subscriptionEndsAtLabel} unless the subscription is resumed before then.`
+                      : `Tu dominio público dejará de estar activo el ${subscriptionEndsAtLabel} si la suscripción no se reactiva antes.`}
+                  </p>
+                )}
+                {hasScheduledDowngradeToPro && scheduledDowngradeAtLabel && (
+                  <p className="mt-3 text-xs leading-5 text-[var(--rust)]">
+                    {isEn
+                      ? `Studio stays active until ${scheduledDowngradeAtLabel}. From that date your plan will continue as Pro, and the portfolio currently linked to your domain will remain as the published site.`
+                      : `Studio seguirá activo hasta el ${scheduledDowngradeAtLabel}. A partir de esa fecha tu plan pasará a Pro y el portfolio que tengas enlazado en ese momento a tu dominio se mantendrá como web publicada.`}
+                  </p>
+                )}
+              </>
             ) : (
               <CheckoutButton
                 plan="studio"

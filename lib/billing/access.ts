@@ -49,7 +49,7 @@ const PLAN_LIMITS: Record<ProfilePlan, PlanLimits> = {
     generationLimit: 1,
     chatIterationLimit: 0,
     chatIterationLimitPerPortfolio: 0,
-    publicationLifetimeHours: 24 * 365,
+    publicationLifetimeHours: null,
   },
   studio: {
     generationLimit: 3,

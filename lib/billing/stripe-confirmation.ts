@@ -2,17 +2,57 @@ import Stripe from "stripe";
 import { createAdminClient } from "@/lib/supabase/server";
 import { activatePlanForUser } from "@/lib/billing/activation";
 import { resolvePlan, type ProfilePlan } from "@/lib/billing/access";
+import { createStripeServerClient } from "@/lib/billing/stripe-server";
 
 function getStripeClient(): Stripe | null {
   const key = process.env.STRIPE_SECRET_KEY;
   if (!key) return null;
-  return new Stripe(key);
+  return createStripeServerClient(key);
 }
 
 function resolveTargetPlan(checkoutPlan: string | undefined): ProfilePlan | null {
   if (checkoutPlan === "studio") return "studio";
   if (checkoutPlan === "publish") return "premium";
   return null;
+}
+
+function isMissingRelationError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const err = error as { code?: string; message?: string };
+  if (err.code === "42P01" || err.code === "PGRST205") return true;
+  if (!err.message) return false;
+  return /relation .* does not exist|table .* does not exist/i.test(err.message);
+}
+
+async function upsertSubscriptionRecord(params: {
+  admin: any;
+  userId: string;
+  session: Stripe.Checkout.Session;
+}): Promise<void> {
+  const stripeCustomerId =
+    typeof params.session.customer === "string" ? params.session.customer : null;
+  const stripeSubscriptionId =
+    typeof params.session.subscription === "string"
+      ? params.session.subscription
+      : null;
+
+  if (!stripeCustomerId || !stripeSubscriptionId) return;
+
+  const { error } = await params.admin
+    .from("billing_subscriptions")
+    .upsert(
+      {
+        user_id: params.userId,
+        stripe_customer_id: stripeCustomerId,
+        stripe_subscription_id: stripeSubscriptionId,
+        status: "active",
+      },
+      { onConflict: "stripe_subscription_id" }
+    );
+
+  if (error && !isMissingRelationError(error)) {
+    throw error;
+  }
 }
 
 export interface ConfirmStripeCheckoutResult {
@@ -62,6 +102,12 @@ export async function confirmStripeCheckoutForUser(params: {
   }
 
   const admin = createAdminClient();
+  await upsertSubscriptionRecord({
+    admin,
+    userId: params.userId,
+    session,
+  });
+
   const { data: profileRaw } = await admin
     .from("profiles")
     .select("username, plan")

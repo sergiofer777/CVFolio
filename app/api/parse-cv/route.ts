@@ -143,7 +143,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
               ? `You have reached your monthly limit of ${limit} generations (${used}/${limit}).`
               : `Has alcanzado tu límite mensual de ${limit} generaciones (${used}/${limit}).`
             : isEn
-              ? "Your free trial has already been used. Activate the €9.99 plan to publish and keep your site."
+              ? "Your free trial has already been used. Activate the 9.99 € plan to publish and keep your site."
               : "Tu prueba gratuita ya se consumió. Activa el plan de €9,99 para publicar y conservar tu web.";
 
         return NextResponse.json(

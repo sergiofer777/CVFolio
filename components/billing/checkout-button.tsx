@@ -2,7 +2,6 @@
 
 import { type ReactNode, useState } from "react";
 import { Loader2 } from "lucide-react";
-import { useClientLocale } from "@/hooks/use-client-locale";
 import { cn } from "@/lib/utils";
 
 type CheckoutPlan = "publish" | "studio";
@@ -20,58 +19,16 @@ export function CheckoutButton({
   className,
   children,
 }: CheckoutButtonProps) {
-  const locale = useClientLocale();
-  const isEn = locale === "en";
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
-  const handleCheckout = async () => {
+  const handleCheckout = () => {
     setIsLoading(true);
-    setError(null);
-
-    try {
-      const res = await fetch("/api/billing/checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan, portfolioId }),
-      });
-
-      if (res.status === 401) {
-        window.location.href = "/login?redirectTo=/dashboard";
-        return;
-      }
-
-      const data = (await res.json()) as {
-        checkoutUrl?: string;
-        fallbackUrl?: string;
-        error?: string;
-      };
-      if (!res.ok || !data.checkoutUrl) {
-        throw new Error(
-          data.error ?? (isEn ? "Could not open checkout." : "No se pudo abrir el pago.")
-        );
-      }
-
-      const isLocalHost =
-        window.location.hostname === "localhost" ||
-        window.location.hostname.endsWith(".localhost");
-      if (isLocalHost && data.fallbackUrl) {
-        window.location.href = data.fallbackUrl;
-        return;
-      }
-
-      window.location.href = data.checkoutUrl;
-    } catch (err) {
-      setError(
-        err instanceof Error
-          ? err.message
-          : isEn
-            ? "Could not start checkout."
-            : "Error al iniciar checkout."
-      );
-    } finally {
-      setIsLoading(false);
+    const params = new URLSearchParams({ plan });
+    if (portfolioId) {
+      params.set("portfolioId", portfolioId);
     }
+
+    window.location.href = `/checkout?${params.toString()}`;
   };
 
   return (
@@ -88,7 +45,6 @@ export function CheckoutButton({
         {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
         {children}
       </button>
-      {error && <p className="text-xs text-[var(--rust)]">{error}</p>}
     </div>
   );
 }
