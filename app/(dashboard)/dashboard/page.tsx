@@ -14,6 +14,7 @@ import { FreePreviewCountdown } from "@/components/dashboard/free-preview-countd
 import { getServerLocale } from "@/lib/locale-server";
 import {
   Upload,
+  Plus,
   Eye,
   Monitor,
   Lock,
@@ -71,7 +72,7 @@ function getThemeName(theme: PortfolioTheme | null): string {
 
 function getPortfolioHeading(cvData: CVData): { name: string; title: string } {
   return {
-    name: cvData.personal?.name ?? "Portfolio sin nombre",
+    name: cvData.personal?.name ?? "Web sin nombre",
     title: cvData.personal?.title ?? "Sin titular profesional",
   };
 }
@@ -228,17 +229,53 @@ export default async function DashboardPage({
   const studioUpgradePriceLabel = formatEuro(STUDIO_UPGRADE_FROM_PRO_EUR, locale);
   const studioOriginalPriceLabel = formatEuro(STUDIO_PRICE_EUR, locale);
   const currentPlanLabel = hasStudioAccess ? "Studio" : hasProAccess ? "Pro" : isEn ? "Free" : "Gratis";
+  const createCtaHref = isUpgradeFromPro ? studioBillingHref : "/upload";
+  const createCtaAriaLabel = isUpgradeFromPro
+    ? isEn
+      ? "Upgrade to Studio"
+      : "Mejorar a Studio"
+    : isEn
+      ? "Create new website"
+      : "Crear nueva web";
+  const createCtaFullLabel = isUpgradeFromPro
+    ? isEn
+      ? "Upgrade to Studio"
+      : "Mejorar a Studio"
+    : isEn
+      ? "Create new website"
+      : "Crear nueva web";
+  const createCtaCompactLabel = isUpgradeFromPro
+    ? "Studio"
+    : isEn
+      ? "New"
+      : "Nuevo";
+  const extraSlotCount = hasProAccess ? Math.max(0, 3 - portfolios.length) : 0;
+  const extraSlotHref = hasStudioAccess ? "/upload" : studioBillingHref;
+  const extraSlotTitle = hasStudioAccess
+    ? isEn
+      ? "Create another website"
+      : "Crear otra web"
+    : isEn
+      ? "Upgrade to Studio"
+      : "Mejorar a Studio";
+  const extraSlotDescription = hasStudioAccess
+    ? isEn
+      ? "Empty slot ready for a new website."
+      : "Hueco disponible para una nueva web."
+    : isEn
+      ? "Pro only includes 1 website. Studio unlocks 3 slots and chat edits."
+      : "Pro solo incluye 1 web. Studio desbloquea 3 huecos y ediciones por chat.";
   const currentPlanDescription = hasStudioAccess
     ? isEn
-      ? "3 portfolios and 3 chat iterations per portfolio."
-      : "3 portfolios y 3 iteraciones por portfolio con chat IA."
+      ? "3 websites and 3 chat iterations per website."
+      : "3 webs y 3 iteraciones por web con chat IA."
     : hasProAccess
       ? isEn
-        ? "1 portfolio with subdomain for 1 year."
-        : "1 portfolio con subdominio durante 1 año."
+        ? "1 website with subdomain for 1 year."
+        : "1 web con subdominio durante 1 año."
       : isEn
-        ? "1 portfolio in preview for 24h. No public subdomain."
-        : "1 portfolio en preview durante 24h. Sin subdominio público.";
+        ? "1 website in preview for 24h. No public subdomain."
+        : "1 web en preview durante 24h. Sin subdominio público.";
   const currentPlanPriceLabel = hasStudioAccess
     ? isEn
       ? "24.99 €/year"
@@ -316,15 +353,15 @@ export default async function DashboardPage({
             </Link>
 
             <Link
-              href="/upload"
-              aria-label={isEn ? "Create new portfolio" : "Crear nuevo portfolio"}
+              href={createCtaHref}
+              aria-label={createCtaAriaLabel}
               className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-[var(--rust)] text-white border border-[var(--rust)] text-[11px] md:text-xs xl:text-sm font-medium hover:bg-[var(--rust-light)] hover:border-[var(--rust-light)] transition-all no-underline"
             >
               <Upload className="w-3.5 h-3.5" />
               <span className="hidden xl:inline">
-                {isEn ? "Create new portfolio" : "Crear nuevo portfolio"}
+                {createCtaFullLabel}
               </span>
-              <span className="hidden sm:inline xl:hidden">{isEn ? "New" : "Nuevo"}</span>
+              <span className="hidden sm:inline xl:hidden">{createCtaCompactLabel}</span>
             </Link>
           </div>
         </div>
@@ -335,8 +372,8 @@ export default async function DashboardPage({
           <div className="rounded-lg border border-[rgba(192,68,10,0.2)] bg-[rgba(192,68,10,0.06)] p-3 text-sm text-[var(--rust)]">
             <strong>{isEn ? "Open beta mode:" : "Modo beta abierto:"}</strong>{" "}
             {isEn
-              ? "right now all accounts can create and edit portfolios even if payments are not connected yet. The billing screens are already prepared."
-              : "ahora mismo todas las cuentas pueden crear y editar portfolios aunque el pago no esté conectado. Las pantallas de cobro ya están preparadas."}
+              ? "right now all accounts can create and edit websites even if payments are not connected yet. The billing screens are already prepared."
+              : "ahora mismo todas las cuentas pueden crear y editar webs aunque el pago no esté conectado. Las pantallas de cobro ya están preparadas."}
           </div>
         )}
 
@@ -370,8 +407,8 @@ export default async function DashboardPage({
             <strong>{isEn ? "Site limit reached for your plan." : "Límite de webs alcanzado para tu plan."}</strong>{" "}
             {profilePlan === "studio"
               ? isEn
-                ? "You already have 3 portfolios."
-                : "Ya tienes 3 portfolios."
+                ? "You already have 3 websites."
+                : "Ya tienes 3 webs."
               : isEn
                 ? "To create more, you need to activate Studio (24.99 €)."
                 : "Para crear más necesitas activar Studio (€24,99)."}
@@ -382,8 +419,8 @@ export default async function DashboardPage({
           <>
             {isNew && (
               <div className="rounded-lg border border-[rgba(192,68,10,0.2)] bg-[rgba(192,68,10,0.06)] p-3 text-sm text-[var(--rust)]">
-                <strong>{isEn ? "Portfolio generated!" : "¡Portfolio generado!"}</strong>{" "}
-                {isEn ? "It has been added to your portfolio library." : "Se ha añadido a tu biblioteca de portfolios."}
+                <strong>{isEn ? "Website generated!" : "¡Web generada!"}</strong>{" "}
+                {isEn ? "It has been added to your website library." : "Se ha añadido a tu biblioteca de webs."}
                 {profileUsername && (
                   <>
                     {" "}
@@ -418,7 +455,7 @@ export default async function DashboardPage({
                         {isEn ? "Hi, " : "Hola, "}<span className="text-[var(--rust)]">{greetingName}</span>
                       </h1>
                       <p className="mt-2 text-sm text-[var(--muted-color)]">
-                        {isEn ? "Manage your portfolios and publish your professional profile." : "Gestiona tus portfolios y publica tu perfil profesional."}
+                        {isEn ? "Manage your websites and publish your professional profile." : "Gestiona tus webs y publica tu perfil profesional."}
                       </p>
                     </div>
                     <LogoutButton
@@ -432,7 +469,7 @@ export default async function DashboardPage({
                   <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
                     <div className="flex items-center gap-3">
                       <h2 className="font-display text-[2rem] text-[var(--ink)] tracking-tight">
-                        {isEn ? "My portfolios" : "Mis portfolios"}
+                        {isEn ? "My websites" : "Mis webs"}
                       </h2>
                       <span className="rounded-full bg-[var(--cream)] px-3 py-1 text-[0.75rem] text-[var(--muted-color)]">
                         {portfolios.length} /{" "}
@@ -440,7 +477,13 @@ export default async function DashboardPage({
                       </span>
                     </div>
                     <p className="text-sm text-[var(--muted-color)]">
-                      {isEn ? "Select one to edit." : "Selecciona uno para editar."}
+                      {extraSlotCount > 0
+                        ? isEn
+                          ? "Select one to edit or use an empty slot."
+                          : "Selecciona una para editar o usa un hueco libre."
+                        : isEn
+                          ? "Select one to edit."
+                          : "Selecciona uno para editar."}
                     </p>
                   </div>
 
@@ -462,8 +505,8 @@ export default async function DashboardPage({
                             className="absolute inset-0 z-10 rounded-[18px]"
                             aria-label={
                               isEn
-                                ? `Select ${heading.name}'s portfolio`
-                                : `Seleccionar portfolio de ${heading.name}`
+                                ? `Select ${heading.name}'s website`
+                                : `Seleccionar web de ${heading.name}`
                             }
                           />
 
@@ -491,12 +534,55 @@ export default async function DashboardPage({
 
                           <div className="mt-auto border-t border-[var(--sand)] pt-3">
                             <p className="text-[0.72rem] uppercase tracking-[0.1em] text-[var(--muted-color)]">
-                              {isEn ? "Select portfolio" : "Seleccionar portfolio"}
+                              {isEn ? "Select website" : "Seleccionar web"}
                             </p>
                           </div>
                         </article>
                       );
                     })}
+
+                    {Array.from({ length: extraSlotCount }).map((_, index) => (
+                      <Link
+                        key={`empty-slot-${index}`}
+                        href={extraSlotHref}
+                        aria-label={extraSlotTitle}
+                        className="group min-w-0 rounded-[18px] border border-dashed border-[var(--sand)] bg-white/70 p-4 transition-all flex h-full flex-col justify-between no-underline hover:border-[var(--rust)] hover:bg-white hover:shadow-[0_12px_28px_rgba(192,68,10,0.08)]"
+                      >
+                        <div className="flex items-center justify-between gap-2">
+                          <p className="text-[0.68rem] text-[var(--muted-color)] font-medium uppercase tracking-[0.14em]">
+                            {isEn ? "Available slot" : "Hueco disponible"}
+                          </p>
+                          <span className="rounded-lg border border-[var(--sand)] bg-[var(--cream)] px-2.5 py-1 text-[0.68rem] text-[var(--muted-color)] font-medium uppercase tracking-[0.08em] group-hover:border-[rgba(192,68,10,0.2)] group-hover:text-[var(--rust)]">
+                            {isEn ? "New" : "Nuevo"}
+                          </span>
+                        </div>
+
+                        <div className="mt-4 flex h-12 w-12 items-center justify-center rounded-2xl border border-dashed border-[var(--sand)] bg-[var(--cream)] text-[var(--rust)] transition-colors group-hover:border-[rgba(192,68,10,0.24)]">
+                          <Plus className="h-6 w-6" />
+                        </div>
+
+                        <div className="mt-5">
+                          <h3 className="font-display text-[1.05rem] leading-[1.08] text-[var(--ink)] tracking-tight text-balance">
+                            {extraSlotTitle}
+                          </h3>
+                          <p className="mt-2 text-sm text-[var(--muted-color)] leading-6">
+                            {extraSlotDescription}
+                          </p>
+                        </div>
+
+                        <div className="mt-auto border-t border-[var(--sand)] pt-3">
+                          <p className="text-[0.72rem] uppercase tracking-[0.1em] text-[var(--rust)]">
+                            {hasStudioAccess
+                              ? isEn
+                                ? "Add website"
+                                : "Añadir web"
+                              : isEn
+                                ? "Unlock with Studio"
+                                : "Desbloquear con Studio"}
+                          </p>
+                        </div>
+                      </Link>
+                    ))}
                   </div>
                 </section>
 
@@ -518,8 +604,8 @@ export default async function DashboardPage({
                     </p>
                     <p className="text-xs text-[var(--muted-color)] mt-1">
                       {isEn
-                        ? "Available in Studio (24.99 €) with up to 3 iterations per portfolio."
-                        : "Disponible en Studio (€24,99) con hasta 3 iteraciones por portfolio."}
+                        ? "Available in Studio (24.99 €) with up to 3 iterations per website."
+                        : "Disponible en Studio (€24,99) con hasta 3 iteraciones por web."}
                     </p>
                     <div className="mt-4">
                       <Link
@@ -575,8 +661,8 @@ export default async function DashboardPage({
                       </p>
                       <p className="mt-1 text-xs text-[var(--muted-color)]">
                         {isEn
-                          ? "Activate Pro to publish your portfolio and use a subdomain."
-                          : "Activa Pro para publicar tu portfolio y usar subdominio."}
+                          ? "Activate Pro to publish your website and use a subdomain."
+                          : "Activa Pro para publicar tu web y usar subdominio."}
                       </p>
                       <div className="mt-3">
                         <Link
@@ -682,7 +768,7 @@ export default async function DashboardPage({
               <>
                 <div className="flex items-center gap-2 text-sm text-[var(--muted-color)]">
                   <Eye className="w-4 h-4" />
-                  {isEn ? "Preview of the selected portfolio" : "Vista previa del portfolio seleccionado"}
+                  {isEn ? "Preview of the selected website" : "Vista previa de la web seleccionada"}
                 </div>
 
                 <div className="border border-[var(--sand)] rounded-xl overflow-hidden shadow-[0_2px_12px_rgba(0,0,0,0.05)]">
@@ -720,12 +806,12 @@ export default async function DashboardPage({
               <Upload className="w-7 h-7 text-[var(--muted-color)]" />
             </div>
             <h2 className="font-display text-[1.5rem] font-light tracking-tight text-[var(--ink)] mb-2">
-              {isEn ? "You don’t have any portfolios yet" : "Aún no tienes portfolios"}
+              {isEn ? "You don’t have any websites yet" : "Aún no tienes webs"}
             </h2>
             <p className="text-[var(--muted-color)] text-sm mb-6 max-w-md font-light">
               {isEn
-                ? "Upload your CV to create the first one. Right now you can generate multiple portfolios in open beta mode."
-                : "Sube tu CV para crear el primero. Ahora mismo puedes generar varios portfolios en modo beta abierto."}
+                ? "Upload your CV to create the first one. Right now you can generate multiple websites in open beta mode."
+                : "Sube tu CV para crear la primera. Ahora mismo puedes generar varias webs en modo beta abierto."}
             </p>
             <Link
               href="/upload"

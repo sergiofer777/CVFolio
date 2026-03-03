@@ -251,8 +251,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: isEn
-            ? "That portfolio was not found in your account."
-            : "No se encontró ese portfolio en tu cuenta.",
+            ? "That website was not found in your account."
+            : "No se encontró esa web en tu cuenta.",
         },
         { status: 404 }
       );
@@ -279,8 +279,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: isEn
-            ? `Limit of ${perPortfolioLimit} iterations for this portfolio.`
-            : `Límite de ${perPortfolioLimit} iteraciones para este portfolio.`,
+            ? `Limit of ${perPortfolioLimit} iterations for this website.`
+            : `Límite de ${perPortfolioLimit} iteraciones para esta web.`,
         },
         { status: 402 }
       );
@@ -312,8 +312,8 @@ export async function POST(request: NextRequest) {
         {
           error:
             isEn
-              ? "This portfolio does not have generated HTML for chat iterations yet."
-              : "Este portfolio no tiene HTML generado para iterar por chat todavía.",
+              ? "This website does not have generated HTML for chat iterations yet."
+              : "Esta web no tiene HTML generado para iterar por chat todavía.",
         },
         { status: 422 }
       );
@@ -356,8 +356,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       ok: true,
       message: isEn
-        ? "Changes applied to the portfolio."
-        : "Cambios aplicados al portfolio.",
+        ? "Changes applied to the website."
+        : "Cambios aplicados a la web.",
       iterationsUsed: iterationsUsed + 1,
       iterationsLimit: perPortfolioLimit,
       billingEnforced,
@@ -370,8 +370,8 @@ export async function POST(request: NextRequest) {
       error instanceof Error
         ? error.message
         : isEn
-          ? "The chat iteration could not be applied to the portfolio."
-          : "No se pudo aplicar la iteración de chat al portfolio.";
+          ? "The chat iteration could not be applied to the website."
+          : "No se pudo aplicar la iteración de chat a la web.";
     return NextResponse.json(
       { error: message },
       { status: 500 }

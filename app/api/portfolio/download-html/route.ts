@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
 
     if (!parsed.success) {
       return NextResponse.json(
-        { error: "portfolioId inválido", details: parsed.error.flatten() },
+        { error: "Identificador de web inválido", details: parsed.error.flatten() },
         { status: 400 }
       );
     }
@@ -70,7 +70,7 @@ export async function GET(request: NextRequest) {
     const portfolio = (portfolioRaw as { cv_data?: CVData } | null) ?? null;
     if (!portfolio?.cv_data) {
       return NextResponse.json(
-        { error: "No se encontró ese portfolio en tu cuenta." },
+        { error: "No se encontró esa web en tu cuenta." },
         { status: 404 }
       );
     }
@@ -78,13 +78,13 @@ export async function GET(request: NextRequest) {
     const html = buildRenderableGeneratedHtml(portfolio.cv_data);
     if (!html) {
       return NextResponse.json(
-        { error: "Este portfolio aún no tiene HTML generado para descargar." },
+        { error: "Esta web aún no tiene HTML generado para descargar." },
         { status: 404 }
       );
     }
 
-    const name = portfolio.cv_data.personal?.name?.trim() || "portfolio-webiculum";
-    const filename = `${slugifyFileName(name) || "portfolio-webiculum"}.html`;
+    const name = portfolio.cv_data.personal?.name?.trim() || "webiculum-web";
+    const filename = `${slugifyFileName(name) || "webiculum-web"}.html`;
 
     return new NextResponse(html, {
       headers: {
@@ -96,7 +96,7 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("[portfolio/download-html] error:", error);
     return NextResponse.json(
-      { error: "No se pudo descargar el HTML del portfolio." },
+      { error: "No se pudo descargar el HTML de la web." },
       { status: 500 }
     );
   }

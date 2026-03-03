@@ -72,8 +72,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error: isEn
-            ? "No portfolio was found to publish."
-            : "No se encontró un portfolio para publicar.",
+            ? "No website was found to publish."
+            : "No se encontró una web para publicar.",
         },
         { status: 404 }
       );
@@ -105,8 +105,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         error: isEn
-          ? "This portfolio could not be published."
-          : "No se pudo publicar este portfolio.",
+          ? "This website could not be published."
+          : "No se pudo publicar esta web.",
       },
       { status: 500 }
     );

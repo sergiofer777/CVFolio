@@ -12,8 +12,8 @@ export async function generateMetadata(): Promise<Metadata> {
   return {
     title: isEn ? "Help center" : "Centro de ayuda",
     description: isEn
-      ? "Solve questions about portfolio generation, plans, subdomains and publishing in Webiculum."
-      : "Resuelve dudas sobre generación de portfolios, planes, subdominios y publicación en Webiculum.",
+      ? "Solve questions about website generation, plans, subdomains and publishing in Webiculum."
+      : "Resuelve dudas sobre generación de webs, planes, subdominios y publicación en Webiculum.",
   };
 }
 
@@ -24,7 +24,7 @@ const HELP_FAQS = [
       "Puedes subir CVs en PDF, JPG o PNG. El sistema detecta el contenido principal y lo transforma en una estructura web editable.",
   },
   {
-    question: "¿Cuánto tarda en generarse mi portfolio?",
+    question: "¿Cuánto tarda en generarse mi web?",
     answer:
       "Normalmente tarda solo unos segundos. Si el documento tiene muchas páginas, tablas complejas o imágenes pesadas, puede tardar algo más.",
   },
@@ -36,7 +36,7 @@ const HELP_FAQS = [
   {
     question: "¿Qué diferencia hay entre la vista previa y la publicación?",
     answer:
-      "La vista previa te permite revisar cómo queda el portfolio antes de publicarlo. La publicación activa el acceso público mediante subdominio y permite compartirlo.",
+      "La vista previa te permite revisar cómo queda la web antes de publicarla. La publicación activa el acceso público mediante subdominio y permite compartirla.",
   },
   {
     question: "¿Qué pasa si uso el plan gratuito?",
@@ -46,17 +46,17 @@ const HELP_FAQS = [
   {
     question: "¿Puedo elegir mi propio subdominio?",
     answer:
-      "Sí. En planes con publicación puedes definir tu subdominio dentro de Webiculum, guardarlo desde el dashboard y enlazar el portfolio que quieras mostrar. Por seguridad y estabilidad, solo puedes cambiarlo una vez cada 7 días.",
+      "Sí. En planes con publicación puedes definir tu subdominio dentro de Webiculum, guardarlo desde el dashboard y enlazar la web que quieras mostrar. Por seguridad y estabilidad, solo puedes cambiarlo una vez cada 7 días.",
   },
   {
     question: "¿Qué incluye el plan Pro y cuándo necesito Studio?",
     answer:
-      "Pro está pensado para publicar una única web con subdominio durante 1 año. Studio añade más portfolios y acceso a iteraciones por chat para refinar varias versiones.",
+      "Pro está pensado para publicar una única web con subdominio durante 1 año. Studio añade más webs y acceso a iteraciones por chat para refinar varias versiones.",
   },
   {
     question: "¿Mi CV y mis datos son privados?",
     answer:
-      "Tus documentos y portfolios se asocian a tu cuenta. Solo se hacen públicos los portfolios que tú decidas publicar con subdominio o compartir manualmente.",
+      "Tus documentos y webs se asocian a tu cuenta. Solo se hacen públicas las webs que tú decidas publicar con subdominio o compartir manualmente.",
   },
 ];
 
@@ -67,7 +67,7 @@ const HELP_FAQS_EN = [
       "You can upload CVs in PDF, JPG or PNG. The system detects the main content and transforms it into an editable web structure.",
   },
   {
-    question: "How long does it take to generate my portfolio?",
+    question: "How long does it take to generate my website?",
     answer:
       "It usually takes just a few seconds. If the document has many pages, complex tables or heavy images, it may take a little longer.",
   },
@@ -79,7 +79,7 @@ const HELP_FAQS_EN = [
   {
     question: "What is the difference between preview and publishing?",
     answer:
-      "Preview lets you review how the portfolio looks before making it public. Publishing enables public access through a subdomain so you can share it.",
+      "Preview lets you review how the website looks before making it public. Publishing enables public access through a subdomain so you can share it.",
   },
   {
     question: "What happens if I use the free plan?",
@@ -89,17 +89,17 @@ const HELP_FAQS_EN = [
   {
     question: "Can I choose my own subdomain?",
     answer:
-      "Yes. On plans with publishing enabled, you can define your subdomain inside Webiculum, save it from the dashboard and link the portfolio you want to show. For security and stability, you can only change it once every 7 days.",
+      "Yes. On plans with publishing enabled, you can define your subdomain inside Webiculum, save it from the dashboard and link the website you want to show. For security and stability, you can only change it once every 7 days.",
   },
   {
     question: "What does Pro include and when do I need Studio?",
     answer:
-      "Pro is designed to publish one site with a subdomain for 1 year. Studio adds more portfolios and chat-based iterations to refine multiple versions.",
+      "Pro is designed to publish one site with a subdomain for 1 year. Studio adds more websites and chat-based iterations to refine multiple versions.",
   },
   {
     question: "Are my CV and my data private?",
     answer:
-      "Your documents and portfolios are tied to your account. Only the portfolios you decide to publish with a subdomain or share manually become public.",
+      "Your documents and websites are tied to your account. Only the websites you decide to publish with a subdomain or share manually become public.",
   },
 ];
 
@@ -166,8 +166,8 @@ export default async function HelpCenterPage() {
             </div>
             <p className="max-w-[300px] text-[0.95rem] leading-[1.55] text-[var(--muted-color)]">
               {isEn
-                ? "Here are the most common questions about generation, publishing, subdomains, plans and portfolio editing in Webiculum."
-                : "Aquí tienes las dudas más frecuentes sobre generación, publicación, subdominios, planes y edición de portfolios en Webiculum."}
+                ? "Here are the most common questions about generation, publishing, subdomains, plans and website editing in Webiculum."
+                : "Aquí tienes las dudas más frecuentes sobre generación, publicación, subdominios, planes y edición de webs en Webiculum."}
             </p>
           </div>
         </div>

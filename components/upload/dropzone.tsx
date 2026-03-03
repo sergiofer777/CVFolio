@@ -43,13 +43,13 @@ export function Dropzone({
         "Uploading file to the cloud",
         "Extracting text with AI",
         "Structuring information",
-        "Generating portfolio",
+        "Generating website",
       ]
     : [
         "Subiendo archivo a la nube",
         "Extrayendo texto con IA",
         "Estructurando información",
-        "Generando portafolio",
+        "Generando web",
       ];
 
   // Refs for timers so we can clean them up
@@ -197,7 +197,7 @@ export function Dropzone({
     setViewMode("upload");
   };
 
-  // Handle "Ver portafolio"
+  // Handle "Ver web"
   const handleViewPortfolio = () => {
     if (portfolioId) onUploadComplete(portfolioId);
   };
@@ -321,7 +321,7 @@ export function Dropzone({
               <div className="flex items-center gap-2 text-sm text-[var(--rust)]">
                 <CheckCircle2 className="w-4 h-4" />
                 <span className="font-medium">
-                  {isEn ? "Portfolio generated successfully!" : "¡Portafolio generado con éxito!"}
+                  {isEn ? "Website generated successfully!" : "¡Web generada con éxito!"}
                 </span>
               </div>
 
@@ -330,7 +330,7 @@ export function Dropzone({
                 className="w-full flex items-center justify-center gap-2.5 bg-[var(--ink)] text-[var(--paper)] py-3.5 rounded-lg hover:bg-[var(--rust)] transition-all hover:-translate-y-0.5 font-medium text-[0.9rem]"
               >
                 <ExternalLink className="w-4 h-4" />
-                {isEn ? "View portfolio" : "Ver portafolio"}
+                {isEn ? "View website" : "Ver web"}
               </button>
 
               <button

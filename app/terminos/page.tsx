@@ -53,7 +53,7 @@ const TERMS_CONTENT: Record<
       {
         title: "2. Qué ofrece webiculum",
         paragraphs: [
-          "webiculum es una herramienta digital para transformar un CV en una web o portfolio personal, mostrar previews, publicar contenido en una URL pública y, en determinados planes, descargar el HTML o acceder a funciones adicionales.",
+          "webiculum es una herramienta digital para transformar un CV en una web personal, mostrar previews, publicar contenido en una URL pública y, en determinados planes, descargar el HTML o acceder a funciones adicionales.",
           "El resultado depende del contenido que subas, de servicios de terceros y de sistemas automatizados. No garantizamos que la salida sea perfecta, completa, adecuada para un fin concreto, libre de errores o apta para decisiones profesionales, legales o comerciales.",
         ],
       },
@@ -142,7 +142,7 @@ const TERMS_CONTENT: Record<
       {
         title: "2. What webiculum provides",
         paragraphs: [
-          "webiculum is a digital tool that turns a CV into a personal website or portfolio, shows previews, publishes content on a public URL and, on certain plans, allows HTML downloads or access to additional features.",
+          "webiculum is a digital tool that turns a CV into a personal website, shows previews, publishes content on a public URL and, on certain plans, allows HTML downloads or access to additional features.",
           "The result depends on the content you upload, third-party services and automated systems. We do not guarantee that the output will be perfect, complete, suitable for a specific purpose, error-free or fit for professional, legal or commercial decisions.",
         ],
       },

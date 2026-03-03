@@ -36,8 +36,8 @@ export function ContactForm({ locale, accessKey }: ContactFormProps) {
         ? "Something went wrong. Please try again."
         : "Ha ocurrido un error. Inténtalo de nuevo.",
       helper: isEn
-        ? "You can use this form for billing, publishing or portfolio questions."
-        : "Puedes usar este formulario para dudas sobre pagos, publicación o tu portfolio.",
+        ? "You can use this form for billing, publishing or website questions."
+        : "Puedes usar este formulario para dudas sobre pagos, publicación o tu web.",
       subject: isEn
         ? "New message from the Webiculum help center"
         : "Nuevo mensaje desde el centro de ayuda de Webiculum",

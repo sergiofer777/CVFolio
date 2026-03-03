@@ -59,8 +59,8 @@ export function LinkSubdomainButton({
       const linkedUrl = data.subdomainUrl ?? data.publicUrl ?? publicUrl;
       setMessage(
         isEn
-          ? `Subdomain linked to the selected portfolio: ${linkedUrl}`
-          : `Subdominio enlazado al portfolio seleccionado: ${linkedUrl}`
+          ? `Subdomain linked to the selected website: ${linkedUrl}`
+          : `Subdominio enlazado a la web seleccionada: ${linkedUrl}`
       );
       router.refresh();
     } catch (linkError) {
@@ -83,8 +83,8 @@ export function LinkSubdomainButton({
       </p>
       <p className="text-sm text-[var(--muted-color)] mb-4">
         {isEn
-          ? "Apply the selected portfolio to your custom subdomain."
-          : "Aplica el portfolio seleccionado a tu subdominio personalizado."}
+          ? "Apply the selected website to your custom subdomain."
+          : "Aplica la web seleccionada a tu subdominio personalizado."}
       </p>
 
       <button

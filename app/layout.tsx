@@ -12,19 +12,19 @@ const dmSans = DM_Sans({
 
 export const metadata: Metadata = {
   title: {
-    default: "webiculum — Tu CV, convertido en portafolio",
+    default: "webiculum — Tu CV, convertido en web",
     template: "%s | webiculum",
   },
   description:
     "Arrastra tu PDF. La IA extrae, estructura y diseña tu página personal profesional — lista para compartir en segundos.",
-  keywords: ["curriculum", "portafolio", "CV", "portfolio", "profesional", "IA"],
+  keywords: ["curriculum", "web", "CV", "profesional", "IA"],
   authors: [{ name: "webiculum" }],
   openGraph: {
     type: "website",
     locale: "es_ES",
     url: process.env.NEXT_PUBLIC_APP_URL,
     siteName: "webiculum",
-    title: "webiculum — Tu CV, convertido en portafolio",
+    title: "webiculum — Tu CV, convertido en web",
     description:
       "Arrastra tu PDF. La IA extrae, estructura y diseña tu página personal profesional — lista para compartir en segundos.",
   },

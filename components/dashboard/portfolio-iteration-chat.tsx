@@ -67,8 +67,8 @@ export function PortfolioIterationChat({
         throw new Error(
           data.error ??
             (isEn
-              ? "The portfolio could not be updated."
-              : "No se pudo iterar el portfolio.")
+              ? "The website could not be updated."
+              : "No se pudo iterar la web.")
         );
       }
 
@@ -90,8 +90,8 @@ export function PortfolioIterationChat({
         submitError instanceof Error
           ? submitError.message
           : isEn
-            ? "The portfolio could not be updated."
-            : "No se pudo iterar el portfolio."
+            ? "The website could not be updated."
+            : "No se pudo iterar la web."
       );
     } finally {
       setIsLoading(false);
@@ -129,16 +129,16 @@ export function PortfolioIterationChat({
       {!billingEnforced && (
         <p className="text-xs text-[var(--rust)] bg-[rgba(192,68,10,0.08)] border border-[rgba(192,68,10,0.18)] rounded px-3 py-2 mb-4">
           {isEn
-            ? "Beta mode: chat is currently open to all accounts, although Studio sets a limit of 3 iterations per portfolio."
-            : "Modo beta: el chat está abierto para todas las cuentas, aunque el plan Studio fija 3 iteraciones por portfolio."}
+            ? "Beta mode: chat is currently open to all accounts, although Studio sets a limit of 3 iterations per website."
+            : "Modo beta: el chat está abierto para todas las cuentas, aunque el plan Studio fija 3 iteraciones por web."}
         </p>
       )}
 
       {isLimitReached && (
         <p className="text-xs text-[var(--rust)] bg-[rgba(192,68,10,0.08)] border border-[rgba(192,68,10,0.18)] rounded px-3 py-2 mb-4">
           {isEn
-            ? "You have reached the iteration limit for this portfolio."
-            : "Has alcanzado el límite de iteraciones para este portfolio."}
+            ? "You have reached the iteration limit for this website."
+            : "Has alcanzado el límite de iteraciones para esta web."}
         </p>
       )}
 
@@ -202,8 +202,8 @@ export function PortfolioIterationChat({
               </div>
               <p className="mt-3 text-sm text-[var(--muted-color)]">
                 {isEn
-                  ? "We are rewriting the selected portfolio based on your request."
-                  : "Estamos rehaciendo el portfolio seleccionado según tu petición."}
+                  ? "We are rewriting the selected website based on your request."
+                  : "Estamos rehaciendo la web seleccionada según tu petición."}
               </p>
             </div>
 

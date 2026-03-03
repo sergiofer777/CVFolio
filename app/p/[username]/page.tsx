@@ -86,11 +86,11 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const { profile, portfolio } = await loadPublicPortfolioByUsername(username);
 
   if (!profile) {
-    return { title: isEn ? "Portfolio not found" : "Portafolio no encontrado" };
+    return { title: isEn ? "Website not found" : "Web no encontrada" };
   }
 
   if (billingEnforced && !isPaidPlan(profile.plan ?? "free")) {
-    return { title: isEn ? "Portfolio unavailable" : "Portafolio no disponible" };
+    return { title: isEn ? "Website unavailable" : "Web no disponible" };
   }
 
   if (portfolio) {
@@ -99,7 +99,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       publishedAt: portfolio.published_at,
     });
     if (publicationAccess.isExpired) {
-      return { title: isEn ? "Portfolio unavailable" : "Portafolio no disponible" };
+      return { title: isEn ? "Website unavailable" : "Web no disponible" };
     }
   }
 
@@ -108,19 +108,19 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const title = cvData?.personal?.title ?? "";
 
   return {
-    title: portfolio?.meta_title ?? `${name} — ${isEn ? "Professional portfolio" : "Portafolio profesional"}`,
+    title: portfolio?.meta_title ?? `${name} — ${isEn ? "Professional website" : "Web profesional"}`,
     description:
       portfolio?.meta_description ??
       `${
         title ? `${title}. ` : ""
       }${
         isEn
-          ? `Professional portfolio for ${name} generated with webiculum.`
-          : `Portafolio profesional de ${name} generado con webiculum.`
+          ? `Professional website for ${name} generated with webiculum.`
+          : `Web profesional de ${name} generada con webiculum.`
       }`,
     openGraph: {
       title: `${name} | webiculum`,
-      description: isEn ? `${name}'s portfolio` : `Portafolio de ${name}`,
+      description: isEn ? `${name}'s website` : `Web de ${name}`,
       type: "profile",
     },
   };

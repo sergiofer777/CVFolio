@@ -20,7 +20,7 @@ export default function NotFound() {
       <h1 className="text-4xl font-bold mb-2">404</h1>
       <p className="text-muted-foreground text-lg mb-2">{isEn ? "Page not found" : "Página no encontrada"}</p>
       <p className="text-sm text-muted-foreground mb-8 max-w-xs">
-        {isEn ? "The portfolio you are looking for does not exist or is not published." : "El portafolio que buscas no existe o no está publicado."}
+        {isEn ? "The website you are looking for does not exist or is not published." : "La web que buscas no existe o no está publicada."}
       </p>
       <Link href="/">
         <Button>{isEn ? "Back to home" : "Volver al inicio"}</Button>

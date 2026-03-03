@@ -26,15 +26,15 @@ export function PublicPortfolioButton({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [freeMessage, setFreeMessage] = useState<string | null>(null);
-  const fullLabel = isEn ? "View public portfolio" : "Ver portfolio público";
+  const fullLabel = isEn ? "View public website" : "Ver web pública";
   const compactLabel = isEn ? "Public" : "Público";
 
   if (!canAccessPublic) {
     const handleFreeClick = () => {
       setFreeMessage(
         isEn
-          ? "You need a paid plan to publish your portfolio."
-          : "Debes activar un plan de pago para publicar tu portfolio."
+          ? "You need a paid plan to publish your website."
+          : "Debes activar un plan de pago para publicar tu web."
       );
       window.setTimeout(() => {
         router.push(billingHref);
@@ -79,7 +79,7 @@ export function PublicPortfolioButton({
       };
 
       if (!response.ok) {
-        throw new Error(data.error ?? (isEn ? "Could not publish this portfolio." : "No se pudo publicar este portfolio."));
+        throw new Error(data.error ?? (isEn ? "Could not publish this website." : "No se pudo publicar esta web."));
       }
 
       const isLocalHost =
@@ -96,8 +96,8 @@ export function PublicPortfolioButton({
         publishError instanceof Error
           ? publishError.message
           : isEn
-            ? "Could not publish this portfolio."
-            : "No se pudo publicar este portfolio."
+            ? "Could not publish this website."
+            : "No se pudo publicar esta web."
       );
     } finally {
       setIsLoading(false);

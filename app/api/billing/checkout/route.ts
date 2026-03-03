@@ -132,8 +132,8 @@ export async function POST(request: NextRequest) {
         return NextResponse.json(
           {
             error: isEn
-              ? "The selected portfolio does not belong to your account."
-              : "El portfolio seleccionado no pertenece a tu cuenta.",
+              ? "The selected website does not belong to your account."
+              : "La web seleccionada no pertenece a tu cuenta.",
           },
           { status: 404 }
         );

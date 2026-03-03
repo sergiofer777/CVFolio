@@ -122,11 +122,11 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
                 error:
                   plan === "studio"
                     ? isEn
-                      ? "You have reached the maximum of 3 portfolios for Studio."
-                      : "Has alcanzado el máximo de 3 portfolios para Studio."
+                      ? "You have reached the maximum of 3 websites for Studio."
+                      : "Has alcanzado el máximo de 3 webs para Studio."
                     : isEn
-                      ? "You have reached the portfolio limit for your plan."
-                      : "Has alcanzado el límite de portfolios para tu plan.",
+                      ? "You have reached the website limit for your plan."
+                      : "Has alcanzado el límite de webs para tu plan.",
               },
               { status: 402 }
             );
@@ -287,8 +287,8 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
         {
           success: false,
           error: isEn
-            ? "There was an error saving the portfolio."
-            : "Error al guardar el portafolio",
+            ? "There was an error saving the website."
+            : "Error al guardar la web",
         },
         { status: 500 }
       );

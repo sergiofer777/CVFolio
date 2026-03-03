@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { Dropzone } from "@/components/upload/dropzone";
 import { LogoutButton } from "@/components/auth/logout-button";
@@ -79,7 +80,7 @@ export function UploadPageClient() {
                 {isEn ? "Upload your CV," : "Sube tu CV,"}
                 <br />
                 <em className="italic text-[var(--rust)]">
-                  {isEn ? "get your portfolio" : "obtén tu portafolio"}
+                  {isEn ? "get your website" : "obtén tu web"}
                 </em>
               </h1>
               <p className="text-[var(--muted-color)] text-[1.03rem] max-w-xl mx-auto lg:mx-0 font-light leading-[1.7]">
@@ -95,7 +96,7 @@ export function UploadPageClient() {
                   {isEn ? "Choose template" : "Elige plantilla"}
                 </p>
                 <h2 className="font-display text-[1.4rem] text-[var(--ink)] tracking-tight mt-1">
-                  {isEn ? "Visual base for your portfolio" : "Base visual de tu portafolio"}
+                  {isEn ? "Visual base for your website" : "Base visual de tu web"}
                 </h2>
               </div>
 
@@ -107,24 +108,40 @@ export function UploadPageClient() {
                       key={template.id}
                       type="button"
                       onClick={() => setSelectedTemplate(template.id)}
-                      className={`text-left rounded-xl border p-4 transition-all ${
+                      className={`group text-left rounded-xl border overflow-hidden transition-all ${
                         selected
                           ? "border-[var(--ink)] bg-white shadow-[0_8px_20px_rgba(0,0,0,0.06)]"
                           : "border-[var(--sand)] bg-white/60 hover:bg-white hover:border-[var(--ink)]"
                       }`}
                     >
-                      <div className={`h-1.5 w-full rounded-full ${template.accentClass}`} />
-                      <p className="mt-3 font-display text-sm text-[var(--ink)]">
-                        {template.name}
-                      </p>
-                      <p className="text-[0.72rem] text-[var(--rust)] font-medium mt-1">
-                        {isEn ? TEMPLATE_TAGLINES_EN[template.id] : template.tagline}
-                      </p>
-                      <p className="text-[0.72rem] text-[var(--muted-color)] leading-relaxed mt-2">
-                        {isEn
-                          ? TEMPLATE_DESCRIPTIONS_EN[template.id]
-                          : template.description}
-                      </p>
+                      <div className="h-28 bg-[var(--cream)] border-b border-[var(--sand)] overflow-hidden">
+                        <Image
+                          src={template.previewImage}
+                          alt={
+                            isEn
+                              ? `Preview of ${template.name}`
+                              : `Vista previa de ${template.name}`
+                          }
+                          width={1440}
+                          height={520}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.02]"
+                          style={{ objectPosition: template.previewObjectPosition }}
+                        />
+                      </div>
+                      <div className="p-4">
+                        <div className={`h-1.5 w-full rounded-full ${template.accentClass}`} />
+                        <p className="mt-3 font-display text-sm text-[var(--ink)]">
+                          {template.name}
+                        </p>
+                        <p className="text-[0.72rem] text-[var(--rust)] font-medium mt-1">
+                          {isEn ? TEMPLATE_TAGLINES_EN[template.id] : template.tagline}
+                        </p>
+                        <p className="text-[0.72rem] text-[var(--muted-color)] leading-relaxed mt-2">
+                          {isEn
+                            ? TEMPLATE_DESCRIPTIONS_EN[template.id]
+                            : template.description}
+                        </p>
+                      </div>
                     </button>
                   );
                 })}

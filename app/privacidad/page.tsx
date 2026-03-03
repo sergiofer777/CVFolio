@@ -33,7 +33,7 @@ const PRIVACY_CONTENT: Record<
     eyebrow: "Privacidad",
     title: "Cómo tratamos tus datos hoy",
     intro:
-      "Este texto explica el tratamiento real que hace ahora mismo webiculum sobre cuentas, CVs, portfolios, sesiones y pagos. Está pensado para ser claro, directo y consistente con el funcionamiento actual del producto.",
+      "Este texto explica el tratamiento real que hace ahora mismo webiculum sobre cuentas, CVs, webs, sesiones y pagos. Está pensado para ser claro, directo y consistente con el funcionamiento actual del producto.",
     lastUpdated: "2 de marzo de 2026",
     lastUpdatedLabel: "Última actualización",
     navPrivacyLabel: "Privacidad",
@@ -46,7 +46,7 @@ const PRIVACY_CONTENT: Record<
       {
         title: "1. Qué cubre esta política",
         paragraphs: [
-          "Esta política explica cómo tratamos la información personal cuando usas webiculum para iniciar sesión, subir tu CV, generar tu portfolio, publicarlo, descargarlo o contratar un plan.",
+          "Esta política explica cómo tratamos la información personal cuando usas webiculum para iniciar sesión, subir tu CV, generar tu web, publicarla, descargarla o contratar un plan.",
           "Está redactada para reflejar el funcionamiento actual del producto. Si el servicio cambia de forma sustancial, podremos actualizar este texto y publicar una nueva versión.",
         ],
       },
@@ -54,7 +54,7 @@ const PRIVACY_CONTENT: Record<
         title: "2. Qué datos recopilamos",
         paragraphs: [
           "Recogemos datos de acceso e identidad cuando entras con Google a través de Supabase Auth, incluyendo el identificador de usuario, tu email, tu nombre público, tu avatar si Google lo facilita y el username que asocias a la cuenta.",
-          "También tratamos el contenido que decides subir o generar dentro del producto: archivos CV en PDF o imagen, texto extraído, información estructurada del CV, HTML generado, metadatos del portfolio y estado de publicación.",
+          "También tratamos el contenido que decides subir o generar dentro del producto: archivos CV en PDF o imagen, texto extraído, información estructurada del CV, HTML generado, metadatos de la web y estado de publicación.",
         ],
         bullets: [
           "Preferencia de idioma guardada mediante cookie técnica y almacenamiento local para recordar si navegas en español o inglés.",
@@ -65,7 +65,7 @@ const PRIVACY_CONTENT: Record<
       {
         title: "3. Para qué usamos tus datos",
         paragraphs: [
-          "Usamos tus datos para autenticarte, permitirte acceder a tu cuenta, procesar tu CV con IA, guardar tus portfolios, mostrarte previews, publicarlos en subdominio o dejarte descargar el HTML cuando tu plan lo permita.",
+          "Usamos tus datos para autenticarte, permitirte acceder a tu cuenta, procesar tu CV con IA, guardar tus webs, mostrarte previews, publicarlas en subdominio o dejarte descargar el HTML cuando tu plan lo permita.",
           "También los usamos para gestionar pagos, aplicar límites del plan, prevenir abuso, mantener la seguridad del servicio, responder a incidencias y cumplir obligaciones legales o fiscales cuando existan.",
         ],
       },
@@ -92,15 +92,15 @@ const PRIVACY_CONTENT: Record<
       {
         title: "6. Qué parte puede hacerse pública",
         paragraphs: [
-          "Si decides publicar tu portfolio, el contenido incluido en la página pública deja de ser privado y puede quedar accesible para cualquier persona que conozca o encuentre tu URL pública o subdominio.",
-          "Debes revisar antes de publicar qué datos personales incluyes en el CV o en el portfolio, especialmente email, teléfono, ubicación, enlaces y cualquier otro dato que no quieras exponer públicamente.",
+          "Si decides publicar tu web, el contenido incluido en la página pública deja de ser privado y puede quedar accesible para cualquier persona que conozca o encuentre tu URL pública o subdominio.",
+          "Debes revisar antes de publicar qué datos personales incluyes en el CV o en la web, especialmente email, teléfono, ubicación, enlaces y cualquier otro dato que no quieras exponer públicamente.",
         ],
       },
       {
         title: "7. Conservación y borrado",
         paragraphs: [
           "Las previews gratuitas no publicadas pueden eliminarse automáticamente pasadas 24 horas, junto con el archivo subido asociado, para liberar almacenamiento y aplicar las reglas del plan gratuito.",
-          "Los datos vinculados a cuentas de pago, portfolios, publicaciones, facturación, soporte y seguridad pueden conservarse mientras sean necesarios para prestar el servicio, gestionar incidencias, resolver disputas, cumplir obligaciones legales o mantener evidencias técnicas razonables.",
+          "Los datos vinculados a cuentas de pago, webs, publicaciones, facturación, soporte y seguridad pueden conservarse mientras sean necesarios para prestar el servicio, gestionar incidencias, resolver disputas, cumplir obligaciones legales o mantener evidencias técnicas razonables.",
           "La publicación pública puede expirar según el plan activo. A día de hoy, el plan premium se limita temporalmente y el plan studio no tiene un vencimiento automático de publicación definido en el código actual.",
         ],
       },
@@ -119,7 +119,7 @@ const PRIVACY_CONTENT: Record<
         ],
         bullets: [
           "No vendemos tus datos como producto independiente.",
-          "No subas categorías especiales de datos si no son necesarias para tu portfolio.",
+          "No subas categorías especiales de datos si no son necesarias para tu web.",
           "Si detectamos cambios relevantes en el tratamiento, podremos actualizar esta política.",
         ],
       },
@@ -132,7 +132,7 @@ const PRIVACY_CONTENT: Record<
     eyebrow: "Privacy",
     title: "How we handle your data today",
     intro:
-      "This text explains how webiculum currently handles accounts, CVs, portfolios, sessions and payments. It is written to match the product as it works right now.",
+      "This text explains how webiculum currently handles accounts, CVs, websites, sessions and payments. It is written to match the product as it works right now.",
     lastUpdated: "March 2, 2026",
     lastUpdatedLabel: "Last updated",
     navPrivacyLabel: "Privacy",
@@ -145,7 +145,7 @@ const PRIVACY_CONTENT: Record<
       {
         title: "1. What this policy covers",
         paragraphs: [
-          "This policy explains how we process personal information when you use webiculum to sign in, upload your CV, generate your portfolio, publish it, download it or buy a plan.",
+          "This policy explains how we process personal information when you use webiculum to sign in, upload your CV, generate your website, publish it, download it or buy a plan.",
           "It is written to reflect how the product currently works. If the service changes in a material way, we may update this text and publish a new version.",
         ],
       },
@@ -153,7 +153,7 @@ const PRIVACY_CONTENT: Record<
         title: "2. What data we collect",
         paragraphs: [
           "We collect identity and access data when you sign in with Google through Supabase Auth, including your user identifier, email, public name, avatar if Google provides it, and the username linked to your account.",
-          "We also process the content you choose to upload or generate inside the product: CV files in PDF or image format, extracted text, structured CV information, generated HTML, portfolio metadata and publication status.",
+          "We also process the content you choose to upload or generate inside the product: CV files in PDF or image format, extracted text, structured CV information, generated HTML, website metadata and publication status.",
         ],
         bullets: [
           "Language preference stored in a technical cookie and local storage so we can remember whether you browse in Spanish or English.",
@@ -164,7 +164,7 @@ const PRIVACY_CONTENT: Record<
       {
         title: "3. Why we use your data",
         paragraphs: [
-          "We use your data to authenticate you, let you access your account, process your CV with AI, store your portfolios, show previews, publish them on a subdomain, and let you download the HTML when your plan allows it.",
+          "We use your data to authenticate you, let you access your account, process your CV with AI, store your websites, show previews, publish them on a subdomain, and let you download the HTML when your plan allows it.",
           "We also use it to manage payments, enforce plan limits, prevent abuse, maintain service security, respond to incidents, and comply with legal or tax obligations where applicable.",
         ],
       },
@@ -191,15 +191,15 @@ const PRIVACY_CONTENT: Record<
       {
         title: "6. What may become public",
         paragraphs: [
-          "If you choose to publish your portfolio, the content included in the public page stops being private and may be accessible to anyone who knows or finds your public URL or subdomain.",
-          "Before publishing, you should review which personal data appears in your CV or portfolio, especially email, phone number, location, links and any other information you do not want to expose publicly.",
+          "If you choose to publish your website, the content included in the public page stops being private and may be accessible to anyone who knows or finds your public URL or subdomain.",
+          "Before publishing, you should review which personal data appears in your CV or website, especially email, phone number, location, links and any other information you do not want to expose publicly.",
         ],
       },
       {
         title: "7. Retention and deletion",
         paragraphs: [
           "Free unpublished previews may be deleted automatically after 24 hours, together with the uploaded file linked to them, in order to free storage and enforce the free-plan rules.",
-          "Data linked to paid accounts, portfolios, publications, billing, support and security may be kept for as long as reasonably necessary to provide the service, manage incidents, resolve disputes, comply with legal obligations or preserve technical evidence.",
+          "Data linked to paid accounts, websites, publications, billing, support and security may be kept for as long as reasonably necessary to provide the service, manage incidents, resolve disputes, comply with legal obligations or preserve technical evidence.",
           "Public availability may expire depending on the active plan. As of today, the premium plan has a limited duration and the studio plan does not have an automatic publication expiry defined in the current code.",
         ],
       },
@@ -218,7 +218,7 @@ const PRIVACY_CONTENT: Record<
         ],
         bullets: [
           "We do not sell your data as a standalone product.",
-          "Do not upload special categories of data unless they are truly necessary for your portfolio.",
+          "Do not upload special categories of data unless they are truly necessary for your website.",
           "If we make relevant changes to the processing, we may update this policy.",
         ],
       },

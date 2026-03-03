@@ -128,24 +128,6 @@ const TEMPLATE_DEMO_PATHS: Record<
   bold: "/template-demos/maria.html",
 };
 
-const TEMPLATE_PREVIEW_IMAGES: Record<
-  (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
-  string
-> = {
-  minimal: "/template-previews/sergio-top.png",
-  modern: "/template-previews/ivan-top.png",
-  bold: "/template-previews/maria-top.png",
-};
-
-const TEMPLATE_PREVIEW_OBJECT_POSITIONS: Record<
-  (typeof PORTFOLIO_THEME_OPTIONS)[number]["id"],
-  string
-> = {
-  minimal: "50% 28%",
-  modern: "50% 18%",
-  bold: "50% 20%",
-};
-
 /* ── Pricing ── */
 const FREE_FEATURES_ES = [
   "Vista previa no interactiva",
@@ -491,8 +473,8 @@ export default function LandingPage() {
               className="rounded-xl overflow-hidden bg-white shadow-[0_2px_12px_rgba(0,0,0,0.06)] hover:-translate-y-1.5 hover:shadow-[0_12px_40px_rgba(0,0,0,0.1)] transition-all duration-300 h-full flex flex-col"
             >
               <div className="h-40 bg-[var(--cream)] border-b border-[var(--sand)] overflow-hidden">
-                <Image
-                  src={TEMPLATE_PREVIEW_IMAGES[template.id]}
+                  <Image
+                  src={template.previewImage}
                   alt={
                     isEn
                       ? `Preview of ${template.name}`
@@ -501,7 +483,7 @@ export default function LandingPage() {
                   width={1440}
                   height={520}
                   className="w-full h-full object-cover"
-                  style={{ objectPosition: TEMPLATE_PREVIEW_OBJECT_POSITIONS[template.id] }}
+                  style={{ objectPosition: template.previewObjectPosition }}
                 />
               </div>
               <div className="px-6 pb-6 pt-5 flex flex-col flex-1">

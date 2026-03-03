@@ -32,7 +32,7 @@ interface BillingPortfolioRow {
 }
 
 function getPortfolioName(cvData: CVData, isEn: boolean): string {
-  return cvData.personal?.name ?? (isEn ? "Untitled portfolio" : "Portfolio sin nombre");
+  return cvData.personal?.name ?? (isEn ? "Untitled website" : "Web sin nombre");
 }
 
 export default async function DashboardBillingPage({
@@ -129,15 +129,15 @@ export default async function DashboardBillingPage({
       <div className="max-w-5xl mx-auto px-6 py-8 space-y-6">
         <section className="rounded-xl border border-[var(--sand)] bg-white p-5">
           <p className="text-xs uppercase tracking-[0.08em] text-[var(--rust)] font-medium">
-            {isEn ? "Selected portfolio" : "Portfolio seleccionado"}
+            {isEn ? "Selected website" : "Web seleccionada"}
           </p>
           <h1 className="mt-2 font-display text-[1.7rem] text-[var(--ink)] tracking-tight">
             {getPortfolioName(selectedPortfolio.cv_data, isEn)}
           </h1>
           <p className="text-sm text-[var(--muted-color)] mt-1">
             {isEn
-              ? "This is the portfolio that will be published when you activate a plan."
-              : "Este es el portfolio que se publicará al activar un plan."}
+              ? "This is the website that will be published when you activate a plan."
+              : "Esta es la web que se publicará al activar un plan."}
           </p>
 
           {publicUrl && (
@@ -147,6 +147,19 @@ export default async function DashboardBillingPage({
             </p>
           )}
         </section>
+
+        {isStudioHighlighted && isUpgradeFromPro && (
+          <section className="rounded-xl border border-[rgba(192,68,10,0.2)] bg-[rgba(192,68,10,0.06)] p-4 text-sm text-[var(--rust)]">
+            <strong>
+              {isEn
+                ? "Pro only includes one generated website and no AI edit iterations."
+                : "Pro solo incluye una web generada y no tiene iteraciones de edición con IA."}
+            </strong>{" "}
+            {isEn
+              ? "Upgrade to Studio to create another website and unlock chat-based edits."
+              : "Mejora a Studio para crear otra web y desbloquear las ediciones por chat."}
+          </section>
+        )}
 
         {isPaid && publicUrl && (
           <section
@@ -170,8 +183,8 @@ export default async function DashboardBillingPage({
             ) : (
               <>
                 {isEn
-                  ? `You already have the ${activePlanLabel} plan active. You can open your public portfolio now at `
-                  : `Ya tienes el plan ${activePlanLabel} activo. Puedes abrir ahora tu portfolio público en `}
+                  ? `You already have the ${activePlanLabel} plan active. You can open your public website now at `
+                  : `Ya tienes el plan ${activePlanLabel} activo. Puedes abrir ahora tu web pública en `}
                 <a
                   href={publicUrl}
                   target="_blank"
@@ -236,7 +249,7 @@ export default async function DashboardBillingPage({
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />
-                {isEn ? "Publishing for the selected portfolio" : "Publicación del portfolio seleccionado"}
+                {isEn ? "Publishing for the selected website" : "Publicación de la web seleccionada"}
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />
@@ -328,26 +341,26 @@ export default async function DashboardBillingPage({
             </div>
             <h2 className="font-display text-[1.3rem] text-[var(--ink)] tracking-tight mt-2">
               {isEn
-                ? "3 portfolios + 3 iterations per portfolio"
-                : "3 portfolios + 3 iteraciones por portfolio"}
+                ? "3 websites + 3 iterations per website"
+                : "3 webs + 3 iteraciones por web"}
             </h2>
             <ul className="mt-3 space-y-2 text-sm text-[var(--muted-color)]">
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />
                 {isEn
-                  ? "Up to 3 active portfolios in your account"
-                  : "Hasta 3 portfolios activos en tu cuenta"}
+                  ? "Up to 3 active websites in your account"
+                  : "Hasta 3 webs activas en tu cuenta"}
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />
                 {isEn
-                  ? "3 chat iterations for each portfolio"
-                  : "3 iteraciones con chat por cada portfolio"}
+                  ? "3 chat iterations for each website"
+                  : "3 iteraciones con chat por cada web"}
               </li>
               <li className="flex items-start gap-2">
                 <Check className="w-4 h-4 mt-0.5 text-[var(--rust)]" />
                 {isEn
-                  ? "You can switch which portfolio is published on your subdomain"
+                  ? "You can switch which website is published on your subdomain"
                   : "Puedes cambiar cuál se publica en tu subdominio"}
               </li>
             </ul>
@@ -395,8 +408,8 @@ export default async function DashboardBillingPage({
                 {hasScheduledDowngradeToPro && scheduledDowngradeAtLabel && (
                   <p className="mt-3 text-xs leading-5 text-[var(--rust)]">
                     {isEn
-                      ? `Studio stays active until ${scheduledDowngradeAtLabel}. From that date your plan will continue as Pro, and the portfolio currently linked to your domain will remain as the published site.`
-                      : `Studio seguirá activo hasta el ${scheduledDowngradeAtLabel}. A partir de esa fecha tu plan pasará a Pro y el portfolio que tengas enlazado en ese momento a tu dominio se mantendrá como web publicada.`}
+                      ? `Studio stays active until ${scheduledDowngradeAtLabel}. From that date your plan will continue as Pro, and the website currently linked to your domain will remain as the published site.`
+                      : `Studio seguirá activo hasta el ${scheduledDowngradeAtLabel}. A partir de esa fecha tu plan pasará a Pro y la web que tengas enlazada en ese momento a tu dominio se mantendrá como web publicada.`}
                   </p>
                 )}
               </>

@@ -6,6 +6,8 @@ export interface PortfolioThemeOption {
   tagline: string;
   description: string;
   accentClass: string;
+  previewImage: string;
+  previewObjectPosition: string;
 }
 
 export const DEFAULT_PORTFOLIO_THEME: PortfolioTheme = "minimal";
@@ -18,6 +20,8 @@ export const PORTFOLIO_THEME_OPTIONS: PortfolioThemeOption[] = [
     description:
       "Plantilla base subida por Sergio con estilo editorial y secciones modulares.",
     accentClass: "bg-[var(--ink)]",
+    previewImage: "/template-previews/sergio-top.png",
+    previewObjectPosition: "50% 28%",
   },
   {
     id: "modern",
@@ -26,6 +30,8 @@ export const PORTFOLIO_THEME_OPTIONS: PortfolioThemeOption[] = [
     description:
       "Plantilla inmersiva estilo index-ivan, pensada para perfiles growth, fintech y blockchain.",
     accentClass: "bg-gradient-to-r from-cyan-600 to-blue-700",
+    previewImage: "/template-previews/ivan-top.png",
+    previewObjectPosition: "50% 18%",
   },
   {
     id: "bold",
@@ -34,6 +40,8 @@ export const PORTFOLIO_THEME_OPTIONS: PortfolioThemeOption[] = [
     description:
       "Plantilla visual premium basada en maria.html, con bloques inmersivos y look high-end.",
     accentClass: "bg-gradient-to-r from-orange-600 to-amber-500",
+    previewImage: "/template-previews/maria-top.png",
+    previewObjectPosition: "50% 20%",
   },
 ];
 

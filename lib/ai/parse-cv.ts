@@ -123,7 +123,7 @@ function extractPhase6Html(markdown: string): string | undefined {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <title>Portfolio</title>
+  <title>Web</title>
 </head>
 ${bodyOnly[0]}
 </html>`;
@@ -172,7 +172,7 @@ function ensureHtmlDocument(html: string): string {
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <script src="https://cdn.tailwindcss.com"></script>
-  <title>Portfolio</title>
+  <title>Web</title>
 </head>
 <body>
 ${html}
