@@ -4,6 +4,33 @@ import {
   injectTemplateIvanTypingOverride,
 } from "@/lib/templates/template-ivan-typing";
 
+function inferGeneratedLandingLanguage(cvData: CVData): "es" | "en" {
+  const sample = [
+    cvData.personal?.title,
+    cvData.personal?.summary,
+    cvData.experience?.[0]?.role,
+    cvData.experience?.[0]?.description?.[0],
+    cvData.projects?.[0]?.description,
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (!sample) return "es";
+
+  const spanishHits = [
+    /\b(el|la|los|las|de|del|para|con|sin|sobre|experiencia|gestion|gestión|desarrollo|equipo)\b/g,
+    /[áéíóúñ¿¡]/g,
+  ].reduce((sum, pattern) => sum + ((sample.match(pattern) ?? []).length > 0 ? 1 : 0), 0);
+
+  const englishHits = [
+    /\b(the|and|with|for|without|about|experience|management|development|team)\b/g,
+    /\b(currently|remote|years)\b/g,
+  ].reduce((sum, pattern) => sum + ((sample.match(pattern) ?? []).length > 0 ? 1 : 0), 0);
+
+  return englishHits > spanishHits ? "en" : "es";
+}
+
 export function extractHtmlFromLandingMarkdown(
   markdown?: string
 ): string | undefined {
@@ -161,19 +188,120 @@ function normalizeTemplateMariaInteractions(
   return output;
 }
 
+function injectLanguageBehavior(
+  html: string,
+  preferredLanguage: "es" | "en"
+): string {
+  const needsLanguageSync =
+    /data-en=|data-es=|id=(["'])(langToggle|lang-toggle)\1/i.test(html);
+
+  if (!needsLanguageSync) return html;
+
+  const languageScript = `<script data-webiculum-language-sync>(function(){
+  var preferred = ${JSON.stringify(preferredLanguage)};
+
+  function normalizeLanguage(value) {
+    return String(value || "").toLowerCase().startsWith("en") ? "en" : "es";
+  }
+
+  function applyWebiculumLanguage(lang) {
+    var next = normalizeLanguage(lang);
+    document.documentElement.lang = next;
+
+    var nodes = document.querySelectorAll("[data-en], [data-es]");
+    nodes.forEach(function(node) {
+      var value = node.getAttribute("data-" + next);
+      if (!value) return;
+      if (node.getAttribute("data-html") === "true") {
+        node.innerHTML = value;
+      } else {
+        node.textContent = value;
+      }
+    });
+
+    var simpleButton = document.getElementById("lang-toggle");
+    if (simpleButton) {
+      simpleButton.textContent = next.toUpperCase();
+    }
+
+    var richButton = document.getElementById("langToggle");
+    if (richButton) {
+      richButton.setAttribute("data-current-lang", next);
+      var options = richButton.querySelectorAll(".lang-option[data-lang]");
+      options.forEach(function(option) {
+        var isActive = option.getAttribute("data-lang") === next;
+        option.classList.toggle("active", isActive);
+        option.setAttribute("aria-pressed", isActive ? "true" : "false");
+      });
+    }
+  }
+
+  window.toggleLanguage = function() {
+    var current = normalizeLanguage(document.documentElement.lang || preferred);
+    applyWebiculumLanguage(current === "en" ? "es" : "en");
+  };
+
+  function bindLanguageToggle(selector) {
+    var button = document.getElementById(selector);
+    if (!button || button.getAttribute("data-webiculum-bound") === "true") return;
+    button.setAttribute("data-webiculum-bound", "true");
+    button.addEventListener("click", function(event) {
+      event.preventDefault();
+      window.toggleLanguage();
+    });
+  }
+
+  bindLanguageToggle("lang-toggle");
+  bindLanguageToggle("langToggle");
+  applyWebiculumLanguage(preferred);
+})();</script>`;
+
+  return /<\/body>/i.test(html)
+    ? html.replace(/<\/body>/i, `${languageScript}</body>`)
+    : `${html}${languageScript}`;
+}
+
+function injectWebiculumFooter(
+  html: string,
+  preferredLanguage: "es" | "en"
+): string {
+  if (/webiculum\.com/i.test(html)) return html;
+
+  const signatureLabel =
+    preferredLanguage === "en" ? "Built with" : "Creado con";
+  const signatureMarkup = `<div data-webiculum-signature style="margin-top:16px;text-align:center;font:500 12px/1.6 system-ui,sans-serif;color:inherit;opacity:0.85;">${signatureLabel} <a href="https://webiculum.com" target="_blank" rel="noopener noreferrer" style="color:inherit;font-weight:700;text-decoration:none;">Webiculum.com</a></div>`;
+
+  if (/<\/footer>/i.test(html)) {
+    return html.replace(/<\/footer>/i, `${signatureMarkup}</footer>`);
+  }
+
+  const standaloneFooter = `<footer data-webiculum-signature style="padding:24px 16px;text-align:center;font:500 12px/1.6 system-ui,sans-serif;color:#6b7280;border-top:1px solid rgba(148,163,184,0.2);">${signatureLabel} <a href="https://webiculum.com" target="_blank" rel="noopener noreferrer" style="color:inherit;font-weight:700;text-decoration:none;">Webiculum.com</a></footer>`;
+
+  return /<\/body>/i.test(html)
+    ? html.replace(/<\/body>/i, `${standaloneFooter}</body>`)
+    : `${html}${standaloneFooter}`;
+}
+
 export function buildRenderableGeneratedHtml(cvData: CVData): string | undefined {
   const generatedHtmlRaw =
     cvData.generatedLanding?.html ??
     extractHtmlFromLandingMarkdown(cvData.generatedLanding?.markdown);
   if (!generatedHtmlRaw) return undefined;
+  const preferredLanguage = inferGeneratedLandingLanguage(cvData);
 
   return injectTemplateIvanTypingOverride(
-    normalizeTemplateMariaInteractions(
-      normalizeTemplateSergioInteractions(
-        normalizeTemplateIvanAssets(generatedHtmlRaw),
-        cvData.personal?.email
+    injectWebiculumFooter(
+      injectLanguageBehavior(
+        normalizeTemplateMariaInteractions(
+          normalizeTemplateSergioInteractions(
+            normalizeTemplateIvanAssets(generatedHtmlRaw),
+            cvData.personal?.email
+          ),
+          cvData.personal?.email
+        ),
+        preferredLanguage
       ),
-      cvData.personal?.email
+      preferredLanguage
     ),
     buildTemplateIvanTypingPhrases(cvData)
   );

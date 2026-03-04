@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { CustomCursor } from "@/components/custom-cursor";
+import { LogoutButton } from "@/components/auth/logout-button";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { useClientLocale } from "@/hooks/use-client-locale";
+import { createClient as createSupabaseClient } from "@/lib/supabase/client";
 import { PORTFOLIO_THEME_OPTIONS } from "@/lib/templates/portfolio-themes";
 
 /* ── SVG Icons inline ── */
@@ -177,6 +179,12 @@ const STUDIO_FEATURES_EN = [
 /* ═════════ MAIN PAGE ═════════ */
 export default function LandingPage() {
   const [navScrolled, setNavScrolled] = useState(false);
+  const [hasSession, setHasSession] = useState(false);
+  const [headerCta, setHeaderCta] = useState<{
+    href: string;
+    mobileLabel: string;
+    desktopLabel: string;
+  } | null>(null);
   const locale = useClientLocale();
   const isEn = locale === "en";
 
@@ -186,6 +194,60 @@ export default function LandingPage() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    let isActive = true;
+
+    const loadHeaderCta = async () => {
+      const defaultCta = {
+        href: "/signup",
+        mobileLabel: isEn ? "Start" : "Empieza",
+        desktopLabel: isEn ? "Start free" : "Empezar gratis",
+      };
+
+      setHeaderCta(defaultCta);
+
+      const supabase = createSupabaseClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!isActive) return;
+      setHasSession(Boolean(user));
+
+      if (!user) return;
+
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("plan")
+        .eq("id", user.id)
+        .maybeSingle();
+
+      const currentPlan = (profile as { plan?: string } | null)?.plan ?? "free";
+      const hasPaidPlan = currentPlan === "premium" || currentPlan === "studio";
+
+      if (!hasPaidPlan) return;
+
+      const { count } = await supabase
+        .from("portfolios")
+        .select("id", { head: true, count: "exact" })
+        .eq("user_id", user.id);
+
+      if (!isActive) return;
+
+      setHeaderCta({
+        href: (count ?? 0) > 0 ? "/dashboard" : "/upload",
+        mobileLabel: isEn ? "Account" : "Cuenta",
+        desktopLabel: isEn ? "My account" : "Mi Cuenta",
+      });
+    };
+
+    void loadHeaderCta();
+
+    return () => {
+      isActive = false;
+    };
+  }, [isEn]);
+
   const counter1 = useCounter(267, "");
   const counter2 = useCounter(60, "s", 800);
   const counter3 = useCounter(98, "%");
@@ -193,6 +255,11 @@ export default function LandingPage() {
   const freeFeatures = isEn ? FREE_FEATURES_EN : FREE_FEATURES_ES;
   const proFeatures = isEn ? PRO_FEATURES_EN : PRO_FEATURES_ES;
   const studioFeatures = isEn ? STUDIO_FEATURES_EN : STUDIO_FEATURES_ES;
+  const resolvedHeaderCta = headerCta ?? {
+    href: "/signup",
+    mobileLabel: isEn ? "Start" : "Empieza",
+    desktopLabel: isEn ? "Start free" : "Empezar gratis",
+  };
 
   return (
     <div className="cursor-custom">
@@ -241,12 +308,18 @@ export default function LandingPage() {
             locale={locale}
             className="inline-flex shrink-0 items-center rounded-2xl border border-[var(--sand)] bg-white p-0.5 sm:p-1"
           />
+          {hasSession && (
+            <LogoutButton
+              label={isEn ? "Logout" : "Salir"}
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-[var(--sand)] bg-white px-3 py-2 text-xs font-medium text-[var(--ink)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--cream)] no-underline sm:rounded sm:px-4 sm:py-2.5 sm:text-sm"
+            />
+          )}
           <Link
-            href="/signup"
+            href={resolvedHeaderCta.href}
             className="inline-flex shrink-0 items-center rounded-xl bg-[var(--ink)] px-3 py-2 text-xs font-medium text-[var(--paper)] transition-colors hover:bg-[var(--rust)] hover:text-white no-underline sm:rounded sm:px-5 sm:py-2.5 sm:text-sm"
           >
-            <span className="sm:hidden">{isEn ? "Start" : "Empieza"}</span>
-            <span className="hidden sm:inline">{isEn ? "Start free" : "Empezar gratis"}</span>
+            <span className="sm:hidden">{resolvedHeaderCta.mobileLabel}</span>
+            <span className="hidden sm:inline">{resolvedHeaderCta.desktopLabel}</span>
           </Link>
         </div>
       </nav>

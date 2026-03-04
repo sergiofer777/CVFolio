@@ -435,11 +435,6 @@ export default async function DashboardBillingPage({
           </article>
         </section>
 
-        <p className="text-xs text-[var(--muted-color)]">
-          {isEn
-            ? "Note: if Stripe is not connected yet, the flow runs in test mode without real billing so you can validate the full experience."
-            : "Nota: si Stripe no está conectado aún, el flujo se activa en modo prueba sin cobro real para que puedas validar la experiencia completa."}
-        </p>
       </div>
     </main>
   );

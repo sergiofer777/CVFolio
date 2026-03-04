@@ -207,14 +207,73 @@ function extractStructuredCvFromLandingPayload(input: string): CVData | undefine
   return undefined;
 }
 
+function inferLandingLanguage(input: string): "es" | "en" {
+  const normalized = input.toLowerCase();
+
+  const spanishSignals = [
+    " experiencia ",
+    " educación ",
+    " educacion ",
+    " habilidades ",
+    " proyectos ",
+    " certificaciones ",
+    " sobre mí",
+    " sobre mi",
+    " actualmente ",
+    " gestión ",
+    " desarrollo ",
+    " empresa ",
+    " años ",
+    " responsable ",
+    " español",
+    " madrid",
+    " barcelona",
+  ];
+  const englishSignals = [
+    " experience ",
+    " education ",
+    " skills ",
+    " projects ",
+    " certifications ",
+    " currently ",
+    " management ",
+    " development ",
+    " company ",
+    " years ",
+    " responsible ",
+    " english",
+    " london",
+    " remote",
+  ];
+
+  let spanishScore = /[áéíóúñ¿¡]/i.test(input) ? 3 : 0;
+  let englishScore = 0;
+
+  for (const signal of spanishSignals) {
+    if (normalized.includes(signal.trim())) {
+      spanishScore += 1;
+    }
+  }
+
+  for (const signal of englishSignals) {
+    if (normalized.includes(signal.trim())) {
+      englishScore += 1;
+    }
+  }
+
+  return englishScore > spanishScore ? "en" : "es";
+}
+
 async function recoverLandingHtmlWithAI({
   cvText,
   template,
   previousOutput,
+  targetLanguage,
 }: {
   cvText: string;
   template: LandingTemplateConfig;
   previousOutput: string;
+  targetLanguage: "es" | "en";
 }): Promise<string | undefined> {
   const response = await callGemini({
     systemPrompt:
@@ -233,6 +292,10 @@ REGLAS:
 4. Respeta la arquitectura visual de la plantilla elegida.
 5. Si una seccion no tiene datos del CV, omite ese bloque.
 6. No devuelvas JSON ni Markdown.
+7. El idioma final obligatorio es ${targetLanguage === "en" ? "ingles" : "espanol"}.
+8. El atributo <html lang=""> debe quedar en "${targetLanguage}".
+9. Si existe toggle de idioma o textos bilingues, el estado visible inicial debe arrancar en "${targetLanguage}".
+10. En el footer final debe aparecer esta firma exacta: ${targetLanguage === "en" ? '"Built with Webiculum.com"' : '"Creado con Webiculum.com"'}.
 
 PLANTILLA ELEGIDA: ${template.name}
 DIRECCION VISUAL: ${template.direction}
@@ -335,6 +398,7 @@ export async function generateLandingWithAI(
   templateId?: string
 ): Promise<GeneratedLanding> {
   const template = getLandingTemplateConfig(templateId);
+  const targetLanguage = inferLandingLanguage(cvText);
   const markdown = await callGemini({
     systemPrompt: LANDING_SYSTEM_PROMPT,
     contents: [
@@ -347,6 +411,7 @@ export async function generateLandingWithAI(
               templateName: template.name,
               templateDirection: template.direction,
               templateHtml: template.htmlSkeleton,
+              targetLanguage,
             }),
           },
         ],
@@ -364,6 +429,7 @@ export async function generateLandingWithAI(
         cvText,
         template,
         previousOutput: markdown,
+        targetLanguage,
       });
     } catch (error) {
       console.error("landing recovery error:", error);

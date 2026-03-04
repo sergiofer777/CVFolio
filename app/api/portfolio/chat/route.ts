@@ -41,10 +41,30 @@ function buildCvIterationContext(cvData: CVData): string {
   return JSON.stringify(structuredCv);
 }
 
+function inferCvLanguage(cvData: CVData): "es" | "en" {
+  const sample = [
+    cvData.personal?.title,
+    cvData.personal?.summary,
+    cvData.experience?.[0]?.role,
+    cvData.experience?.[0]?.description?.[0],
+  ]
+    .filter(Boolean)
+    .join(" ")
+    .toLowerCase();
+
+  if (!sample) return "es";
+
+  const spanishHits = (sample.match(/\b(el|la|los|las|de|para|con|experiencia|gestion|gestión|desarrollo|equipo)\b/g) ?? []).length;
+  const englishHits = (sample.match(/\b(the|and|with|for|experience|management|development|team)\b/g) ?? []).length;
+
+  return englishHits > spanishHits ? "en" : "es";
+}
+
 async function recoverIterationHtml(params: {
   previousOutput: string;
   currentHtml: string;
   userMessage: string;
+  targetLanguage: "es" | "en";
 }): Promise<string | undefined> {
   const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   if (!apiKey) {
@@ -76,6 +96,9 @@ REGLAS:
 2. Debe empezar con <!doctype html> y terminar con </html>.
 3. Mantén el estilo y la estructura base de la web actual.
 4. Respeta la solicitud del usuario.
+5. Mantén el idioma principal en ${params.targetLanguage === "en" ? "ingles" : "espanol"}.
+6. El footer debe conservar la firma ${params.targetLanguage === "en" ? '"Built with Webiculum.com"' : '"Creado con Webiculum.com"'}.
+7. Si existe toggle de idioma, deja el estado visible inicial en ${params.targetLanguage}.
 
 SOLICITUD DEL USUARIO:
 ${params.userMessage}
@@ -121,6 +144,7 @@ async function rewriteLandingHtml(params: {
   }
 
   const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
+  const targetLanguage = inferCvLanguage(params.cvData);
   const response = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -147,6 +171,9 @@ REGLAS:
 3. No rompas clases, scripts ni estructura base de la plantilla.
 4. Cambia solo lo necesario para cumplir la solicitud.
 5. Si piden datos no presentes, no inventes.
+6. Mantén el idioma principal de la web en ${targetLanguage === "en" ? "ingles" : "espanol"}.
+7. Conserva el footer con la firma ${targetLanguage === "en" ? '"Built with Webiculum.com"' : '"Creado con Webiculum.com"'}.
+8. Si la plantilla tiene toggle de idioma, el estado visible por defecto debe seguir arrancando en ${targetLanguage}.
 
 SOLICITUD DEL USUARIO:
 ${params.userMessage}
@@ -186,6 +213,7 @@ ${params.currentHtml}`,
       previousOutput: text,
       currentHtml: params.currentHtml,
       userMessage: params.userMessage,
+      targetLanguage,
     }));
   if (!html) {
     throw new Error("La IA no devolvió HTML utilizable para la iteración.");

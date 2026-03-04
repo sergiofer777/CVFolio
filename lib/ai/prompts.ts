@@ -112,6 +112,7 @@ interface LandingUserPromptParams {
   templateName: string;
   templateDirection: string;
   templateHtml: string;
+  targetLanguage: "es" | "en";
 }
 
 export const LANDING_USER_PROMPT = ({
@@ -119,12 +120,14 @@ export const LANDING_USER_PROMPT = ({
   templateName,
   templateDirection,
   templateHtml,
+  targetLanguage,
 }: LandingUserPromptParams) =>
   `Genera la landing one-page final a partir del CV y la plantilla base.
 
 PLANTILLA ELEGIDA:
 - Nombre: ${templateName}
 - Direccion visual: ${templateDirection}
+- Idioma final obligatorio: ${targetLanguage === "en" ? "ingles" : "espanol"}
 
 REGLAS DE PLANTILLA:
 1. Copia la arquitectura HTML de la plantilla base y manten el orden de sus bloques.
@@ -132,7 +135,11 @@ REGLAS DE PLANTILLA:
 3. Reemplaza placeholders por contenido real extraido del CV.
 4. Si una seccion no aplica por falta de datos (proyectos, certificaciones, educacion, idiomas, imagen), elimina ese bloque y sus divisores.
 5. No inventes informacion no presente en el CV.
-6. El HTML final debe basarse en esta plantilla:
+6. El idioma visible final debe ser exactamente el idioma principal del CV. No mezcles idiomas.
+7. El atributo <html lang=""> debe quedar en "${targetLanguage}".
+8. Si la plantilla incluye toggle de idioma, data-en/data-es o textos bilingues, el estado visible por defecto debe arrancar en "${targetLanguage}" y el boton activo debe reflejarlo.
+9. En el footer final debe aparecer esta firma exacta: ${targetLanguage === "en" ? '"Built with Webiculum.com"' : '"Creado con Webiculum.com"'}.
+10. El HTML final debe basarse en esta plantilla:
 
 \`\`\`html
 ${templateHtml}
