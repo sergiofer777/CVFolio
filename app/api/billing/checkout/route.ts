@@ -7,6 +7,7 @@ import { activatePlanForUser } from "@/lib/billing/activation";
 import { isBillingMockPaymentsEnabled } from "@/lib/billing/config";
 import { PRO_PRICE_CENTS } from "@/lib/billing/pricing";
 import { createStripeServerClient } from "@/lib/billing/stripe-server";
+import { getUserBillingSubscriptionStatus } from "@/lib/billing/subscription-status";
 import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
 export const runtime = "nodejs";
@@ -179,6 +180,9 @@ export async function POST(request: NextRequest) {
     }
 
     const stripe = getStripeClient();
+    const subscriptionStatus = await getUserBillingSubscriptionStatus(user.id);
+    const existingStripeCustomerId =
+      subscriptionStatus?.stripeCustomerId?.trim() ?? null;
     const mode: Stripe.Checkout.SessionCreateParams.Mode = "subscription";
     const price = getPriceId(plan);
     const successParams = new URLSearchParams({ billing: "success", plan });
@@ -214,7 +218,8 @@ export async function POST(request: NextRequest) {
       line_items: [{ price, quantity: 1 }],
       payment_method_types: ["card"],
       return_url: `${appUrl}/dashboard?${successParams.toString()}`,
-      customer_email: user.email ?? undefined,
+      customer: existingStripeCustomerId ?? undefined,
+      customer_email: existingStripeCustomerId ? undefined : user.email ?? undefined,
       client_reference_id: user.id,
       metadata: {
         userId: user.id,
