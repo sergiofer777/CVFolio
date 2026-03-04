@@ -4,6 +4,7 @@ import { ArrowLeft, CircleHelp } from "lucide-react";
 import { ContactForm } from "@/components/help/contact-form";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { getServerLocale } from "@/lib/locale-server";
+import { createClient } from "@/lib/supabase/server";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
@@ -106,10 +107,38 @@ const HELP_FAQS_EN = [
 export default async function HelpCenterPage() {
   const locale = await getServerLocale();
   const isEn = locale === "en";
+  const supabase = await createClient();
   const web3formsKey =
     process.env.NEXT_PUBLIC_WEB3FORMS_ACCESS_KEY ??
     process.env.WEB3FORMS_ACCESS_KEY;
   const faqs = isEn ? HELP_FAQS_EN : HELP_FAQS;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  let topRightCtaHref = "/signup";
+  let topRightCtaLabel = isEn ? "Start free" : "Empezar gratis";
+
+  if (user) {
+    const { data: profileRaw } = await supabase
+      .from("profiles")
+      .select("plan")
+      .eq("id", user.id)
+      .maybeSingle();
+
+    const currentPlan = (profileRaw as { plan?: string } | null)?.plan ?? "free";
+    const hasPaidPlan = currentPlan === "premium" || currentPlan === "studio";
+
+    if (hasPaidPlan) {
+      const { count } = await supabase
+        .from("portfolios")
+        .select("id", { head: true, count: "exact" })
+        .eq("user_id", user.id);
+
+      topRightCtaHref = (count ?? 0) > 0 ? "/dashboard" : "/upload";
+      topRightCtaLabel = isEn ? "My account" : "Mi Cuenta";
+    }
+  }
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
@@ -132,10 +161,10 @@ export default async function HelpCenterPage() {
               {isEn ? "Back" : "Volver"}
             </Link>
             <Link
-              href="/signup"
+              href={topRightCtaHref}
               className="inline-flex items-center rounded-2xl bg-[var(--ink)] px-4 py-2 text-xs font-medium text-[var(--paper)] no-underline transition-colors hover:bg-[var(--rust)] sm:text-sm"
             >
-              {isEn ? "Start free" : "Empezar gratis"}
+              {topRightCtaLabel}
             </Link>
           </div>
         </div>
