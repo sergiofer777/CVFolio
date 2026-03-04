@@ -24,6 +24,19 @@ interface FilePreview {
 
 const TOTAL_DURATION = 20_000; // 20 seconds
 
+function sanitizeUploadFileName(fileName: string): string {
+  const normalized = fileName
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const cleaned = normalized
+    .replace(/[^A-Za-z0-9._-]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  if (!cleaned) return `upload_${Date.now()}`;
+  return cleaned.slice(0, 120);
+}
+
 export function Dropzone({
   onUploadComplete,
   onError,
@@ -115,7 +128,9 @@ export function Dropzone({
 
       try {
         const formData = new FormData();
-        formData.append("file", file);
+        const safeUploadName = sanitizeUploadFileName(file.name);
+        formData.append("file", file, safeUploadName);
+        formData.append("originalFileName", file.name);
         formData.append("templateId", selectedTemplate);
 
         setStatus("processing");

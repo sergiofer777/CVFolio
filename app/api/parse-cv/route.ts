@@ -47,6 +47,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     // 2. Obtener el archivo del FormData
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
+    const originalFileNameInput = formData.get("originalFileName");
+    const originalFileName =
+      typeof originalFileNameInput === "string" &&
+      originalFileNameInput.trim().length > 0
+        ? originalFileNameInput.trim()
+        : file?.name ?? "cv-upload";
     const templateIdInput = formData.get("templateId");
     const selectedTemplateId =
       typeof templateIdInput === "string" && isPortfolioTheme(templateIdInput)
@@ -157,7 +163,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     }
 
     // 3. Subir el archivo a Supabase Storage
-    const fileExtension = file.name.split(".").pop() ?? "pdf";
+    const fileExtension = originalFileName.split(".").pop() ?? "pdf";
     const filePath = `${user.id}/${Date.now()}.${fileExtension}`;
     const buffer = Buffer.from(await file.arrayBuffer());
 
@@ -187,7 +193,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
       .from("cv_uploads")
       .insert({
         user_id: user.id,
-        file_name: file.name,
+        file_name: originalFileName,
         file_path: filePath,
         file_type: fileType,
         file_size: file.size,
