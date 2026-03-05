@@ -128,6 +128,10 @@ export function Dropzone({
 
       try {
         const safeUploadName = sanitizeUploadFileName(file.name);
+        const uploadRequestId =
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `upload_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
 
         const buildMultipartFormData = () => {
           const formData = new FormData();
@@ -137,6 +141,7 @@ export function Dropzone({
           formData.append("file", safeBlob, safeUploadName);
           formData.append("originalFileName", safeUploadName);
           formData.append("templateId", selectedTemplate);
+          formData.append("uploadRequestId", uploadRequestId);
           return formData;
         };
 
@@ -151,6 +156,7 @@ export function Dropzone({
                     "x-upload-mode": "binary",
                     "x-upload-filename": safeUploadName,
                     "x-template-id": selectedTemplate,
+                    "x-upload-request-id": uploadRequestId,
                   }
                 : undefined,
             body: mode === "binary" ? file : buildMultipartFormData(),

@@ -54,7 +54,7 @@ export function PublicPortfolioButton({
         >
           <ExternalLink className="w-3.5 h-3.5" />
           <span className="hidden xl:inline">{fullLabel}</span>
-          <span className="hidden sm:inline xl:hidden">{compactLabel}</span>
+          <span className="hidden md:inline xl:hidden">{compactLabel}</span>
         </button>
         {freeMessage && <p className="text-xs text-[var(--rust)]">{freeMessage}</p>}
       </div>
@@ -122,7 +122,7 @@ export function PublicPortfolioButton({
           <ExternalLink className="w-3.5 h-3.5" />
         )}
         <span className="hidden xl:inline">{fullLabel}</span>
-        <span className="hidden sm:inline xl:hidden">{compactLabel}</span>
+        <span className="hidden md:inline xl:hidden">{compactLabel}</span>
       </button>
       {error && <p className="text-xs text-[var(--rust)]">{error}</p>}
     </div>

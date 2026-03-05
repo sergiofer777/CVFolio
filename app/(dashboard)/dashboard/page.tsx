@@ -293,16 +293,16 @@ export default async function DashboardPage({
             web<span className="text-[var(--rust)]">iculum</span>
           </Link>
 
-          <div className="flex basis-full sm:basis-auto sm:ml-auto min-w-0 flex-wrap sm:flex-nowrap items-center justify-start sm:justify-end gap-1.5 sm:gap-2 text-xs sm:text-sm">
+          <div className="flex basis-full sm:basis-auto sm:ml-auto min-w-0 flex-wrap items-center justify-start sm:justify-end gap-1 sm:gap-1.5 md:gap-2 text-xs sm:text-sm">
             {selectedPortfolio && canAccessInteractive && (
               <Link
                 href={`/dashboard/preview?portfolioId=${selectedPortfolio.id}`}
                 aria-label={isEn ? "Full view" : "Vista completa"}
-                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl px-2 py-1.5 md:px-2.5 md:py-2 text-[11px] md:text-xs xl:text-sm text-[var(--muted-color)] font-medium hover:bg-white hover:text-[var(--ink)] transition-colors no-underline"
+                className="inline-flex shrink-0 items-center gap-1.5 rounded-xl px-2 py-1.5 md:px-2.5 md:py-2 text-[11px] md:text-xs xl:text-sm text-[var(--muted-color)] font-medium hover:bg-white hover:text-[var(--ink)] transition-colors no-underline max-[430px]:hidden"
               >
                 <Monitor className="w-3.5 h-3.5" />
                 <span className="hidden xl:inline">{isEn ? "Full view" : "Vista completa"}</span>
-                <span className="hidden sm:inline xl:hidden">{isEn ? "View" : "Vista"}</span>
+                <span className="hidden md:inline xl:hidden">{isEn ? "View" : "Vista"}</span>
               </Link>
             )}
 
@@ -314,11 +314,11 @@ export default async function DashboardPage({
               <a
                 href={`/api/portfolio/download-html?portfolioId=${selectedPortfolio.id}`}
                 aria-label={isEn ? "Download HTML" : "Descargar HTML"}
-                className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
+                className="inline-flex shrink-0 items-center gap-1.5 px-2 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
               >
                 <Download className="w-3.5 h-3.5" />
                 <span className="hidden xl:inline">{isEn ? "Download HTML" : "Descargar HTML"}</span>
-                <span className="hidden sm:inline xl:hidden">HTML</span>
+                <span className="hidden md:inline xl:hidden">HTML</span>
               </a>
             )}
 
@@ -328,7 +328,7 @@ export default async function DashboardPage({
                 portfolioId={selectedPortfolio.id}
                 billingHref={billingHref}
                 publicUrl={publicPortfolioHref}
-                className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all"
+                className="inline-flex shrink-0 items-center gap-1.5 px-2 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all"
               />
             )}
 
@@ -340,7 +340,7 @@ export default async function DashboardPage({
             <Link
               href="/ayuda"
               aria-label={isEn ? "Help" : "Ayuda"}
-              className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
+              className="inline-flex shrink-0 items-center gap-1.5 px-2 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-white text-[var(--ink)] border border-[var(--sand)] text-[11px] md:text-xs xl:text-sm font-medium hover:border-[var(--ink)] hover:bg-[var(--cream)] transition-all no-underline"
             >
               <CircleHelp className="w-3.5 h-3.5" />
               <span className="hidden lg:inline">{isEn ? "Help" : "Ayuda"}</span>
@@ -349,13 +349,13 @@ export default async function DashboardPage({
             <Link
               href={createCtaHref}
               aria-label={createCtaAriaLabel}
-              className="inline-flex shrink-0 items-center gap-1.5 px-2.5 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-[var(--rust)] text-white border border-[var(--rust)] text-[11px] md:text-xs xl:text-sm font-medium hover:bg-[var(--rust-light)] hover:border-[var(--rust-light)] transition-all no-underline"
+              className="inline-flex shrink-0 items-center gap-1.5 px-2 md:px-3 xl:px-4 py-1.5 md:py-2 rounded-xl xl:rounded-2xl bg-[var(--rust)] text-white border border-[var(--rust)] text-[11px] md:text-xs xl:text-sm font-medium hover:bg-[var(--rust-light)] hover:border-[var(--rust-light)] transition-all no-underline"
             >
               <Upload className="w-3.5 h-3.5" />
               <span className="hidden xl:inline">
                 {createCtaFullLabel}
               </span>
-              <span className="hidden sm:inline xl:hidden">{createCtaCompactLabel}</span>
+              <span className="hidden md:inline xl:hidden">{createCtaCompactLabel}</span>
             </Link>
           </div>
         </div>

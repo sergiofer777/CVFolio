@@ -75,6 +75,62 @@ function sanitizeStoredFileName(fileName: string): string {
   return cleaned.slice(0, 120);
 }
 
+function sanitizeUploadRequestId(requestId?: string | null): string | null {
+  if (!requestId) return null;
+  const cleaned = requestId.trim().replace(/[^A-Za-z0-9_-]/g, "");
+  if (cleaned.length < 8 || cleaned.length > 120) return null;
+  return cleaned;
+}
+
+function isDuplicateStorageUploadError(error: unknown): boolean {
+  if (!error || typeof error !== "object") return false;
+  const err = error as { message?: string; name?: string };
+  const text = `${err.name ?? ""} ${err.message ?? ""}`.toLowerCase();
+  return (
+    text.includes("already exists") ||
+    text.includes("duplicate") ||
+    text.includes("resource already exists") ||
+    text.includes("the resource already exists")
+  );
+}
+
+async function recoverExistingPortfolioByFilePath(params: {
+  adminClient: any;
+  userId: string;
+  filePath: string;
+}): Promise<{ portfolioId: string; cvData: CVData } | null> {
+  const { adminClient, userId, filePath } = params;
+
+  const { data: existingUpload } = await adminClient
+    .from("cv_uploads")
+    .select("id")
+    .eq("user_id", userId)
+    .eq("file_path", filePath)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const uploadId = (existingUpload as { id?: string } | null)?.id;
+  if (!uploadId) return null;
+
+  const { data: existingPortfolio } = await adminClient
+    .from("portfolios")
+    .select("id, cv_data")
+    .eq("user_id", userId)
+    .eq("upload_id", uploadId)
+    .order("created_at", { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  const portfolio = (existingPortfolio as { id?: string; cv_data?: CVData } | null) ?? null;
+  if (!portfolio?.id || !portfolio.cv_data) return null;
+
+  return {
+    portfolioId: portfolio.id,
+    cvData: portfolio.cv_data,
+  };
+}
+
 function hasMeaningfulCvData(cvData: CVData): boolean {
   const personal = cvData.personal ?? ({} as CVData["personal"]);
   const summaryLength = personal.summary?.trim().length ?? 0;
@@ -210,6 +266,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     const uploadMode = request.headers.get("x-upload-mode");
     let selectedTemplateId = DEFAULT_PORTFOLIO_THEME;
     let originalFileName = "cv-upload";
+    let uploadRequestId: string | null = null;
     let declaredMimeType = "application/octet-stream";
     let fileSize = 0;
     let buffer: Buffer;
@@ -224,6 +281,9 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
       if (uploadFileNameHeader && uploadFileNameHeader.trim().length > 0) {
         originalFileName = sanitizeStoredFileName(uploadFileNameHeader.trim());
       }
+      uploadRequestId = sanitizeUploadRequestId(
+        request.headers.get("x-upload-request-id")
+      );
 
       const contentTypeHeader = request.headers.get("content-type");
       declaredMimeType =
@@ -247,6 +307,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
         typeof templateIdInput === "string" && isPortfolioTheme(templateIdInput)
           ? templateIdInput
           : DEFAULT_PORTFOLIO_THEME;
+      const uploadRequestIdInput = formData.get("uploadRequestId");
+      uploadRequestId = sanitizeUploadRequestId(
+        typeof uploadRequestIdInput === "string" ? uploadRequestIdInput : null
+      );
 
       if (!file) {
         return NextResponse.json(
@@ -319,6 +383,26 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     }
 
     const adminClient = createAdminClient();
+    const fileExtension = detectedType;
+    const filePath = uploadRequestId
+      ? `${user.id}/${uploadRequestId}.${fileExtension}`
+      : `${user.id}/${Date.now()}.${fileExtension}`;
+
+    if (uploadRequestId) {
+      const recovered = await recoverExistingPortfolioByFilePath({
+        adminClient,
+        userId: user.id,
+        filePath,
+      });
+      if (recovered) {
+        return NextResponse.json({
+          success: true,
+          data: recovered.cvData,
+          portfolioId: recovered.portfolioId,
+        });
+      }
+    }
+
     const { data: profileRaw } = await adminClient
       .from("profiles")
       .select("plan")
@@ -337,6 +421,21 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
           .eq("user_id", user.id);
 
         if ((count ?? 0) >= generationLimit) {
+          if (uploadRequestId) {
+            const recoveredAfterLimit = await recoverExistingPortfolioByFilePath({
+              adminClient,
+              userId: user.id,
+              filePath,
+            });
+            if (recoveredAfterLimit) {
+              return NextResponse.json({
+                success: true,
+                data: recoveredAfterLimit.cvData,
+                portfolioId: recoveredAfterLimit.portfolioId,
+              });
+            }
+          }
+
           const message =
             plan === "studio"
               ? isEn
@@ -362,8 +461,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     }
 
     // 3. Subir el archivo a Supabase Storage
-    const fileExtension = detectedType;
-    const filePath = `${user.id}/${Date.now()}.${fileExtension}`;
     let uploadRecordId: string | null = null;
 
     const { error: uploadError } = await adminClient.storage
@@ -374,6 +471,21 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
       });
 
     if (uploadError) {
+      if (uploadRequestId && isDuplicateStorageUploadError(uploadError)) {
+        const recovered = await recoverExistingPortfolioByFilePath({
+          adminClient,
+          userId: user.id,
+          filePath,
+        });
+        if (recovered) {
+          return NextResponse.json({
+            success: true,
+            data: recovered.cvData,
+            portfolioId: recovered.portfolioId,
+          });
+        }
+      }
+
       console.error("Storage upload error:", uploadError);
       return NextResponse.json(
         {
@@ -405,6 +517,18 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
       console.error("DB insert error:", dbUploadError);
     }
     uploadRecordId = (uploadRecord as { id?: string } | null)?.id ?? null;
+
+    if (!uploadRecordId && uploadRequestId) {
+      const { data: existingUpload } = await adminClient
+        .from("cv_uploads")
+        .select("id")
+        .eq("user_id", user.id)
+        .eq("file_path", filePath)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      uploadRecordId = (existingUpload as { id?: string } | null)?.id ?? null;
+    }
 
     try {
       // 5. Extraer texto / enviar imagen a la IA
