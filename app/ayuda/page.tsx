@@ -117,7 +117,8 @@ export default async function HelpCenterPage() {
   } = await supabase.auth.getUser();
 
   let topRightCtaHref = "/signup";
-  let topRightCtaLabel = isEn ? "Start free" : "Empezar gratis";
+  let topRightCtaMobileLabel = isEn ? "Start" : "Empieza";
+  let topRightCtaDesktopLabel = isEn ? "Start free" : "Empezar gratis";
 
   if (user) {
     const { data: profileRaw } = await supabase
@@ -136,14 +137,15 @@ export default async function HelpCenterPage() {
         .eq("user_id", user.id);
 
       topRightCtaHref = (count ?? 0) > 0 ? "/dashboard" : "/upload";
-      topRightCtaLabel = isEn ? "My account" : "Mi Cuenta";
+      topRightCtaMobileLabel = isEn ? "My" : "Mi";
+      topRightCtaDesktopLabel = isEn ? "My account" : "Mi Cuenta";
     }
   }
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
       <header className="sticky top-0 z-40 border-b border-[var(--sand)] bg-[rgba(245,242,235,0.9)] backdrop-blur-xl">
-        <div className="flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:px-10">
+        <div className="flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:px-10 max-sm:flex-wrap max-sm:gap-y-2">
           <Link
             href="/"
             className="font-display text-2xl font-semibold tracking-tight text-[var(--ink)] no-underline"
@@ -151,20 +153,22 @@ export default async function HelpCenterPage() {
             web<span className="text-[var(--rust)]">iculum</span>
           </Link>
 
-          <div className="flex items-center gap-2 sm:gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 max-sm:basis-full max-sm:justify-end max-sm:gap-1.5">
             <LocaleToggle locale={locale} />
             <Link
               href="/"
-              className="inline-flex items-center gap-2 rounded-2xl border border-[var(--sand)] bg-white px-3 py-2 text-xs font-medium text-[var(--ink)] no-underline transition-colors hover:border-[var(--ink)] hover:bg-[var(--cream)] sm:px-4 sm:text-sm"
+              className="inline-flex items-center gap-2 rounded-2xl border border-[var(--sand)] bg-white px-3 py-2 text-xs font-medium text-[var(--ink)] no-underline transition-colors hover:border-[var(--ink)] hover:bg-[var(--cream)] sm:px-4 sm:text-sm max-sm:px-2.5 max-sm:text-[11px] max-[380px]:w-9 max-[380px]:justify-center max-[380px]:px-0"
             >
               <ArrowLeft className="h-4 w-4" />
-              {isEn ? "Back" : "Volver"}
+              <span className="sm:hidden max-[380px]:hidden">{isEn ? "Back" : "Volver"}</span>
+              <span className="hidden sm:inline">{isEn ? "Back" : "Volver"}</span>
             </Link>
             <Link
               href={topRightCtaHref}
-              className="inline-flex items-center rounded-2xl bg-[var(--ink)] px-4 py-2 text-xs font-medium text-[var(--paper)] no-underline transition-colors hover:bg-[var(--rust)] sm:text-sm"
+              className="inline-flex items-center rounded-2xl bg-[var(--ink)] px-4 py-2 text-xs font-medium text-[var(--paper)] no-underline transition-colors hover:bg-[var(--rust)] sm:text-sm max-sm:px-2.5 max-sm:text-[11px] max-[380px]:px-2"
             >
-              {topRightCtaLabel}
+              <span className="sm:hidden">{topRightCtaMobileLabel}</span>
+              <span className="hidden sm:inline">{topRightCtaDesktopLabel}</span>
             </Link>
           </div>
         </div>

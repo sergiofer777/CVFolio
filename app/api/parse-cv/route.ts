@@ -131,6 +131,34 @@ async function recoverExistingPortfolioByFilePath(params: {
   };
 }
 
+async function waitForRecoveredPortfolioByFilePath(params: {
+  adminClient: any;
+  userId: string;
+  filePath: string;
+  maxAttempts?: number;
+  delayMs?: number;
+}): Promise<{ portfolioId: string; cvData: CVData } | null> {
+  const {
+    adminClient,
+    userId,
+    filePath,
+    maxAttempts = 12,
+    delayMs = 500,
+  } = params;
+
+  for (let attempt = 0; attempt < maxAttempts; attempt += 1) {
+    const recovered = await recoverExistingPortfolioByFilePath({
+      adminClient,
+      userId,
+      filePath,
+    });
+    if (recovered) return recovered;
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
+  }
+
+  return null;
+}
+
 function hasMeaningfulCvData(cvData: CVData): boolean {
   const personal = cvData.personal ?? ({} as CVData["personal"]);
   const summaryLength = personal.summary?.trim().length ?? 0;
@@ -422,7 +450,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
 
         if ((count ?? 0) >= generationLimit) {
           if (uploadRequestId) {
-            const recoveredAfterLimit = await recoverExistingPortfolioByFilePath({
+            const recoveredAfterLimit = await waitForRecoveredPortfolioByFilePath({
               adminClient,
               userId: user.id,
               filePath,
@@ -472,7 +500,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
 
     if (uploadError) {
       if (uploadRequestId && isDuplicateStorageUploadError(uploadError)) {
-        const recovered = await recoverExistingPortfolioByFilePath({
+        const recovered = await waitForRecoveredPortfolioByFilePath({
           adminClient,
           userId: user.id,
           filePath,

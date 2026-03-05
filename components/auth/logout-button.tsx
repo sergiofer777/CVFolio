@@ -1,15 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { type ReactNode, useState } from "react";
 import { LogOut, Loader2 } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
 
 interface LogoutButtonProps {
   className?: string;
-  label?: string;
+  label?: ReactNode;
+  labelClassName?: string;
 }
 
-export function LogoutButton({ className, label = "Cerrar sesión" }: LogoutButtonProps) {
+export function LogoutButton({
+  className,
+  label = "Cerrar sesión",
+  labelClassName,
+}: LogoutButtonProps) {
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogout = async () => {
@@ -38,7 +43,7 @@ export function LogoutButton({ className, label = "Cerrar sesión" }: LogoutButt
       ) : (
         <LogOut className="w-3.5 h-3.5" />
       )}
-      {label}
+      <span className={labelClassName}>{label}</span>
     </button>
   );
 }

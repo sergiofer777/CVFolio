@@ -236,7 +236,7 @@ export default function LandingPage() {
 
       setHeaderCta({
         href: (count ?? 0) > 0 ? "/dashboard" : "/upload",
-        mobileLabel: isEn ? "Account" : "Cuenta",
+        mobileLabel: isEn ? "My" : "Mi",
         desktopLabel: isEn ? "My account" : "Mi Cuenta",
       });
     };
@@ -267,7 +267,7 @@ export default function LandingPage() {
 
       {/* ─── NAV ─── */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 py-3 sm:px-6 md:px-12 md:py-5 transition-all duration-500 bg-[rgba(245,242,235,0.96)] backdrop-blur-xl border-b border-[var(--sand)] ${
+        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 py-3 sm:px-6 md:px-12 md:py-5 transition-all duration-500 bg-[rgba(245,242,235,0.96)] backdrop-blur-xl border-b border-[var(--sand)] max-sm:flex-wrap max-sm:gap-y-2 ${
           navScrolled
             ? "md:bg-[rgba(245,242,235,0.85)] md:backdrop-blur-xl md:border-b md:border-[var(--sand)]"
             : "md:bg-transparent md:backdrop-blur-0 md:border-b md:border-transparent"
@@ -275,11 +275,11 @@ export default function LandingPage() {
       >
         <Link
           href="/"
-          className="shrink-0 font-display text-[1.7rem] font-semibold leading-none text-[var(--ink)] tracking-tight no-underline sm:text-2xl"
+          className="shrink-0 font-display text-[1.7rem] font-semibold leading-none text-[var(--ink)] tracking-tight no-underline sm:text-2xl max-sm:text-[1.48rem]"
         >
           web<span className="text-[var(--rust)]">iculum</span>
         </Link>
-        <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3 md:gap-6">
+        <div className="ml-auto flex min-w-0 items-center gap-2 sm:gap-3 md:gap-6 max-sm:basis-full max-sm:ml-0 max-sm:justify-end max-sm:gap-1.5">
           <a
             href="#how"
             className="hidden md:inline text-sm text-[var(--muted-color)] hover:text-[var(--ink)] transition-colors tracking-wide no-underline"
@@ -306,17 +306,23 @@ export default function LandingPage() {
           </Link>
           <LocaleToggle
             locale={locale}
-            className="inline-flex shrink-0 items-center rounded-2xl border border-[var(--sand)] bg-white p-0.5 sm:p-1"
+            className="inline-flex shrink-0 items-center rounded-2xl border border-[var(--sand)] bg-white p-0.5 sm:p-1 max-sm:rounded-xl"
           />
           {hasSession && (
             <LogoutButton
-              label={isEn ? "Logout" : "Salir"}
-              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-[var(--sand)] bg-white px-3 py-2 text-xs font-medium text-[var(--ink)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--cream)] no-underline sm:rounded sm:px-4 sm:py-2.5 sm:text-sm"
+              label={
+                <>
+                  <span className="sm:hidden max-[380px]:hidden">{isEn ? "Logout" : "Salir"}</span>
+                  <span className="hidden sm:inline">{isEn ? "Logout" : "Salir"}</span>
+                </>
+              }
+              className="inline-flex shrink-0 items-center gap-1.5 rounded-xl border border-[var(--sand)] bg-white px-3 py-2 text-xs font-medium text-[var(--ink)] transition-colors hover:border-[var(--ink)] hover:bg-[var(--cream)] no-underline sm:rounded sm:px-4 sm:py-2.5 sm:text-sm max-sm:px-2.5 max-sm:text-[11px] max-[380px]:w-9 max-[380px]:justify-center max-[380px]:px-0"
+              labelClassName="leading-none"
             />
           )}
           <Link
             href={resolvedHeaderCta.href}
-            className="inline-flex shrink-0 items-center rounded-xl bg-[var(--ink)] px-3 py-2 text-xs font-medium text-[var(--paper)] transition-colors hover:bg-[var(--rust)] hover:text-white no-underline sm:rounded sm:px-5 sm:py-2.5 sm:text-sm"
+            className="inline-flex shrink-0 items-center rounded-xl bg-[var(--ink)] px-3 py-2 text-xs font-medium text-[var(--paper)] transition-colors hover:bg-[var(--rust)] hover:text-white no-underline sm:rounded sm:px-5 sm:py-2.5 sm:text-sm max-sm:px-2.5 max-sm:text-[11px] max-[380px]:px-2"
           >
             <span className="sm:hidden">{resolvedHeaderCta.mobileLabel}</span>
             <span className="hidden sm:inline">{resolvedHeaderCta.desktopLabel}</span>
