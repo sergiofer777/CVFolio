@@ -127,19 +127,19 @@ export function Dropzone({
       startProgressTimer();
 
       try {
+        const safeUploadName = sanitizeUploadFileName(file.name);
+
         const buildFormData = (mode: "native" | "safe") => {
           const formData = new FormData();
           if (mode === "safe") {
-            const safeUploadName = sanitizeUploadFileName(file.name);
-            const safeFile = new File([file], safeUploadName, {
+            const safeBlob = new Blob([file], {
               type: file.type || "application/octet-stream",
-              lastModified: file.lastModified,
             });
-            formData.append("file", safeFile, safeUploadName);
+            formData.append("file", safeBlob, safeUploadName);
           } else {
-            formData.append("file", file);
+            formData.append("file", file, safeUploadName);
           }
-          formData.append("originalFileName", file.name);
+          formData.append("originalFileName", safeUploadName);
           formData.append("templateId", selectedTemplate);
           return formData;
         };

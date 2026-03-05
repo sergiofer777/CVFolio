@@ -63,12 +63,23 @@ function buildHttpError(message: string, status: number): Error & { status: numb
   return error;
 }
 
+function sanitizeStoredFileName(fileName: string): string {
+  const normalized = fileName
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const cleaned = normalized
+    .replace(/[^A-Za-z0-9._-]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  if (!cleaned) return `upload_${Date.now()}`;
+  return cleaned.slice(0, 120);
+}
+
 function hasMeaningfulCvData(cvData: CVData): boolean {
   const personal = cvData.personal ?? ({} as CVData["personal"]);
-  const hasPersonal =
-    Boolean(personal.name?.trim()) ||
-    Boolean(personal.title?.trim()) ||
-    Boolean(personal.summary?.trim());
+  const summaryLength = personal.summary?.trim().length ?? 0;
+  const hasIdentity = Boolean(personal.name?.trim()) || Boolean(personal.title?.trim());
 
   const hasExperience = (cvData.experience ?? []).some(
     (item) =>
@@ -94,14 +105,17 @@ function hasMeaningfulCvData(cvData: CVData): boolean {
     (cert) => Boolean(cert.name?.trim()) || Boolean(cert.issuer?.trim())
   );
 
-  return (
-    hasPersonal ||
-    hasExperience ||
-    hasEducation ||
-    hasProjects ||
-    hasSkills ||
-    hasCertifications
-  );
+  const dataSignals = [
+    hasIdentity,
+    hasExperience,
+    hasEducation,
+    hasProjects,
+    hasSkills,
+    hasCertifications,
+    summaryLength >= 80,
+  ].filter(Boolean).length;
+
+  return dataSignals >= 2;
 }
 
 function hasMeaningfulGeneratedHtml(html?: string): boolean {
@@ -134,26 +148,42 @@ function hasCvAnchorsInGeneratedHtml(html: string, cvData: CVData): boolean {
   );
   if (!visibleText) return false;
 
-  const candidates = [
+  const personalCandidates = [
     cvData.personal?.name,
     cvData.personal?.title,
-    cvData.experience?.[0]?.company,
-    cvData.experience?.[0]?.role,
-    cvData.education?.[0]?.institution,
-    cvData.projects?.[0]?.name,
-    cvData.skills?.technical?.[0],
   ]
     .filter((value): value is string => Boolean(value && value.trim()))
     .map((value) => normalizeTextForSearch(value))
     .filter((value) => value.length >= 3);
 
-  if (candidates.length === 0) return true;
+  const professionalCandidates = [
+    cvData.experience?.[0]?.company,
+    cvData.experience?.[0]?.role,
+    cvData.education?.[0]?.institution,
+    cvData.projects?.[0]?.name,
+    cvData.skills?.technical?.[0],
+    cvData.skills?.technical?.[1],
+    cvData.skills?.languages?.[0]?.language,
+  ]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .map((value) => normalizeTextForSearch(value))
+    .filter((value) => value.length >= 3);
 
-  return candidates.some((candidate) => {
+  const matchesCandidate = (candidate: string): boolean => {
     if (visibleText.includes(candidate)) return true;
     const terms = candidate.split(" ").filter((term) => term.length >= 4);
     return terms.some((term) => visibleText.includes(term));
-  });
+  };
+
+  if (professionalCandidates.length > 0) {
+    return professionalCandidates.some(matchesCandidate);
+  }
+
+  if (personalCandidates.length > 0) {
+    return personalCandidates.some(matchesCandidate);
+  }
+
+  return false;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<ParseCVResponse>> {
@@ -181,11 +211,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     const formData = await request.formData();
     const file = formData.get("file") as File | null;
     const originalFileNameInput = formData.get("originalFileName");
-    const originalFileName =
+    const incomingOriginalFileName =
       typeof originalFileNameInput === "string" &&
       originalFileNameInput.trim().length > 0
         ? originalFileNameInput.trim()
         : file?.name ?? "cv-upload";
+    const originalFileName = sanitizeStoredFileName(incomingOriginalFileName);
     const templateIdInput = formData.get("templateId");
     const selectedTemplateId =
       typeof templateIdInput === "string" && isPortfolioTheme(templateIdInput)
