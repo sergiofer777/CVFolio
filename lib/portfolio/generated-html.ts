@@ -57,12 +57,12 @@ export function normalizeTemplateIvanAssets(html: string): string {
 
   return html
     .replace(/href=(["'])styles\.css\1/gi, 'href="https://ivansevilla.es/styles.css"')
+    .replace(/src=(["'])script\.js\1/gi, 'src="https://ivansevilla.es/script.js"')
     .replace(/(href|src)=(["'])img\//gi, '$1=$2https://ivansevilla.es/img/');
 }
 
 function sanitizeGeneratedHtml(html: string): string {
   return html
-    .replace(/<script\b[^>]*\bsrc\s*=\s*["'][^"']+["'][^>]*>[\s\S]*?<\/script>/gi, "")
     .replace(/<iframe\b[\s\S]*?<\/iframe>/gi, "")
     .replace(/<object\b[\s\S]*?<\/object>/gi, "")
     .replace(/<embed\b[^>]*>/gi, "")
