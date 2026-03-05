@@ -129,25 +129,31 @@ export function Dropzone({
       try {
         const safeUploadName = sanitizeUploadFileName(file.name);
 
-        const buildFormData = (mode: "native" | "safe") => {
+        const buildMultipartFormData = () => {
           const formData = new FormData();
-          if (mode === "safe") {
-            const safeBlob = new Blob([file], {
-              type: file.type || "application/octet-stream",
-            });
-            formData.append("file", safeBlob, safeUploadName);
-          } else {
-            formData.append("file", file, safeUploadName);
-          }
+          const safeBlob = new Blob([file], {
+            type: file.type || "application/octet-stream",
+          });
+          formData.append("file", safeBlob, safeUploadName);
           formData.append("originalFileName", safeUploadName);
           formData.append("templateId", selectedTemplate);
           return formData;
         };
 
-        const executeUploadAttempt = async (mode: "native" | "safe") => {
+        const executeUploadAttempt = async (mode: "binary" | "multipart") => {
+          const contentType = (file.type || "application/octet-stream").split(";")[0].trim();
           const response = await fetch("/api/parse-cv", {
             method: "POST",
-            body: buildFormData(mode),
+            headers:
+              mode === "binary"
+                ? {
+                    "content-type": contentType,
+                    "x-upload-mode": "binary",
+                    "x-upload-filename": safeUploadName,
+                    "x-template-id": selectedTemplate,
+                  }
+                : undefined,
+            body: mode === "binary" ? file : buildMultipartFormData(),
           });
 
           let result: any = null;
@@ -172,7 +178,7 @@ export function Dropzone({
 
         let result: any;
         try {
-          result = await executeUploadAttempt("native");
+          result = await executeUploadAttempt("binary");
         } catch (firstError) {
           const firstMessage =
             firstError instanceof Error ? firstError.message : "";
@@ -181,15 +187,18 @@ export function Dropzone({
               ? Number((firstError as { status?: unknown }).status)
               : null;
           const shouldRetryWithSafePayload =
-            /did not match the expected pattern/i.test(firstMessage) ||
-            /failed to fetch/i.test(firstMessage) ||
+            /did not match the expected pattern|expected pattern|patr[oó]n esperado/i.test(
+              firstMessage
+            ) ||
+            /failed to fetch|network/i.test(firstMessage) ||
+            firstStatus === null ||
             (typeof firstStatus === "number" && firstStatus >= 500);
 
           if (!shouldRetryWithSafePayload) {
             throw firstError;
           }
 
-          result = await executeUploadAttempt("safe");
+          result = await executeUploadAttempt("multipart");
         }
 
         // Mark API as done

@@ -207,23 +207,67 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
       );
     }
 
-    // 2. Obtener el archivo del FormData
-    const formData = await request.formData();
-    const file = formData.get("file") as File | null;
-    const originalFileNameInput = formData.get("originalFileName");
-    const incomingOriginalFileName =
-      typeof originalFileNameInput === "string" &&
-      originalFileNameInput.trim().length > 0
-        ? originalFileNameInput.trim()
-        : file?.name ?? "cv-upload";
-    const originalFileName = sanitizeStoredFileName(incomingOriginalFileName);
-    const templateIdInput = formData.get("templateId");
-    const selectedTemplateId =
-      typeof templateIdInput === "string" && isPortfolioTheme(templateIdInput)
-        ? templateIdInput
-        : DEFAULT_PORTFOLIO_THEME;
+    // 2. Obtener archivo (modo binario preferente o multipart fallback)
+    const uploadMode = request.headers.get("x-upload-mode");
+    let selectedTemplateId = DEFAULT_PORTFOLIO_THEME;
+    let originalFileName = "cv-upload";
+    let declaredMimeType = "application/octet-stream";
+    let fileSize = 0;
+    let buffer: Buffer;
 
-    if (!file) {
+    if (uploadMode === "binary") {
+      const templateIdHeader = request.headers.get("x-template-id");
+      if (templateIdHeader && isPortfolioTheme(templateIdHeader)) {
+        selectedTemplateId = templateIdHeader;
+      }
+
+      const uploadFileNameHeader = request.headers.get("x-upload-filename");
+      if (uploadFileNameHeader && uploadFileNameHeader.trim().length > 0) {
+        originalFileName = sanitizeStoredFileName(uploadFileNameHeader.trim());
+      }
+
+      const contentTypeHeader = request.headers.get("content-type");
+      declaredMimeType =
+        contentTypeHeader?.split(";")[0]?.trim().toLowerCase() ??
+        "application/octet-stream";
+
+      buffer = Buffer.from(await request.arrayBuffer());
+      fileSize = buffer.length;
+    } else {
+      const formData = await request.formData();
+      const file = formData.get("file") as File | null;
+      const originalFileNameInput = formData.get("originalFileName");
+      const incomingOriginalFileName =
+        typeof originalFileNameInput === "string" &&
+        originalFileNameInput.trim().length > 0
+          ? originalFileNameInput.trim()
+          : file?.name ?? "cv-upload";
+      originalFileName = sanitizeStoredFileName(incomingOriginalFileName);
+      const templateIdInput = formData.get("templateId");
+      selectedTemplateId =
+        typeof templateIdInput === "string" && isPortfolioTheme(templateIdInput)
+          ? templateIdInput
+          : DEFAULT_PORTFOLIO_THEME;
+
+      if (!file) {
+        return NextResponse.json(
+          {
+            success: false,
+            error: isEn ? "No file was received." : "No se recibió ningún archivo",
+          },
+          { status: 400 }
+        );
+      }
+
+      declaredMimeType = (file.type ?? "application/octet-stream")
+        .split(";")[0]
+        .trim()
+        .toLowerCase();
+      fileSize = file.size;
+      buffer = Buffer.from(await file.arrayBuffer());
+    }
+
+    if (fileSize <= 0) {
       return NextResponse.json(
         {
           success: false,
@@ -234,7 +278,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     }
 
     const maxSize = 10 * 1024 * 1024; // 10MB
-    if (file.size > maxSize) {
+    if (fileSize > maxSize) {
       return NextResponse.json(
         {
           success: false,
@@ -247,7 +291,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     }
 
     const allowedTypes = ["application/pdf", "image/jpeg", "image/png", "image/jpg"];
-    if (!allowedTypes.includes(file.type)) {
+    if (
+      declaredMimeType !== "application/octet-stream" &&
+      !allowedTypes.includes(declaredMimeType)
+    ) {
       return NextResponse.json(
         {
           success: false,
@@ -259,7 +306,6 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
       );
     }
 
-    const buffer = Buffer.from(await file.arrayBuffer());
     const detectedType = detectUploadTypeFromSignature(buffer);
     if (!detectedType) {
       return NextResponse.json(
@@ -374,7 +420,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
         file_name: originalFileName,
         file_path: filePath,
         file_type: fileType,
-        file_size: file.size,
+        file_size: fileSize,
         status: "processing",
       })
       .select()
