@@ -63,6 +63,59 @@ function buildHttpError(message: string, status: number): Error & { status: numb
   return error;
 }
 
+function hasMeaningfulCvData(cvData: CVData): boolean {
+  const personal = cvData.personal ?? ({} as CVData["personal"]);
+  const hasPersonal =
+    Boolean(personal.name?.trim()) ||
+    Boolean(personal.title?.trim()) ||
+    Boolean(personal.summary?.trim());
+
+  const hasExperience = (cvData.experience ?? []).some(
+    (item) =>
+      Boolean(item.company?.trim()) ||
+      Boolean(item.role?.trim()) ||
+      (item.description ?? []).some((line) => Boolean(line?.trim()))
+  );
+  const hasEducation = (cvData.education ?? []).some(
+    (item) =>
+      Boolean(item.institution?.trim()) ||
+      Boolean(item.degree?.trim()) ||
+      Boolean(item.field?.trim())
+  );
+  const hasProjects = (cvData.projects ?? []).some(
+    (item) => Boolean(item.name?.trim()) || Boolean(item.description?.trim())
+  );
+  const hasSkills = [
+    ...(cvData.skills?.technical ?? []),
+    ...(cvData.skills?.soft ?? []),
+    ...((cvData.skills?.languages ?? []).map((item) => item.language)),
+  ].some((skill) => Boolean(skill?.trim()));
+  const hasCertifications = (cvData.certifications ?? []).some(
+    (cert) => Boolean(cert.name?.trim()) || Boolean(cert.issuer?.trim())
+  );
+
+  return (
+    hasPersonal ||
+    hasExperience ||
+    hasEducation ||
+    hasProjects ||
+    hasSkills ||
+    hasCertifications
+  );
+}
+
+function hasMeaningfulGeneratedHtml(html?: string): boolean {
+  if (!html) return false;
+  const visibleText = html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return visibleText.length >= 180;
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse<ParseCVResponse>> {
   try {
     const isEn =
@@ -308,13 +361,26 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
         );
       }
 
+      if (!hasMeaningfulCvData(cvData)) {
+        throw buildHttpError(
+          isEn
+            ? "We could not extract useful content from the CV."
+            : "No se pudo extraer contenido útil del CV.",
+          422
+        );
+      }
+
       // 5.1 Generar landing one-page con prompt estrategico (si falla, no rompe el flujo)
       try {
         const generatedLanding = await generateLandingWithAI(
           cvTextForLanding,
           selectedTemplateId
         );
-        cvData.generatedLanding = generatedLanding;
+        if (hasMeaningfulGeneratedHtml(generatedLanding.html)) {
+          cvData.generatedLanding = generatedLanding;
+        } else {
+          console.warn("landing generation returned low-content HTML, falling back to structured rendering");
+        }
       } catch (landingError) {
         console.error("landing generation error:", landingError);
       }
