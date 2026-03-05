@@ -8,7 +8,6 @@ import {
 } from "@/lib/ai/parse-cv";
 import type { CVData, ParseCVResponse } from "@/types/cv-data";
 import { getPlanLimits, type ProfilePlan } from "@/lib/billing/access";
-import { consumeUsage } from "@/lib/billing/quotas";
 import { isBillingEnforcementEnabled } from "@/lib/billing/config";
 import {
   DEFAULT_PORTFOLIO_THEME,
@@ -330,59 +329,35 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
 
     const billingEnforced = isBillingEnforcementEnabled();
     if (billingEnforced) {
-      const usageResult = await consumeUsage({
-        admin: adminClient,
-        userId: user.id,
-        plan,
-        metric: "generation",
-      });
+      const generationLimit = getPlanLimits(plan).generationLimit;
+      if (generationLimit !== null) {
+        const { count } = await adminClient
+          .from("portfolios")
+          .select("id", { head: true, count: "exact" })
+          .eq("user_id", user.id);
 
-      if (usageResult.storageReady === false) {
-        const fallbackLimit = getPlanLimits(plan).generationLimit;
-        if (fallbackLimit !== null) {
-          const { count } = await adminClient
-            .from("portfolios")
-            .select("id", { head: true, count: "exact" })
-            .eq("user_id", user.id);
+        if ((count ?? 0) >= generationLimit) {
+          const message =
+            plan === "studio"
+              ? isEn
+                ? "You have reached the maximum of 3 websites for Studio."
+                : "Has alcanzado el máximo de 3 webs para Studio."
+              : plan === "premium"
+                ? isEn
+                  ? "Pro includes 1 generated website. Upgrade to Studio to create additional websites."
+                  : "Pro incluye 1 web generada. Mejora a Studio para crear webs adicionales."
+                : isEn
+                  ? "Your free trial has already been used. Activate the 9.99 € plan to publish and keep your site."
+                  : "Tu prueba gratuita ya se consumió. Activa el plan de €9,99 para publicar y conservar tu web.";
 
-          if ((count ?? 0) >= fallbackLimit) {
-            return NextResponse.json(
-              {
-                success: false,
-                error:
-                  plan === "studio"
-                    ? isEn
-                      ? "You have reached the maximum of 3 websites for Studio."
-                      : "Has alcanzado el máximo de 3 webs para Studio."
-                    : isEn
-                      ? "You have reached the website limit for your plan."
-                      : "Has alcanzado el límite de webs para tu plan.",
-              },
-              { status: 402 }
-            );
-          }
+          return NextResponse.json(
+            {
+              success: false,
+              error: message,
+            },
+            { status: 402 }
+          );
         }
-      }
-
-      if (!usageResult.allowed) {
-        const limit = usageResult.generationLimit ?? 0;
-        const used = usageResult.generationUsed;
-        const message =
-          plan === "studio"
-            ? isEn
-              ? `You have reached your monthly limit of ${limit} generations (${used}/${limit}).`
-              : `Has alcanzado tu límite mensual de ${limit} generaciones (${used}/${limit}).`
-            : isEn
-              ? "Your free trial has already been used. Activate the 9.99 € plan to publish and keep your site."
-              : "Tu prueba gratuita ya se consumió. Activa el plan de €9,99 para publicar y conservar tu web.";
-
-        return NextResponse.json(
-          {
-            success: false,
-            error: message,
-          },
-          { status: 402 }
-        );
       }
     }
 
