@@ -24,6 +24,19 @@ interface FilePreview {
 
 const TOTAL_DURATION = 20_000; // 20 seconds
 
+function sanitizeUploadFileName(fileName: string): string {
+  const normalized = fileName
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const cleaned = normalized
+    .replace(/[^A-Za-z0-9._-]/g, "_")
+    .replace(/_+/g, "_")
+    .replace(/^_+|_+$/g, "");
+
+  if (!cleaned) return `upload_${Date.now()}`;
+  return cleaned.slice(0, 120);
+}
+
 export function Dropzone({
   onUploadComplete,
   onError,
@@ -114,22 +127,69 @@ export function Dropzone({
       startProgressTimer();
 
       try {
-        const formData = new FormData();
-        formData.append("file", file);
-        formData.append("originalFileName", file.name);
-        formData.append("templateId", selectedTemplate);
+        const buildFormData = (mode: "native" | "safe") => {
+          const formData = new FormData();
+          if (mode === "safe") {
+            const safeUploadName = sanitizeUploadFileName(file.name);
+            const safeFile = new File([file], safeUploadName, {
+              type: file.type || "application/octet-stream",
+              lastModified: file.lastModified,
+            });
+            formData.append("file", safeFile, safeUploadName);
+          } else {
+            formData.append("file", file);
+          }
+          formData.append("originalFileName", file.name);
+          formData.append("templateId", selectedTemplate);
+          return formData;
+        };
+
+        const executeUploadAttempt = async (mode: "native" | "safe") => {
+          const response = await fetch("/api/parse-cv", {
+            method: "POST",
+            body: buildFormData(mode),
+          });
+
+          let result: any = null;
+          try {
+            result = await response.json();
+          } catch {
+            result = null;
+          }
+
+          if (!response.ok || !result?.success) {
+            const error = new Error(
+              result?.error ?? (isEn ? "Unknown error" : "Error desconocido")
+            ) as Error & { status?: number };
+            error.status = response.status;
+            throw error;
+          }
+
+          return result;
+        };
 
         setStatus("processing");
 
-        const response = await fetch("/api/parse-cv", {
-          method: "POST",
-          body: formData,
-        });
+        let result: any;
+        try {
+          result = await executeUploadAttempt("native");
+        } catch (firstError) {
+          const firstMessage =
+            firstError instanceof Error ? firstError.message : "";
+          const firstStatus =
+            firstError && typeof firstError === "object" && "status" in firstError
+              ? Number((firstError as { status?: unknown }).status)
+              : null;
+          const shouldRetryWithSafePayload =
+            /did not match the expected pattern/i.test(firstMessage) ||
+            /failed to fetch/i.test(firstMessage) ||
+            (typeof firstStatus === "number" && firstStatus >= 500);
 
-        const result = await response.json();
+          if (!shouldRetryWithSafePayload) {
+            throw firstError;
+          }
 
-        if (!response.ok || !result.success) {
-          throw new Error(result.error ?? (isEn ? "Unknown error" : "Error desconocido"));
+          result = await executeUploadAttempt("safe");
         }
 
         // Mark API as done

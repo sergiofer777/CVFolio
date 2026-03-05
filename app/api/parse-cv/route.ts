@@ -116,6 +116,46 @@ function hasMeaningfulGeneratedHtml(html?: string): boolean {
   return visibleText.length >= 180;
 }
 
+function normalizeTextForSearch(value: string): string {
+  return value
+    .normalize("NFKD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+function hasCvAnchorsInGeneratedHtml(html: string, cvData: CVData): boolean {
+  const visibleText = normalizeTextForSearch(
+    html
+      .replace(/<script[\s\S]*?<\/script>/gi, " ")
+      .replace(/<style[\s\S]*?<\/style>/gi, " ")
+      .replace(/<[^>]+>/g, " ")
+  );
+  if (!visibleText) return false;
+
+  const candidates = [
+    cvData.personal?.name,
+    cvData.personal?.title,
+    cvData.experience?.[0]?.company,
+    cvData.experience?.[0]?.role,
+    cvData.education?.[0]?.institution,
+    cvData.projects?.[0]?.name,
+    cvData.skills?.technical?.[0],
+  ]
+    .filter((value): value is string => Boolean(value && value.trim()))
+    .map((value) => normalizeTextForSearch(value))
+    .filter((value) => value.length >= 3);
+
+  if (candidates.length === 0) return true;
+
+  return candidates.some((candidate) => {
+    if (visibleText.includes(candidate)) return true;
+    const terms = candidate.split(" ").filter((term) => term.length >= 4);
+    return terms.some((term) => visibleText.includes(term));
+  });
+}
+
 export async function POST(request: NextRequest): Promise<NextResponse<ParseCVResponse>> {
   try {
     const isEn =
@@ -376,7 +416,10 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
           cvTextForLanding,
           selectedTemplateId
         );
-        if (hasMeaningfulGeneratedHtml(generatedLanding.html)) {
+        if (
+          hasMeaningfulGeneratedHtml(generatedLanding.html) &&
+          hasCvAnchorsInGeneratedHtml(generatedLanding.html ?? "", cvData)
+        ) {
           cvData.generatedLanding = generatedLanding;
         } else {
           console.warn("landing generation returned low-content HTML, falling back to structured rendering");
