@@ -57,8 +57,18 @@ export function normalizeTemplateIvanAssets(html: string): string {
 
   return html
     .replace(/href=(["'])styles\.css\1/gi, 'href="https://ivansevilla.es/styles.css"')
-    .replace(/src=(["'])script\.js\1/gi, 'src="https://ivansevilla.es/script.js"')
     .replace(/(href|src)=(["'])img\//gi, '$1=$2https://ivansevilla.es/img/');
+}
+
+function sanitizeGeneratedHtml(html: string): string {
+  return html
+    .replace(/<script\b[^>]*\bsrc\s*=\s*["'][^"']+["'][^>]*>[\s\S]*?<\/script>/gi, "")
+    .replace(/<iframe\b[\s\S]*?<\/iframe>/gi, "")
+    .replace(/<object\b[\s\S]*?<\/object>/gi, "")
+    .replace(/<embed\b[^>]*>/gi, "")
+    .replace(/<base\b[^>]*>/gi, "")
+    .replace(/<meta\b[^>]*http-equiv=["']refresh["'][^>]*>/gi, "")
+    .replace(/\s(href|src)=["']\s*javascript:[^"']*["']/gi, ' $1="#"');
 }
 
 function normalizeTemplateSergioInteractions(
@@ -288,13 +298,14 @@ export function buildRenderableGeneratedHtml(cvData: CVData): string | undefined
     extractHtmlFromLandingMarkdown(cvData.generatedLanding?.markdown);
   if (!generatedHtmlRaw) return undefined;
   const preferredLanguage = inferGeneratedLandingLanguage(cvData);
+  const safeHtml = sanitizeGeneratedHtml(generatedHtmlRaw);
 
   return injectTemplateIvanTypingOverride(
     injectWebiculumFooter(
       injectLanguageBehavior(
         normalizeTemplateMariaInteractions(
           normalizeTemplateSergioInteractions(
-            normalizeTemplateIvanAssets(generatedHtmlRaw),
+            normalizeTemplateIvanAssets(safeHtml),
             cvData.personal?.email
           ),
           cvData.personal?.email

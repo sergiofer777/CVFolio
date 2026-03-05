@@ -56,13 +56,15 @@ Configura estas variables:
 - `CLOUDFLARE_ZONE_ID=...`
 - `CLOUDFLARE_SUBDOMAIN_TARGET=cname.vercel-dns.com`
 - `CLOUDFLARE_USE_WILDCARD=true` (si usas wildcard)
-- `BILLING_ENFORCEMENT_ENABLED=false` (modo beta abierto para no bloquear mientras conectáis pagos)
+- `BILLING_ENFORCEMENT_ENABLED=true`
+- `BILLING_MOCK_PAYMENTS_ENABLED=false` (en producción; usar `true` solo para pruebas locales controladas)
 - `CRON_SECRET=...`
 - `SUPABASE_SERVICE_ROLE_KEY=...`
 
 ## 6. Supabase (SQL)
 Ejecuta:
 - `docs/sql/2026-02-26-monetizacion-cloudflare.sql`
+- `docs/sql/2026-03-05-security-rls-hardening.sql`
 
 Esto añade:
 - `profiles.plan` con `studio`

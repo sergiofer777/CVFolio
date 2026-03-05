@@ -71,10 +71,13 @@ async function recoverIterationHtml(params: {
     throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
   const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
     body: JSON.stringify({
       system_instruction: {
         parts: [
@@ -143,11 +146,14 @@ async function rewriteLandingHtml(params: {
     throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
   }
 
-  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${apiKey}`;
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
   const targetLanguage = inferCvLanguage(params.cvData);
   const response = await fetch(url, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": apiKey,
+    },
     body: JSON.stringify({
       system_instruction: {
         parts: [
@@ -394,12 +400,9 @@ export async function POST(request: NextRequest) {
     console.error("[portfolio/chat] error:", error);
     const isEn =
       normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
-    const message =
-      error instanceof Error
-        ? error.message
-        : isEn
-          ? "The chat iteration could not be applied to the website."
-          : "No se pudo aplicar la iteración de chat a la web.";
+    const message = isEn
+      ? "The chat iteration could not be applied to the website."
+      : "No se pudo aplicar la iteración de chat a la web.";
     return NextResponse.json(
       { error: message },
       { status: 500 }

@@ -8,11 +8,9 @@ type ContactFormProps = {
   accessKey?: string;
 };
 
-const FALLBACK_WEB3FORMS_KEY = "e54654ce-670a-41ef-a7a1-cb1003850681";
-
 export function ContactForm({ locale, accessKey }: ContactFormProps) {
   const isEn = locale === "en";
-  const resolvedKey = accessKey?.trim() || FALLBACK_WEB3FORMS_KEY;
+  const resolvedKey = accessKey?.trim() || "";
   const [status, setStatus] = useState<"idle" | "sending" | "success" | "error">(
     "idle",
   );
@@ -38,6 +36,9 @@ export function ContactForm({ locale, accessKey }: ContactFormProps) {
       helper: isEn
         ? "You can use this form for billing, publishing or website questions."
         : "Puedes usar este formulario para dudas sobre pagos, publicación o tu web.",
+      unavailable: isEn
+        ? "Contact form is temporarily unavailable."
+        : "El formulario de contacto no está disponible temporalmente.",
       subject: isEn
         ? "New message from the Webiculum help center"
         : "Nuevo mensaje desde el centro de ayuda de Webiculum",
@@ -101,6 +102,12 @@ export function ContactForm({ locale, accessKey }: ContactFormProps) {
         </p>
       )}
 
+      {!resolvedKey && (
+        <p className="mb-4 rounded-xl border border-[rgba(192,68,10,0.18)] bg-[rgba(192,68,10,0.06)] px-4 py-3 text-sm text-[var(--rust)]">
+          {copy.unavailable}
+        </p>
+      )}
+
       <form onSubmit={handleSubmit} className="space-y-3">
         <input type="hidden" name="access_key" value={resolvedKey} />
         <input type="hidden" name="subject" value={copy.subject} />
@@ -148,7 +155,7 @@ export function ContactForm({ locale, accessKey }: ContactFormProps) {
 
         <button
           type="submit"
-          disabled={status === "sending"}
+          disabled={status === "sending" || !resolvedKey}
           className="inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-[var(--ink)] px-4 py-3 text-sm font-medium text-[var(--paper)] transition-colors hover:bg-[var(--rust)] disabled:cursor-not-allowed disabled:opacity-70"
         >
           <Send className="h-4 w-4" />

@@ -217,7 +217,7 @@ export async function POST(request: NextRequest) {
       redirect_on_completion: "if_required",
       line_items: [{ price, quantity: 1 }],
       payment_method_types: ["card"],
-      return_url: `${appUrl}/dashboard?${successParams.toString()}`,
+      return_url: `${appUrl}/dashboard?${successParams.toString()}&session_id={CHECKOUT_SESSION_ID}`,
       customer: existingStripeCustomerId ?? undefined,
       customer_email: existingStripeCustomerId ? undefined : user.email ?? undefined,
       client_reference_id: user.id,
@@ -248,21 +248,22 @@ export async function POST(request: NextRequest) {
       throw new Error("Stripe did not return a client secret for the embedded checkout session.");
     }
 
+    const successRedirectUrlWithSession = `${successRedirectUrl}&session_id=${encodeURIComponent(
+      session.id
+    )}`;
+
     return NextResponse.json({
       clientSecret: session.client_secret,
       checkoutSessionId: session.id,
-      successRedirectUrl,
+      successRedirectUrl: successRedirectUrlWithSession,
     });
   } catch (error) {
     console.error("[billing/checkout] error:", error);
     const isEn =
       normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
-    const errorMessage =
-      error instanceof Error
-        ? error.message
-        : isEn
-          ? "The checkout session could not be created. Check Stripe and your environment variables."
-          : "No se pudo crear el checkout. Revisa Stripe y las variables de entorno.";
+    const errorMessage = isEn
+      ? "The checkout session could not be created."
+      : "No se pudo crear el checkout.";
     return NextResponse.json(
       {
         error: errorMessage,

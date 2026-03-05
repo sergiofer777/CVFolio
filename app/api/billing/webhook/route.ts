@@ -332,9 +332,6 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ received: true });
   } catch (error) {
     console.error("[billing/webhook] error:", error);
-    return NextResponse.json(
-      { error: "Webhook error", details: String(error) },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "Webhook error" }, { status: 400 });
   }
 }

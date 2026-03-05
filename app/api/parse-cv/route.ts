@@ -16,11 +16,51 @@ import {
 } from "@/lib/templates/portfolio-themes";
 import { LOCALE_COOKIE_NAME, normalizeLocale } from "@/lib/locale";
 
+type AcceptedUploadType = "pdf" | "jpg" | "png";
+
+const MIME_BY_UPLOAD_TYPE: Record<AcceptedUploadType, string> = {
+  pdf: "application/pdf",
+  jpg: "image/jpeg",
+  png: "image/png",
+};
+
 // Extrae texto de PDF usando pdf-parse
 async function extractTextFromPDF(buffer: Buffer): Promise<string> {
   const pdfParse = (await import("pdf-parse")).default;
   const data = await pdfParse(buffer);
   return data.text;
+}
+
+function detectUploadTypeFromSignature(buffer: Buffer): AcceptedUploadType | null {
+  if (buffer.length >= 4 && buffer[0] === 0x25 && buffer[1] === 0x50 && buffer[2] === 0x44 && buffer[3] === 0x46) {
+    return "pdf";
+  }
+
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return "jpg";
+  }
+
+  if (
+    buffer.length >= 8 &&
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47 &&
+    buffer[4] === 0x0d &&
+    buffer[5] === 0x0a &&
+    buffer[6] === 0x1a &&
+    buffer[7] === 0x0a
+  ) {
+    return "png";
+  }
+
+  return null;
+}
+
+function buildHttpError(message: string, status: number): Error & { status: number } {
+  const error = new Error(message) as Error & { status: number };
+  error.status = status;
+  return error;
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse<ParseCVResponse>> {
@@ -95,6 +135,20 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
       );
     }
 
+    const buffer = Buffer.from(await file.arrayBuffer());
+    const detectedType = detectUploadTypeFromSignature(buffer);
+    if (!detectedType) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: isEn
+            ? "Unsupported file signature. Use a valid PDF, JPG or PNG."
+            : "Firma de archivo no válida. Usa un PDF, JPG o PNG real.",
+        },
+        { status: 400 }
+      );
+    }
+
     const adminClient = createAdminClient();
     const { data: profileRaw } = await adminClient
       .from("profiles")
@@ -163,14 +217,14 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     }
 
     // 3. Subir el archivo a Supabase Storage
-    const fileExtension = originalFileName.split(".").pop() ?? "pdf";
+    const fileExtension = detectedType;
     const filePath = `${user.id}/${Date.now()}.${fileExtension}`;
-    const buffer = Buffer.from(await file.arrayBuffer());
+    let uploadRecordId: string | null = null;
 
     const { error: uploadError } = await adminClient.storage
       .from("cv-uploads")
       .upload(filePath, buffer, {
-        contentType: file.type,
+        contentType: MIME_BY_UPLOAD_TYPE[detectedType],
         upsert: false,
       });
 
@@ -205,111 +259,140 @@ export async function POST(request: NextRequest): Promise<NextResponse<ParseCVRe
     if (dbUploadError) {
       console.error("DB insert error:", dbUploadError);
     }
+    uploadRecordId = (uploadRecord as { id?: string } | null)?.id ?? null;
 
-    // 5. Extraer texto / enviar imagen a la IA
-    let cvData: CVData;
-    let cvTextForLanding = "";
+    try {
+      // 5. Extraer texto / enviar imagen a la IA
+      let cvData: CVData;
+      let cvTextForLanding = "";
 
-    if (file.type === "application/pdf") {
-      const text = await extractTextFromPDF(buffer);
-      if (!text || text.trim().length < 50) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: isEn
+      if (detectedType === "pdf") {
+        const text = await extractTextFromPDF(buffer);
+        if (!text || text.trim().length < 50) {
+          throw buildHttpError(
+            isEn
               ? "Text could not be extracted from the PDF. Try an image instead."
               : "No se pudo extraer texto del PDF. Prueba con una imagen.",
+            422
+          );
+        }
+        cvData = await parseCVWithAI(text);
+        cvTextForLanding = JSON.stringify(
+          {
+            structuredCv: cvData,
+            rawCvText: text,
           },
-          { status: 422 }
+          null,
+          2
+        );
+      } else {
+        const base64 = buffer.toString("base64");
+        const mediaType =
+          detectedType === "png" ? "image/png" : "image/jpeg";
+        cvData = await parseCVImageWithAI(base64, mediaType);
+        let rawImageText = "";
+
+        try {
+          rawImageText = await extractTextFromCVImageWithAI(base64, mediaType);
+        } catch (ocrError) {
+          console.error("image ocr error:", ocrError);
+        }
+
+        cvTextForLanding = JSON.stringify(
+          {
+            structuredCv: cvData,
+            rawCvText: rawImageText || undefined,
+          },
+          null,
+          2
         );
       }
-      cvData = await parseCVWithAI(text);
-      cvTextForLanding = JSON.stringify(
-        {
-          structuredCv: cvData,
-          rawCvText: text,
-        },
-        null,
-        2
-      );
-    } else {
-      const base64 = buffer.toString("base64");
-      const mediaType = file.type as "image/jpeg" | "image/png";
-      cvData = await parseCVImageWithAI(base64, mediaType);
-      let rawImageText = "";
 
+      // 5.1 Generar landing one-page con prompt estrategico (si falla, no rompe el flujo)
       try {
-        rawImageText = await extractTextFromCVImageWithAI(base64, mediaType);
-      } catch (ocrError) {
-        console.error("image ocr error:", ocrError);
+        const generatedLanding = await generateLandingWithAI(
+          cvTextForLanding,
+          selectedTemplateId
+        );
+        cvData.generatedLanding = generatedLanding;
+      } catch (landingError) {
+        console.error("landing generation error:", landingError);
       }
 
-      cvTextForLanding = JSON.stringify(
-        {
-          structuredCv: cvData,
-          rawCvText: rawImageText || undefined,
-        },
-        null,
-        2
-      );
-    }
+      // 6. Actualizar status del upload
+      if (uploadRecordId) {
+        await adminClient
+          .from("cv_uploads")
+          .update({ status: "done" })
+          .eq("id", uploadRecordId);
+      }
 
-    // 5.1 Generar landing one-page con prompt estrategico (si falla, no rompe el flujo)
-    try {
-      const generatedLanding = await generateLandingWithAI(
-        cvTextForLanding,
-        selectedTemplateId
-      );
-      cvData.generatedLanding = generatedLanding;
-    } catch (landingError) {
-      console.error("landing generation error:", landingError);
-    }
+      // 7. Guardar el portfolio como una nueva creación
+      const { data: newPortfolio, error: portfolioError } = await adminClient
+        .from("portfolios")
+        .insert({
+          user_id: user.id,
+          upload_id: uploadRecordId,
+          cv_data: cvData as never,
+          theme: selectedTemplateId,
+          is_published: false,
+          is_public: false,
+          published_at: null,
+        })
+        .select()
+        .single();
 
-    // 6. Actualizar status del upload
-    if (uploadRecord) {
-      await adminClient
-        .from("cv_uploads")
-        .update({ status: "done" })
-        .eq("id", uploadRecord.id);
-    }
-
-    // 7. Guardar el portafolio como una nueva creación
-    const { data: newPortfolio, error: portfolioError } = await adminClient
-      .from("portfolios")
-      .insert({
-        user_id: user.id,
-        upload_id: uploadRecord?.id ?? null,
-        cv_data: cvData as never,
-        theme: selectedTemplateId,
-        is_published: false,
-        is_public: false,
-        published_at: null,
-      })
-      .select()
-      .single();
-
-    if (portfolioError || !newPortfolio) {
-      return NextResponse.json(
-        {
-          success: false,
-          error: isEn
+      if (portfolioError || !newPortfolio) {
+        throw buildHttpError(
+          isEn
             ? "There was an error saving the website."
             : "Error al guardar la web",
-        },
-        { status: 500 }
-      );
-    }
-    const portfolioId = newPortfolio.id;
+          500
+        );
+      }
+      const portfolioId = newPortfolio.id;
 
-    return NextResponse.json({
-      success: true,
-      data: cvData,
-      portfolioId,
-    });
+      return NextResponse.json({
+        success: true,
+        data: cvData,
+        portfolioId,
+      });
+    } catch (processingError) {
+      if (uploadRecordId) {
+        await adminClient
+          .from("cv_uploads")
+          .update({ status: "error" })
+          .eq("id", uploadRecordId)
+          .eq("user_id", user.id);
+
+        await adminClient
+          .from("cv_uploads")
+          .delete()
+          .eq("id", uploadRecordId)
+          .eq("user_id", user.id);
+      }
+
+      await adminClient.storage.from("cv-uploads").remove([filePath]);
+      throw processingError;
+    }
   } catch (error) {
     console.error("parse-cv error:", error);
     const isEn =
       normalizeLocale(request.cookies.get(LOCALE_COOKIE_NAME)?.value) === "en";
+    const status =
+      error && typeof error === "object" && "status" in error
+        ? Number((error as { status?: unknown }).status) || 500
+        : 500;
+    if (status !== 500) {
+      const errorMessage =
+        error instanceof Error
+          ? error.message
+          : isEn
+            ? "Could not process the file."
+            : "No se pudo procesar el archivo.";
+      return NextResponse.json({ success: false, error: errorMessage }, { status });
+    }
+
     const message =
       error instanceof SyntaxError
         ? isEn

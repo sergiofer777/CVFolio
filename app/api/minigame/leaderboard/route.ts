@@ -84,9 +84,6 @@ async function buildDisplayName(params: {
   const fullName = params.fallbackName?.trim();
   if (fullName) return fullName;
 
-  const emailPrefix = params.fallbackEmail?.split("@")?.[0]?.trim();
-  if (emailPrefix) return emailPrefix;
-
   return "Jugador";
 }
 

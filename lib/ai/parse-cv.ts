@@ -16,11 +16,11 @@ import {
   injectTemplateIvanTypingOverride,
 } from "@/lib/templates/template-ivan-typing";
 
-const API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY!;
+const API_KEY = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
 const MODEL = "gemini-2.5-pro";
 
 // v1beta soporta system_instruction y gemini-2.5-pro
-const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent?key=${API_KEY}`;
+const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/${MODEL}:generateContent`;
 
 function cleanJSON(text: string): CVData {
   const clean = text
@@ -43,9 +43,16 @@ async function callGemini({
   temperature = 0.1,
   maxOutputTokens = 8192,
 }: GeminiCallOptions): Promise<string> {
+  if (!API_KEY) {
+    throw new Error("Missing GOOGLE_GENERATIVE_AI_API_KEY");
+  }
+
   const res = await fetch(API_URL, {
     method: "POST",
-    headers: { "Content-Type": "application/json" },
+    headers: {
+      "Content-Type": "application/json",
+      "x-goog-api-key": API_KEY,
+    },
     body: JSON.stringify({
       system_instruction: {
         parts: [{ text: systemPrompt }],

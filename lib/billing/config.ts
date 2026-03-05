@@ -17,7 +17,7 @@ export function isBillingMockPaymentsEnabled(): boolean {
     process.env.BILLING_MOCK_PAYMENTS_ENABLED ??
     process.env.NEXT_PUBLIC_BILLING_MOCK_PAYMENTS_ENABLED;
 
-  // Mock checkout by default until Stripe is connected.
-  if (value === undefined) return true;
+  // Secure default: never enable mock billing unless explicitly set to "true".
+  if (value === undefined) return false;
   return value === "true";
 }

@@ -65,7 +65,13 @@ export interface ConfirmStripeCheckoutResult {
     | "session-user-mismatch"
     | "session-incomplete"
     | "payment-not-paid"
+    | "subscription-not-found"
+    | "subscription-not-active"
     | "unknown-plan";
+}
+
+function isActiveSubscriptionStatus(status: Stripe.Subscription.Status): boolean {
+  return status === "active" || status === "trialing" || status === "past_due";
 }
 
 export async function confirmStripeCheckoutForUser(params: {
@@ -94,6 +100,23 @@ export async function confirmStripeCheckoutForUser(params: {
   }
   if (session.mode === "payment" && session.payment_status !== "paid") {
     return { activated: false, reason: "payment-not-paid" };
+  }
+
+  if (session.mode === "subscription") {
+    const subscriptionId =
+      typeof session.subscription === "string" ? session.subscription : null;
+    if (!subscriptionId) {
+      return { activated: false, reason: "subscription-not-found" };
+    }
+
+    try {
+      const subscription = await stripe.subscriptions.retrieve(subscriptionId);
+      if (!isActiveSubscriptionStatus(subscription.status)) {
+        return { activated: false, reason: "subscription-not-active" };
+      }
+    } catch {
+      return { activated: false, reason: "subscription-not-found" };
+    }
   }
 
   const targetPlan = resolveTargetPlan(session.metadata?.plan);
@@ -151,6 +174,7 @@ export async function confirmLatestStripeCheckoutForUser(params: {
 
   const expectedCheckoutPlan = params.expectedPlan === "studio" ? "studio" : "publish";
   const sessions = await stripe.checkout.sessions.list({ limit: 100 });
+  const recentThresholdMs = Date.now() - 2 * 24 * 60 * 60 * 1000;
 
   const matching = sessions.data.find((session) => {
     const sessionUserId =
@@ -159,6 +183,7 @@ export async function confirmLatestStripeCheckoutForUser(params: {
     if (session.metadata?.plan !== expectedCheckoutPlan) return false;
     if (session.status !== "complete") return false;
     if (session.mode === "payment" && session.payment_status !== "paid") return false;
+    if ((session.created ?? 0) * 1000 < recentThresholdMs) return false;
     return true;
   });
 

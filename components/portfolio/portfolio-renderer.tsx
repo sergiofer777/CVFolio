@@ -63,7 +63,7 @@ export function PortfolioRenderer({
         : `${previewHtml}${previewGuardScript}`;
 
     const interactiveSandbox =
-      "allow-scripts allow-forms allow-modals allow-popups allow-popups-to-escape-sandbox allow-top-navigation-by-user-activation allow-top-navigation-to-custom-protocols";
+      "allow-scripts allow-forms allow-modals";
     const previewSandbox = "allow-scripts";
 
     return (
@@ -82,6 +82,7 @@ export function PortfolioRenderer({
             interactiveGeneratedLanding ? "h-screen" : "h-[78vh] min-h-[600px]"
           )}
           sandbox={interactiveGeneratedLanding ? interactiveSandbox : previewSandbox}
+          referrerPolicy="no-referrer"
         />
 
         {!interactiveGeneratedLanding && (

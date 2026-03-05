@@ -42,7 +42,6 @@ import {
 import { PORTFOLIO_THEME_OPTIONS } from "@/lib/templates/portfolio-themes";
 import { buildPublicPortfolioUrl } from "@/lib/billing/activation";
 import {
-  confirmLatestStripeCheckoutForUser,
   confirmStripeCheckoutForUser,
 } from "@/lib/billing/stripe-confirmation";
 import {
@@ -125,11 +124,6 @@ export default async function DashboardPage({
     await confirmStripeCheckoutForUser({
       userId: user.id,
       sessionId: params.session_id,
-    });
-  } else if (billingSuccess && expectedPlanFromBilling) {
-    await confirmLatestStripeCheckoutForUser({
-      userId: user.id,
-      expectedPlan: expectedPlanFromBilling,
     });
   }
 
