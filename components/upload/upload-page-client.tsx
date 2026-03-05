@@ -15,8 +15,6 @@ import {
 } from "@/lib/templates/portfolio-themes";
 import type { PortfolioTheme } from "@/types/cv-data";
 
-const TEMPLATE_SELECTION_STORAGE_KEY = "webiculum_upload_template_locked";
-
 const TEMPLATE_TAGLINES_EN: Record<PortfolioTheme, string> = {
   minimal: "Custom foundation",
   modern: "Web3 & Growth",
@@ -43,15 +41,6 @@ export function UploadPageClient() {
 
   useEffect(() => {
     try {
-      const lockedTemplate = window.sessionStorage.getItem(
-        TEMPLATE_SELECTION_STORAGE_KEY
-      );
-      if (lockedTemplate && isPortfolioTheme(lockedTemplate)) {
-        setSelectedTemplate(lockedTemplate);
-        setTemplateLocked(true);
-        return;
-      }
-
       const params = new URLSearchParams(window.location.search);
       const templateFromUrl = params.get("template");
       if (templateFromUrl && isPortfolioTheme(templateFromUrl)) {
@@ -64,14 +53,6 @@ export function UploadPageClient() {
   }, []);
 
   const lockTemplateAndContinue = () => {
-    try {
-      window.sessionStorage.setItem(
-        TEMPLATE_SELECTION_STORAGE_KEY,
-        selectedTemplate
-      );
-    } catch {
-      // Ignore storage write errors.
-    }
     setTemplateLocked(true);
     setError(null);
   };
