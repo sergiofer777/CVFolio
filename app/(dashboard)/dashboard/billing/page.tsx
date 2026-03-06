@@ -24,12 +24,30 @@ import {
   getUserBillingSubscriptionStatus,
 } from "@/lib/billing/subscription-status";
 import type { CVData } from "@/types/cv-data";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 interface BillingPortfolioRow {
   id: string;
   cv_data: CVData;
   updated_at: string;
 }
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Billing & Plans",
+  description:
+    "Manage your Webiculum subscription, compare Pro and Studio, and keep your public website and subdomain active year after year.",
+  path: "/dashboard/billing",
+  keywords: [
+    "webiculum billing",
+    "pro plan",
+    "studio plan",
+    "subscription management",
+  ],
+  imagePath: "/template-previews/ivan-top.png",
+  imageAlt: "Webiculum billing and plans page preview",
+  noIndex: true,
+});
 
 function getPortfolioName(cvData: CVData, isEn: boolean): string {
   return cvData.personal?.name ?? (isEn ? "Untitled website" : "Web sin nombre");

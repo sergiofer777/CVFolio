@@ -12,6 +12,23 @@ import {
   type ProfilePlan,
 } from "@/lib/billing/access";
 import { isBillingEnforcementEnabled } from "@/lib/billing/config";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Interactive Preview",
+  description:
+    "Open the full interactive preview of your generated website before publishing it to your public URL.",
+  path: "/dashboard/preview",
+  keywords: [
+    "website preview",
+    "interactive portfolio preview",
+    "webiculum preview mode",
+  ],
+  imagePath: "/template-previews/ivan-top.png",
+  imageAlt: "Webiculum full interactive preview",
+  noIndex: true,
+});
 
 export default async function DashboardPreviewPage({
   searchParams,

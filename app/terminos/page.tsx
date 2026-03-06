@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { getServerLocale } from "@/lib/locale-server";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 type LegalSection = {
   title: string;
@@ -207,13 +208,20 @@ const TERMS_CONTENT: Record<
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getServerLocale();
-  const content = TERMS_CONTENT[locale];
-
-  return {
-    title: content.metadataTitle,
-    description: content.metadataDescription,
-  };
+  return buildPageMetadata({
+    title: "Terms of Use",
+    description:
+      "Understand Webiculum terms of use, service limits, payment rules, availability conditions, and liability clauses.",
+    path: "/terminos",
+    keywords: [
+      "webiculum terms",
+      "website builder terms of service",
+      "ai service liability",
+      "subscription terms webiculum",
+    ],
+    imagePath: "/template-previews/maria-top.png",
+    imageAlt: "Webiculum terms page preview",
+  });
 }
 
 export default async function TermsPage() {

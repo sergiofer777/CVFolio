@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import { getServerLocale } from "@/lib/locale-server";
+import {
+  buildAbsoluteUrl,
+  DEFAULT_OG_IMAGE_ALT,
+  DEFAULT_OG_IMAGE_PATH,
+  DEFAULT_SEO_KEYWORDS,
+  getSiteUrl,
+} from "@/lib/seo/metadata";
 import "./globals.css";
 
 const dmSans = DM_Sans({
@@ -11,22 +18,47 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(getSiteUrl()),
   title: {
-    default: "webiculum — Tu CV, convertido en web",
-    template: "%s | webiculum",
+    default: "Webiculum | Turn Your CV into a Professional Website with AI",
+    template: "%s | Webiculum",
   },
   description:
-    "Arrastra tu PDF. La IA extrae, estructura y diseña tu página personal profesional — lista para compartir en segundos.",
-  keywords: ["curriculum", "web", "CV", "profesional", "IA"],
-  authors: [{ name: "webiculum" }],
+    "Transform your CV into a professional website with AI in seconds. Publish on your own subdomain, share instantly, and download in HTML.",
+  keywords: DEFAULT_SEO_KEYWORDS,
+  authors: [{ name: "Webiculum" }],
+  alternates: {
+    canonical: "/",
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+    },
+  },
   openGraph: {
     type: "website",
-    locale: "es_ES",
-    url: process.env.NEXT_PUBLIC_APP_URL,
-    siteName: "webiculum",
-    title: "webiculum — Tu CV, convertido en web",
+    locale: "en_US",
+    url: getSiteUrl(),
+    siteName: "Webiculum",
+    title: "Webiculum | AI CV to Website Builder",
     description:
-      "Arrastra tu PDF. La IA extrae, estructura y diseña tu página personal profesional — lista para compartir en segundos.",
+      "Create your professional website from a CV in seconds with AI. Publish, share, and manage it from one dashboard.",
+    images: [
+      {
+        url: buildAbsoluteUrl(DEFAULT_OG_IMAGE_PATH),
+        alt: DEFAULT_OG_IMAGE_ALT,
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "Webiculum | AI CV to Website Builder",
+    description:
+      "Create your professional website from a CV in seconds with AI. Publish, share, and manage it from one dashboard.",
+    images: [buildAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)],
   },
 };
 

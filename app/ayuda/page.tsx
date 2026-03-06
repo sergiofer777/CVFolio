@@ -5,17 +5,23 @@ import { ContactForm } from "@/components/help/contact-form";
 import { LocaleToggle } from "@/components/locale-toggle";
 import { getServerLocale } from "@/lib/locale-server";
 import { createClient } from "@/lib/supabase/server";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getServerLocale();
-  const isEn = locale === "en";
-
-  return {
-    title: isEn ? "Help center" : "Centro de ayuda",
-    description: isEn
-      ? "Solve questions about website generation, plans, subdomains and publishing in Webiculum."
-      : "Resuelve dudas sobre generación de webs, planes, subdominios y publicación en Webiculum.",
-  };
+  return buildPageMetadata({
+    title: "Help Center",
+    description:
+      "Get clear answers about CV upload formats, AI generation, plans, subdomains, publishing, and website management in Webiculum.",
+    path: "/ayuda",
+    keywords: [
+      "webiculum help center",
+      "cv website faqs",
+      "subdomain support",
+      "ai website generation support",
+    ],
+    imagePath: "/template-previews/maria-top.png",
+    imageAlt: "Webiculum help center preview",
+  });
 }
 
 const HELP_FAQS = [

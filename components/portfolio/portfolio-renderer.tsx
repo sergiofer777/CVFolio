@@ -7,7 +7,7 @@ import { ProjectsSection } from "./sections/projects-section";
 import { CertificationsSection } from "./sections/certifications-section";
 import { cn } from "@/lib/utils";
 import { buildRenderableGeneratedHtml } from "@/lib/portfolio/generated-html";
-import type { Locale } from "@/lib/locale";
+import { DEFAULT_LOCALE, type Locale } from "@/lib/locale";
 
 interface PortfolioRendererProps {
   cvData: CVData;
@@ -20,7 +20,7 @@ export function PortfolioRenderer({
   cvData,
   showBranding = true,
   interactiveGeneratedLanding = true,
-  locale = "es",
+  locale = DEFAULT_LOCALE,
 }: PortfolioRendererProps) {
   const isEn = locale === "en";
   const generatedHtml = buildRenderableGeneratedHtml(cvData);

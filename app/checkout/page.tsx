@@ -1,10 +1,28 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { EmbeddedCheckoutScreen } from "@/components/billing/embedded-checkout";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 interface CheckoutPageProps {
   searchParams: Promise<{ plan?: string; portfolioId?: string }>;
 }
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Checkout",
+  description:
+    "Secure annual checkout for Webiculum Pro and Studio plans. Activate publishing, custom subdomain, and advanced website features.",
+  path: "/checkout",
+  keywords: [
+    "webiculum checkout",
+    "webiculum pro",
+    "webiculum studio",
+    "portfolio website subscription",
+  ],
+  imagePath: "/template-previews/ivan-top.png",
+  imageAlt: "Webiculum checkout preview",
+  noIndex: true,
+});
 
 function isCheckoutPlan(value: string | undefined): value is "publish" | "studio" {
   return value === "publish" || value === "studio";

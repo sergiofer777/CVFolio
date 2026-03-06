@@ -1,7 +1,25 @@
+import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { getPlanLimits, resolvePlan, type ProfilePlan } from "@/lib/billing/access";
 import { UploadPageClient } from "@/components/upload/upload-page-client";
+import { buildPageMetadata } from "@/lib/seo/metadata";
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "Upload Your CV",
+  description:
+    "Upload your CV (PDF, JPG, or PNG), choose a template, and generate your professional website with AI in seconds.",
+  path: "/upload",
+  keywords: [
+    "upload resume",
+    "cv upload",
+    "generate website from cv",
+    "resume parser ai",
+  ],
+  imagePath: "/template-previews/sergio-top.png",
+  imageAlt: "Webiculum upload flow preview",
+  noIndex: true,
+});
 
 export default async function UploadPage() {
   const supabase = await createClient();

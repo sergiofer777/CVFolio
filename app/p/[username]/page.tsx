@@ -10,6 +10,7 @@ import {
   type ProfilePlan,
 } from "@/lib/billing/access";
 import { isBillingEnforcementEnabled } from "@/lib/billing/config";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 interface PageProps {
   params: Promise<{ username: string }>;
@@ -79,18 +80,36 @@ async function loadPublicPortfolioByUsername(
 
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { username } = await params;
-  const locale = await getServerLocale();
-  const isEn = locale === "en";
   const billingEnforced = isBillingEnforcementEnabled();
+  const encodedUsername = encodeURIComponent(username);
+  const profilePath = `/p/${encodedUsername}`;
 
   const { profile, portfolio } = await loadPublicPortfolioByUsername(username);
 
   if (!profile) {
-    return { title: isEn ? "Website not found" : "Web no encontrada" };
+    return buildPageMetadata({
+      title: "Website Not Found",
+      description:
+        "The public website you requested is not available or has not been published yet.",
+      path: profilePath,
+      keywords: ["website not found", "webiculum public profile"],
+      imagePath: "/template-previews/sergio-top.png",
+      imageAlt: "Webiculum public profile not found",
+      noIndex: true,
+    });
   }
 
   if (billingEnforced && !isPaidPlan(profile.plan ?? "free")) {
-    return { title: isEn ? "Website unavailable" : "Web no disponible" };
+    return buildPageMetadata({
+      title: "Website Unavailable",
+      description:
+        "This public website is currently unavailable because its publishing plan is not active.",
+      path: profilePath,
+      keywords: ["website unavailable", "webiculum publishing status"],
+      imagePath: "/template-previews/sergio-top.png",
+      imageAlt: "Webiculum website unavailable status",
+      noIndex: true,
+    });
   }
 
   if (portfolio) {
@@ -99,31 +118,44 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       publishedAt: portfolio.published_at,
     });
     if (publicationAccess.isExpired) {
-      return { title: isEn ? "Website unavailable" : "Web no disponible" };
+      return buildPageMetadata({
+        title: "Website Unavailable",
+        description:
+          "This website is temporarily unavailable because the publication period has expired.",
+        path: profilePath,
+        keywords: ["expired public website", "webiculum website expiry"],
+        imagePath: "/template-previews/sergio-top.png",
+        imageAlt: "Webiculum website expiry notice",
+        noIndex: true,
+      });
     }
   }
 
   const cvData = portfolio?.cv_data as CVData | null;
   const name = cvData?.personal?.name ?? profile.full_name ?? username;
-  const title = cvData?.personal?.title ?? "";
+  const role = cvData?.personal?.title?.trim() ?? "";
+  const resolvedTitle = portfolio?.meta_title?.trim()
+    ? portfolio.meta_title
+    : `${name} | Professional Website`;
+  const resolvedDescription = portfolio?.meta_description?.trim()
+    ? portfolio.meta_description
+    : `${role ? `${role}. ` : ""}Explore ${name}'s professional website built with Webiculum.`;
 
-  return {
-    title: portfolio?.meta_title ?? `${name} — ${isEn ? "Professional website" : "Web profesional"}`,
-    description:
-      portfolio?.meta_description ??
-      `${
-        title ? `${title}. ` : ""
-      }${
-        isEn
-          ? `Professional website for ${name} generated with webiculum.`
-          : `Web profesional de ${name} generada con webiculum.`
-      }`,
-    openGraph: {
-      title: `${name} | webiculum`,
-      description: isEn ? `${name}'s website` : `Web de ${name}`,
-      type: "profile",
-    },
-  };
+  return buildPageMetadata({
+    title: resolvedTitle,
+    description: resolvedDescription,
+    path: profilePath,
+    type: "profile",
+    keywords: [
+      `${name} website`,
+      `${name} portfolio`,
+      role || "professional profile",
+      "webiculum profile",
+      "online resume website",
+    ],
+    imagePath: "/template-previews/sergio-top.png",
+    imageAlt: `${name} public website preview`,
+  });
 }
 
 export default async function PublicPortfolioPage({ params }: PageProps) {

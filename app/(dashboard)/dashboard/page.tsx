@@ -48,6 +48,8 @@ import {
   formatBillingDateTime,
   getUserBillingSubscriptionStatus,
 } from "@/lib/billing/subscription-status";
+import type { Metadata } from "next";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 interface DashboardPortfolioRow {
   id: string;
@@ -60,6 +62,21 @@ interface DashboardPortfolioRow {
   published_at: string | null;
   version: number | null;
 }
+
+export const metadata: Metadata = buildPageMetadata({
+  title: "My Websites Dashboard",
+  description:
+    "Review generated websites, publish to your subdomain, apply AI iterations, and manage your plan from the Webiculum dashboard.",
+  path: "/dashboard",
+  keywords: [
+    "website management dashboard",
+    "ai website editor",
+    "webiculum websites",
+  ],
+  imagePath: "/template-previews/ivan-top.png",
+  imageAlt: "Webiculum user dashboard screen",
+  noIndex: true,
+});
 
 function getThemeName(theme: PortfolioTheme | null): string {
   if (!theme) return "Template Sergio";

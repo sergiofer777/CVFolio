@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { LegalPageShell } from "@/components/legal/legal-page-shell";
 import { getServerLocale } from "@/lib/locale-server";
+import { buildPageMetadata } from "@/lib/seo/metadata";
 
 type LegalSection = {
   title: string;
@@ -227,13 +228,20 @@ const PRIVACY_CONTENT: Record<
 };
 
 export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getServerLocale();
-  const content = PRIVACY_CONTENT[locale];
-
-  return {
-    title: content.metadataTitle,
-    description: content.metadataDescription,
-  };
+  return buildPageMetadata({
+    title: "Privacy Policy",
+    description:
+      "Read how Webiculum handles personal data, CV files, sessions, AI processing, payments, and public website publishing.",
+    path: "/privacidad",
+    keywords: [
+      "webiculum privacy policy",
+      "cv data processing",
+      "ai data privacy",
+      "resume website privacy",
+    ],
+    imagePath: "/template-previews/maria-top.png",
+    imageAlt: "Webiculum privacy policy page preview",
+  });
 }
 
 export default async function PrivacyPage() {

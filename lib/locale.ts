@@ -1,10 +1,10 @@
 export type Locale = "es" | "en";
 
 export const LOCALE_COOKIE_NAME = "webiculum-locale";
-export const DEFAULT_LOCALE: Locale = "es";
+export const DEFAULT_LOCALE: Locale = "en";
 
 export function normalizeLocale(value?: string | null): Locale {
-  return value === "en" ? "en" : "es";
+  return detectLocaleFromLanguage(value) ?? DEFAULT_LOCALE;
 }
 
 export function detectLocaleFromLanguage(value?: string | null): Locale | null {
@@ -13,10 +13,16 @@ export function detectLocaleFromLanguage(value?: string | null): Locale | null {
   const normalized = value.trim().toLowerCase();
   if (!normalized) return null;
 
-  const primaryTag = normalized.split(",")[0]?.trim().split(";")[0]?.trim() ?? normalized;
+  const candidates = normalized
+    .split(",")
+    .map((part) => part.trim().split(";")[0]?.trim() ?? "")
+    .filter(Boolean)
+    .map((tag) => tag.replace("_", "-"));
 
-  if (primaryTag === "es" || primaryTag.startsWith("es-")) return "es";
-  if (primaryTag === "en" || primaryTag.startsWith("en-")) return "en";
+  for (const candidate of candidates) {
+    if (candidate === "es" || candidate.startsWith("es-")) return "es";
+    if (candidate === "en" || candidate.startsWith("en-")) return "en";
+  }
 
   return null;
 }
