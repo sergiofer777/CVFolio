@@ -272,7 +272,7 @@ export default function LandingPage() {
 
       {/* ─── NAV ─── */}
       <nav
-        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 py-3 sm:px-6 md:px-12 md:py-5 transition-all duration-500 bg-[rgba(245,242,235,0.96)] backdrop-blur-xl border-b border-[var(--sand)] max-sm:flex-wrap max-sm:gap-y-2 max-sm:bg-[var(--paper)] max-sm:backdrop-blur-none max-sm:pt-[calc(env(safe-area-inset-top)+0.75rem)] max-sm:pb-3 ${
+        className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 py-3 sm:px-6 md:px-12 md:py-5 transition-all duration-500 bg-[rgba(245,242,235,0.96)] backdrop-blur-xl border-b border-[var(--sand)] max-sm:sticky max-sm:top-0 max-sm:left-auto max-sm:right-auto max-sm:flex-wrap max-sm:gap-y-2 max-sm:bg-[var(--paper)] max-sm:backdrop-blur-none max-sm:pt-[calc(env(safe-area-inset-top)+0.75rem)] max-sm:pb-3 ${
           navScrolled
             ? "md:bg-[rgba(245,242,235,0.85)] md:backdrop-blur-xl md:border-b md:border-[var(--sand)]"
             : "md:bg-transparent md:backdrop-blur-0 md:border-b md:border-transparent"
@@ -336,7 +336,7 @@ export default function LandingPage() {
       </nav>
 
       {/* ─── HERO ─── */}
-      <section className="min-h-screen flex flex-col items-center justify-center px-6 md:px-12 pt-40 sm:pt-36 md:pt-28 pb-20 relative overflow-hidden text-center max-sm:justify-start max-sm:pt-56">
+      <section className="min-h-screen flex flex-col items-center justify-center px-6 md:px-12 pt-40 sm:pt-36 md:pt-28 pb-20 relative overflow-hidden text-center max-sm:justify-start max-sm:pt-24">
         <div className="absolute inset-0 pointer-events-none">
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_60%_50%_at_50%_40%,rgba(192,68,10,0.07)_0%,transparent_70%)]" />
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_40%_60%_at_10%_80%,rgba(192,68,10,0.04)_0%,transparent_60%)]" />
