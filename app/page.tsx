@@ -3,7 +3,7 @@ import { buildPageMetadata } from "@/lib/seo/metadata";
 import LandingPageClient from "@/components/landing/landing-page-client";
 
 export const metadata: Metadata = buildPageMetadata({
-  title: "Webiculum | Your Story Deserves Better Than a PDF",
+  title: "Webiculum | Your Story Deserves Something Better Than a PDF",
   description:
     "Turn your CV into a professional website in seconds with AI. Choose a template, publish with your own subdomain, and share a stronger personal brand.",
   path: "/",
