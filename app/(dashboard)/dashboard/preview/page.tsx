@@ -89,7 +89,7 @@ export default async function DashboardPreviewPage({
 
   return (
     <main className="min-h-screen bg-black">
-      <header className="sticky top-0 z-20 border-b border-white/10 bg-black/75 backdrop-blur-md">
+      <header className="sticky top-0 z-20 border-b border-white/10 bg-black/75 backdrop-blur-md max-sm:static max-sm:backdrop-blur-none">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-3 flex items-center justify-between gap-4">
           <Link
             href={`/dashboard?portfolioId=${portfolioRecord.id}`}

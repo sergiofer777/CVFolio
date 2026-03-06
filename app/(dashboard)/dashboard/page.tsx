@@ -301,7 +301,7 @@ export default async function DashboardPage({
 
   return (
     <div className="min-h-screen bg-[var(--paper)]">
-      <header className="border-b border-[var(--sand)] bg-[var(--paper)] sticky top-0 z-50">
+      <header className="border-b border-[var(--sand)] bg-[var(--paper)] sticky top-0 z-50 max-sm:static">
         <div className="w-full px-4 sm:px-6 lg:px-8 xl:px-10 py-3 sm:py-4 flex flex-wrap items-center gap-2.5 sm:gap-4">
           <Link
             href="/"

@@ -150,7 +150,7 @@ export default async function HelpCenterPage() {
 
   return (
     <main className="min-h-screen bg-[var(--paper)]">
-      <header className="sticky top-0 z-40 border-b border-[var(--sand)] bg-[rgba(245,242,235,0.9)] backdrop-blur-xl">
+      <header className="sticky top-0 z-40 border-b border-[var(--sand)] bg-[rgba(245,242,235,0.9)] backdrop-blur-xl max-sm:static max-sm:backdrop-blur-none">
         <div className="flex w-full items-center justify-between gap-4 px-4 py-4 sm:px-6 lg:px-8 xl:px-10 max-sm:flex-wrap max-sm:gap-y-2">
           <Link
             href="/"
