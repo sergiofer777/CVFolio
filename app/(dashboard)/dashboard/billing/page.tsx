@@ -44,7 +44,7 @@ export const metadata: Metadata = buildPageMetadata({
     "studio plan",
     "subscription management",
   ],
-  imagePath: "/template-previews/ivan-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum billing and plans page preview",
   noIndex: true,
 });

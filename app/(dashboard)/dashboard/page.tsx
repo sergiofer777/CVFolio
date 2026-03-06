@@ -73,7 +73,7 @@ export const metadata: Metadata = buildPageMetadata({
     "ai website editor",
     "webiculum websites",
   ],
-  imagePath: "/template-previews/ivan-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum user dashboard screen",
   noIndex: true,
 });

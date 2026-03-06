@@ -12,7 +12,7 @@ export const metadata: Metadata = buildPageMetadata({
     "create resume website account",
     "ai cv website registration",
   ],
-  imagePath: "/template-previews/sergio-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum signup page preview",
   noIndex: true,
 });

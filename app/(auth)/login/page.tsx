@@ -12,7 +12,7 @@ export const metadata: Metadata = buildPageMetadata({
     "resume website account",
     "portfolio dashboard login",
   ],
-  imagePath: "/template-previews/sergio-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum login page preview",
   noIndex: true,
 });

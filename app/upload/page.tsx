@@ -16,7 +16,7 @@ export const metadata: Metadata = buildPageMetadata({
     "generate website from cv",
     "resume parser ai",
   ],
-  imagePath: "/template-previews/sergio-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum upload flow preview",
   noIndex: true,
 });

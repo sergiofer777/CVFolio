@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 
 const FALLBACK_SITE_URL = "https://webiculum.com";
-export const DEFAULT_OG_IMAGE_PATH = "/template-previews/sergio-top.png";
+export const DEFAULT_OG_IMAGE_PATH = "/brand/webiculum-og-logo.jpg";
 export const DEFAULT_OG_IMAGE_ALT =
   "Webiculum platform preview — AI-powered CV to website generator";
 

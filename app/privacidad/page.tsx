@@ -239,7 +239,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "ai data privacy",
       "resume website privacy",
     ],
-    imagePath: "/template-previews/maria-top.png",
+    imagePath: "/brand/webiculum-og-logo.jpg",
     imageAlt: "Webiculum privacy policy page preview",
   });
 }

@@ -19,7 +19,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "subdomain support",
       "ai website generation support",
     ],
-    imagePath: "/template-previews/maria-top.png",
+    imagePath: "/brand/webiculum-og-logo.jpg",
     imageAlt: "Webiculum help center preview",
   });
 }

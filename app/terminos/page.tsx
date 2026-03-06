@@ -219,7 +219,7 @@ export async function generateMetadata(): Promise<Metadata> {
       "ai service liability",
       "subscription terms webiculum",
     ],
-    imagePath: "/template-previews/maria-top.png",
+    imagePath: "/brand/webiculum-og-logo.jpg",
     imageAlt: "Webiculum terms page preview",
   });
 }

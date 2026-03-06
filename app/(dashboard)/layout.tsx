@@ -11,7 +11,7 @@ export const metadata: Metadata = buildPageMetadata({
     "manage portfolio website",
     "website publishing dashboard",
   ],
-  imagePath: "/template-previews/ivan-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum dashboard preview",
   noIndex: true,
 });

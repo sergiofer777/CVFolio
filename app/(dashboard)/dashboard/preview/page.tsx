@@ -25,7 +25,7 @@ export const metadata: Metadata = buildPageMetadata({
     "interactive portfolio preview",
     "webiculum preview mode",
   ],
-  imagePath: "/template-previews/ivan-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum full interactive preview",
   noIndex: true,
 });

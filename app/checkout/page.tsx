@@ -19,7 +19,7 @@ export const metadata: Metadata = buildPageMetadata({
     "webiculum studio",
     "portfolio website subscription",
   ],
-  imagePath: "/template-previews/ivan-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum checkout preview",
   noIndex: true,
 });

@@ -14,7 +14,7 @@ export const metadata: Metadata = buildPageMetadata({
     "resume landing page",
     "job search personal branding",
   ],
-  imagePath: "/template-previews/sergio-top.png",
+  imagePath: "/brand/webiculum-og-logo.jpg",
   imageAlt: "Webiculum landing page preview",
 });
 

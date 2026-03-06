@@ -93,7 +93,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         "The public website you requested is not available or has not been published yet.",
       path: profilePath,
       keywords: ["website not found", "webiculum public profile"],
-      imagePath: "/template-previews/sergio-top.png",
+      imagePath: "/brand/webiculum-og-logo.jpg",
       imageAlt: "Webiculum public profile not found",
       noIndex: true,
     });
@@ -106,7 +106,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
         "This public website is currently unavailable because its publishing plan is not active.",
       path: profilePath,
       keywords: ["website unavailable", "webiculum publishing status"],
-      imagePath: "/template-previews/sergio-top.png",
+      imagePath: "/brand/webiculum-og-logo.jpg",
       imageAlt: "Webiculum website unavailable status",
       noIndex: true,
     });
@@ -124,7 +124,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
           "This website is temporarily unavailable because the publication period has expired.",
         path: profilePath,
         keywords: ["expired public website", "webiculum website expiry"],
-        imagePath: "/template-previews/sergio-top.png",
+        imagePath: "/brand/webiculum-og-logo.jpg",
         imageAlt: "Webiculum website expiry notice",
         noIndex: true,
       });
@@ -153,7 +153,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
       "webiculum profile",
       "online resume website",
     ],
-    imagePath: "/template-previews/sergio-top.png",
+    imagePath: "/brand/webiculum-og-logo.jpg",
     imageAlt: `${name} public website preview`,
   });
 }
