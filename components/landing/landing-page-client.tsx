@@ -265,6 +265,11 @@ export default function LandingPage() {
     <div className="cursor-custom">
       <CustomCursor />
 
+      <div
+        aria-hidden
+        className="fixed inset-x-0 top-0 z-40 h-[env(safe-area-inset-top)] bg-[var(--paper)] md:hidden"
+      />
+
       {/* ─── NAV ─── */}
       <nav
         className={`fixed top-0 left-0 right-0 z-50 flex items-center justify-between gap-3 px-4 py-3 sm:px-6 md:px-12 md:py-5 transition-all duration-500 bg-[rgba(245,242,235,0.96)] backdrop-blur-xl border-b border-[var(--sand)] max-sm:flex-wrap max-sm:gap-y-2 max-sm:bg-[var(--paper)] max-sm:backdrop-blur-none max-sm:pt-[calc(env(safe-area-inset-top)+0.75rem)] max-sm:pb-3 ${

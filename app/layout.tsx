@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Sans } from "next/font/google";
 import { getServerLocale } from "@/lib/locale-server";
 import {
@@ -60,6 +60,12 @@ export const metadata: Metadata = {
       "Create your professional website from a CV in seconds with AI. Publish, share, and manage it from one dashboard.",
     images: [buildAbsoluteUrl(DEFAULT_OG_IMAGE_PATH)],
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
 };
 
 export default async function RootLayout({
