@@ -27,6 +27,15 @@ export const metadata: Metadata = {
     "Transform your CV into a professional website with AI in seconds. Publish on your own subdomain, share instantly, and download in HTML.",
   keywords: DEFAULT_SEO_KEYWORDS,
   authors: [{ name: "Webiculum" }],
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/favicon-48x48.png", type: "image/png", sizes: "48x48" },
+      { url: "/icon.svg", type: "image/svg+xml", sizes: "any" },
+    ],
+    apple: [{ url: "/apple-touch-icon.png", sizes: "180x180" }],
+    shortcut: ["/favicon.ico"],
+  },
   alternates: {
     canonical: "/",
   },
